@@ -4,6 +4,9 @@
 
 **Phase 2 (playable game): READY** (final update 06:25 ET)
 
+## v1.1 polish pass (started 06:25 ET; each step published + noted here)
+- [06:45 ET] **Pushed b756e90 (v1.1.0):** (a) Starlight Cup = 4 new tracks (Firefly Hollow / Neon Docks / Ember Canyon / Aurora Pass: new turtle layouts found by `tools/randtrack.mjs`, closure + separation + curvature validated, own shortcuts, hazards, night/dusk/ember/aurora sky skins with stars + aurora shader; Grand Prix lets you pick either cup); all 8 tracks pass the AI-race sim in normal and mirror+reverse (tests/results/sim_all_tracks.txt). (b) 24 playable racers (12 new from the 100-name roster, new hat/head models, in-game portraits; they reuse the 12 existing voice sets). (c) Graphics tiers Performance / Standard / High, auto-defaulting to Performance on low-memory/low-core devices (<=4 GB or <=4 cores): DPR cap 1.0, no MSAA, 40% particles, 50% prop density, existing dynamic resolution + 30 fps fallback. (d) Online: plain-language failure messages by cause, "Can't connect?" help panel with 6 fixes + one-tap connection check (internet / WebRTC / matchmaking server / STUN). (e) HQ mode: clear-coat car paint + sparkle flakes on metallic/pearl/candy karts.
+
 ## READY
 - **Live URL:** https://jamesgot35-collab.github.io/kart-racer/ (GitHub Pages, repo `jamesgot35-collab/kart-racer`). Verified live == local build (md5 of app.js), 0 console errors (tests/results/live_smoke.json).
 - **What it is:** original three.js mobile kart racer "Sparkdrift GP": 4 tracks (Buttercup Meadows, Lantern Harbor, Mirage Mesa, Frostbite Pass), 12 racers, 9 items, 3-tier drift/boost, slipstream, hazards + shortcuts per track, CPU rivals with rubber-banding, garage (kart/wheels/wing/exhaust/bumper/paint), Grand Prix (Seedling Cup), quick race, time trial with ghost, daily challenge (leaderboard is LOCAL to the device), online room-code lobby (up to 4 humans + CPU fill to 12), touch/keyboard/gamepad/tilt controls.
