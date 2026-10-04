@@ -93,8 +93,8 @@ export class Race {
         if (i0.itemDown) { this.items.press(k); i0.itemDown = false; } if (i0.itemUp) { this.items.release(k); i0.itemUp = false; } k.backHeld = i0.brake > 0.5; i0.driftPressed = false;
         if (this.state === 'racing' && k.pendingStart && inp.throttle > 0.1 && this.t < 0.12 && k.gasAt === null) { /* late-but-in-window start */ s.addBoost(P.startBoost.boostSec, P.startBoost.boostMul, 'start'); k.pendingStart = false; this.ui('start', { res: 'boost' }); this.sfx('start_boost', k); }
       }
-      if (k.ai && !k.auto && this.state === 'racing' && this.opts.rubber !== false) { const gap = s.prog - ref; const r = P.rubber; const f = clamp(gap / r.rangeM, -1, 1); s.topScale = r.cpuBaseMul * (f > 0 ? lerp(1, r.cpuMulMin, f) : lerp(1, r.cpuMulMax, -f)) * (0.97 + 0.04 * k.ai.skill); if (this.state === 'racing' && k.ai.skill > 0.98) s.topScale *= 1.0; }
-      else if (k.ai && k.auto) s.topScale = 0.9;
+      if (k.ai && !k.auto && this.state === 'racing' && this.opts.rubber !== false) { const gap = s.prog - ref; const r = P.rubber; const f = clamp(gap / r.rangeM, -1, 1); s.topScale = r.cpuBaseMul * (f > 0 ? lerp(1, r.cpuMulMin, f) : lerp(1, r.cpuMulMax, -f)) * (0.97 + 0.04 * k.ai.skill) * (this.opts.cpuMul || 1); if (this.state === 'racing' && k.ai.skill > 0.98) s.topScale *= 1.0; }
+      else if (k.ai && k.auto) s.topScale = k.autoScale ?? 0.9;
       if (!k.finished || k.auto) { if (this.itemsOn) { this.items.updateRoll(k, dt); this.items.tickHold(k, dt); } s.step(dt, inp); } else s.step(dt, inp);
       if (k.holding) k.holding.t = k.holding.t;
       this.afterStep(k, dt);

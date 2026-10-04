@@ -1,0 +1,10 @@
+PASS landscape_m 
+PASS landscape_l_lefty 
+PASS landscape_s 
+PASS portrait_m 
+PASS portrait_l_lefty 
+PASS portrait_s 
+PASS landscape_small_phone_m 
+PASS landscape_small_phone_l_lefty 
+PASS landscape_small_phone_s 
+ape_small_phone_s 

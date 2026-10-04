@@ -1,0 +1,21 @@
+{
+ "performance": {
+  "pr": 0.62,
+  "calls": 99,
+  "tris": 204578,
+  "fps": 8.001066808907838,
+  "aa": false,
+  "particlesAdd": 560,
+  "logs": []
+ },
+ "standard": {
+  "pr": 0.62,
+  "calls": 161,
+  "tris": 377752,
+  "fps": 8.824567596187922,
+  "aa": true,
+  "particlesAdd": 1400,
+  "logs": []
+ },
+ "lowEndDefault": "performance"
+}

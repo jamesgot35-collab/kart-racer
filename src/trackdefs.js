@@ -669,6 +669,7 @@ export const TRACK_DEFS = {
   "scale": 1.2
  },
  "dusk": {
+  "mrate": 0.944,
   "id": "dusk",
   "name": "Firefly Hollow",
   "cup": "Starlight Cup",
@@ -852,6 +853,7 @@ export const TRACK_DEFS = {
   "scale": 1.0
  },
  "neon": {
+  "mrate": 1.059,
   "id": "neon",
   "name": "Neon Docks",
   "cup": "Starlight Cup",
@@ -1042,6 +1044,7 @@ export const TRACK_DEFS = {
   "scale": 0.92
  },
  "ember": {
+  "mrate": 0.972,
   "id": "ember",
   "name": "Ember Canyon",
   "cup": "Starlight Cup",
@@ -1228,6 +1231,7 @@ export const TRACK_DEFS = {
   "scale": 0.92
  },
  "aurora": {
+  "mrate": 0.891,
   "id": "aurora",
   "name": "Aurora Pass",
   "cup": "Starlight Cup",

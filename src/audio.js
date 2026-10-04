@@ -111,11 +111,11 @@ export class AudioEngine {
     if (this.musicMeta && this.musicMeta.piece !== piece) { this.stopMusic(0.1); this.musicBufs = null; this.musicMeta = null; for (const k of [...this.buffers.keys()]) if (/(^|:)music\//.test(k) && !k.includes('music/' + piece + '/')) this.buffers.delete(k); } // free the previous piece (stems are big once decoded)
     const bufs = await Promise.all(stems.map(s => this.load(`music/${piece}/${s}.m4a`, `music/${piece}/${s}.flac`))); if (bufs.some(b => !b)) { this.stats.failed.push('music ' + piece); return false; } this.musicMeta = { ...meta, piece }; this.musicBufs = bufs; return true;
   }
-  startMusic(piece, state = 'menu') {
+  startMusic(piece, state = 'menu', base = 1) {
     if (!this.ready || !this.musicBufs) return; this.stopMusic(0.3); const ctx = this.ctx; const t0 = ctx.currentTime + 0.06; const names = ['drums', 'bass', 'chords', 'lead', 'counter', 'fx']; const stems = {}; const mg = ctx.createGain(); mg.gain.value = 1; mg.connect(this.bus.music);
     const dur = Math.min(...this.musicBufs.map(b => b.duration));
     this.musicBufs.forEach((b, i) => { const s = ctx.createBufferSource(); s.buffer = b; s.loop = true; s.loopStart = 0; s.loopEnd = dur; const g = ctx.createGain(); g.gain.value = 0; s.connect(g); g.connect(mg); s.start(t0); stems[names[i]] = { s, g }; });
-    this.music = { piece, stems, mg, t0, rate: 1, dur, state: null }; this.setMusicState(state, true);
+    this.music = { piece, stems, mg, t0, rate: base, base, dur, state: null }; if (base !== 1) for (const k in stems) stems[k].s.playbackRate.value = base; this.setMusicState(state, true);
   }
   stopMusic(fade = 1.0) { const m = this.music; if (!m) return; this.music = null; m.mg.gain.setTargetAtTime(0, this.time, fade / 3); setTimeout(() => { for (const k in m.stems) { try { m.stems[k].s.stop(); } catch (e) { } } try { m.mg.disconnect(); } catch (e) { } }, fade * 1000 + 200); }
   // state: 'menu' | 'grid' | 'race' | 'results' ; opts: pos (1..n), n, finalLap, boosting, star, hit
@@ -126,7 +126,7 @@ export class AudioEngine {
     else if (state === 'race') { const lead = pos <= 2, back = pos > n * 0.6; Object.assign(target, { drums: 1, bass: 1, chords: 0.9, lead: lead ? 1 : 0.8, counter: back || o.finalLap ? 0.95 : (pos <= 4 ? 0.0 : 0.45), fx: o.finalLap ? 1 : (o.star ? 1 : 0.55) }); if (o.finalLap) { target.counter = 1; target.chords = 1; } }
     else if (state === 'results') { Object.assign(target, { drums: 0.0, bass: 0.7, chords: 1, lead: 1, counter: 0.0, fx: 0.3 }); }
     for (const k in target) m.stems[k].g.gain.setTargetAtTime(target[k] * (k === 'drums' ? 0.95 : 1), t, tc);
-    const rate = (state === 'race' && o.finalLap) ? 1.06 : 1; if (Math.abs(rate - m.rate) > 0.001) { m.rate = rate; for (const k in m.stems) m.stems[k].s.playbackRate.setTargetAtTime(rate, t, 0.8); }
+    const rate = (m.base || 1) * ((state === 'race' && o.finalLap) ? 1.06 : 1); if (Math.abs(rate - m.rate) > 0.001) { m.rate = rate; for (const k in m.stems) m.stems[k].s.playbackRate.setTargetAtTime(rate, t, 0.8); }
   }
   musicMuffle(sec = 1.2, amount = 900) { if (!this.ready) return; const f = this.musicFilter.frequency, t = this.time; f.cancelScheduledValues(t); f.setTargetAtTime(amount, t, 0.03); f.setTargetAtTime(20000, t + sec, 0.25); }
   musicDuckFor(sec, depth = 0.45) { if (!this.ready) return; const g = this.duck.gain, t = this.time; g.cancelScheduledValues(t); g.setTargetAtTime(depth, t, 0.04); g.setTargetAtTime(1, t + sec, 0.3); }

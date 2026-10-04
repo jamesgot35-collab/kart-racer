@@ -6,7 +6,12 @@ OUT = '/workspace/pack/g1/env'
 TH = {'meadow': dict(top=0x2f8fff, hor=0xd4efff, sun=0xfff1c9, dir=(0.5, 0.55, 0.3), ground=0x6cc24a, k=1.0),
       'harbor': dict(top=0x34509e, hor=0xffb88a, sun=0xffc48a, dir=(-0.6, 0.28, 0.5), ground=0x59677a, k=0.9),
       'mesa': dict(top=0xff9b4a, hor=0xffe7b0, sun=0xfff0c0, dir=(0.3, 0.7, -0.4), ground=0xe0a65a, k=1.1),
-      'frost': dict(top=0x6aa8f0, hor=0xeaf5ff, sun=0xf4f9ff, dir=(0.2, 0.4, 0.7), ground=0xeef6ff, k=1.1)}
+      'frost': dict(top=0x6aa8f0, hor=0xeaf5ff, sun=0xf4f9ff, dir=(0.2, 0.4, 0.7), ground=0xeef6ff, k=1.1),
+      # Starlight Cup skies (match THEMES.dusk/neon/ember/aurora in trackview.js)
+      'dusk': dict(top=0x2a1f5e, hor=0xff9a62, sun=0xff8a4a, dir=(-0.7, 0.14, 0.45), ground=0x3f7a3a, k=0.8),
+      'neon': dict(top=0x050818, hor=0x2a2f7a, sun=0x8aa8ff, dir=(0.4, 0.5, -0.5), ground=0x1c2a40, k=0.25),
+      'ember': dict(top=0x3a0f2a, hor=0xff5a1f, sun=0xff7a30, dir=(-0.5, 0.1, 0.4), ground=0x8a4a2a, k=0.8),
+      'aurora': dict(top=0x02081c, hor=0x123550, sun=0xcfe8ff, dir=(0.2, 0.35, 0.7), ground=0xc6d8ee, k=0.3)}
 def hexrgb(c): return np.array([(c >> 16) & 255, (c >> 8) & 255, c & 255], np.float32) / 255.0
 def lin(c): return np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
 def fn(h, w, beta, seed):
