@@ -153,7 +153,7 @@ export class Race {
       case 'slip': this.sfx('spill_slip', k); if (local) { this.shakeCam(0.2); } break;
       case 'hit': {
         const kind = d.kind; const snd = { disc: 'disc_hit', peel: 'peel_hit', rocket: 'rocket_explode', sheep: 'bump_heavy_a', crane: 'crash_big', boulder: 'crash_big', icicle: 'wall_hit', gate: 'wall_hit' }[kind] || 'bump_med_a'; this.sfx(snd, k); this.fx.burst(k.sim.x, 1.0, k.sim.z, kind === 'rocket' ? 0xff7a2a : 0xffe08a, 22, 9); if (kind === 'rocket') this.fx.ring(k.sim.x, 0.6, k.sim.z, 0xff7a2a);
-        if (local) { this.statsRace.hits++; this.bark(k, 'hit', { cooldown: 3 }); this.ui('hit', { kind }); } else this.bark(k, 'spin', { cooldown: 12 }); if (this.net && k.auth) this.net.send('hit', { k: k.id, by: d.o && d.o.owner ? d.o.owner.id : -1, kind }); break; }
+        if (local) { k.lastHitAt = this.t; this.statsRace.hits++; this.bark(k, 'hit', { cooldown: 3 }); this.ui('hit', { kind }); } else this.bark(k, 'spin', { cooldown: 12 }); if (this.net && k.auth) this.net.send('hit', { k: k.id, by: d.o && d.o.owner ? d.o.owner.id : -1, kind }); break; }
       case 'hitOther': if (d.k === lk) { this.bark(lk, 'taunt', { cooldown: 6 }); this.ui('hitOther', {}); } break;
       case 'rocketExplode': this.fx.burst(d.k.sim.x, 1.2, d.k.sim.z, 0xffa24a, 30, 12); break;
       case 'lock': if (d.k === lk) { this.say('rocket_incoming'); this.ui('lock', {}); this.sfx('rocket_lock', lk); } break;

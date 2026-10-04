@@ -14,6 +14,11 @@ Headless Chrome here uses SwiftShader (software GL, ~5-9 fps), so these are corr
 | `hq_mode.mjs` | High quality mode really loads 48 kHz FLAC stems, PBR textures and HDR env from the HQ repos | `results/hq_mode_meadow.json` |
 | `net_node.mjs` | The real `src/net.js` Session over the real PeerJS cloud + real WebRTC data channels (Node, `@roamhq/wrtc`): host, join by code, ready/cfg sync, start/go, snapshot relay, item events, drop -> CPU takeover, host lost, wrong code | `results/net_node.json` |
 | `net_two_peer.mjs` | Two browser instances running the full app (lobby UI -> race), transport replaced by `peer_shim.js` | `results/net_two_peer.json` |
+| `sim_all_tracks.mjs` | Pure simulation of all 8 tracks (both cups) x normal and mirror+reverse: 2 AI laps, every kart must finish, no sim errors | `results/sim_all_tracks.txt` |
+| `perf_tiers.mjs` | Performance vs Standard graphics tier (draw calls / triangles / MSAA / DPR cap) + low-end device auto-default | `results/perf_tiers.json` |
+| `touch_layout.mjs` | Touch controls at Small/Medium/Large + left-handed, portrait / landscape / 667x320 phone: on-screen, >=44 px, no overlaps | `results/touch_layout.json` |
+| `lobby_help.mjs` | Online "Can't connect?" help + error screens render; connection check runs | `shots/*_lobby_help_*.png` |
+| `roster_sheet.mjs` | Contact sheet of all 24 racer models | `shots/roster_sheet.png` |
 | `live_smoke.mjs` | Loads the published GitHub Pages URL, starts a race, 0 errors + timings | `results/live_smoke.json` |
 | `ice_probe.mjs` | Diagnostic: shows this box's headless Chrome cannot gather WebRTC ICE candidates (why browser<->browser WebRTC is untested here) | - |
 | `../tools/size_audit.py` | Exact bytes of every published file in all four repos | `results/size_audit.json` |

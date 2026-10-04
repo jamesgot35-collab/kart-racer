@@ -284,7 +284,7 @@ function frame(now) {
 function adapt(dt) {
   fpsAcc += dt; fpsN++; if (fpsAcc < 0.5) return; const fps = fpsN / fpsAcc; app.fps = fps; fpsAcc = 0; fpsN = 0; if (!app.race || app.paused) { lowT = highT = 0; return; }
   const target = app.frameSkip ? 30 : 60; if (fps < target * 0.86) { lowT += 0.5; highT = 0; } else if (fps > target * 0.97) { highT += 0.5; lowT = 0; } else { lowT = highT = 0; }
-  if (lowT >= 1.5) { lowT = 0; if (pr > 0.62) { pr = Math.max(0.62, pr - 0.15); resize(); } else if (!app.frameSkip) { app.frameSkip = true; } }
+  if (lowT >= 1.5) { lowT = 0; if (pr > 0.62) { pr = Math.max(0.62, pr - 0.15); resize(); } else if (!app.frameSkip) { app.frameSkip = true; const st = app.save.settings; if (!app.perfSuggested && !params.has('shot')) { app.perfSuggested = true; if (st.quality === 'standard') { st.quality = 'performance'; persist(); toast('Running slowly — switched to Performance graphics for your next race (change in Settings)', '#ffd23f'); } else if (st.quality === 'high') toast('Running slowly — try Standard or Performance graphics in Settings', '#ffd23f'); } } }
   else if (highT >= 8 && pr < prMax && !app.frameSkip) { highT = 0; pr = Math.min(prMax, pr + 0.1); resize(); }
 }
 requestAnimationFrame(frame);

@@ -12,10 +12,10 @@ export const THEMES = {
 };
 
 // Starlight Cup skins: same geometry/prop generators as their base theme, new lighting + palette
-THEMES.dusk = { ...THEMES.meadow, skyTop: 0x2a1f5e, skyHor: 0xff9a62, sun: 0xff8a4a, sunDir: [-0.7, 0.14, 0.45], ground: 0x3f7a3a, off: 0x6a7a3a, road: 0x3a3d52, curb1: 0xff4a7a, curb2: 0xffe8c8, wall1: 0xd8a04a, wall2: 0xa0682a, fog: 0xc07a7a, fogD: 0.0019, hemiSky: 0xffb090, hemiGnd: 0x3a4a6a, tint: 0xc0b0d0, sunI: 0.85, hemiI: 0.9, night: 0.25 };
-THEMES.neon = { ...THEMES.harbor, skyTop: 0x050818, skyHor: 0x2a2f7a, sun: 0x8aa8ff, sunDir: [0.4, 0.5, -0.5], ground: 0x1c2a40, off: 0x2a3550, road: 0x1e2433, curb1: 0xff2ea6, curb2: 0x2ef0ff, wall1: 0xff2ea6, wall2: 0x2ef0ff, fog: 0x141a46, fogD: 0.0021, hemiSky: 0x6a7aff, hemiGnd: 0x1a2040, tint: 0x7482b4, sunI: 0.5, hemiI: 0.85, night: 1 };
-THEMES.ember = { ...THEMES.mesa, skyTop: 0x3a0f2a, skyHor: 0xff5a1f, sun: 0xff7a30, sunDir: [-0.5, 0.1, 0.4], ground: 0x8a4a2a, off: 0x6a3a22, road: 0x4a3030, curb1: 0xff5a2a, curb2: 0xffe0b0, wall1: 0xa03a22, wall2: 0x6a2418, fog: 0xc4502a, fogD: 0.0019, hemiSky: 0xff9a60, hemiGnd: 0x5a2a2a, tint: 0xd8a080, sunI: 0.8, hemiI: 0.9, night: 0.15 };
-THEMES.aurora = { ...THEMES.frost, skyTop: 0x02081c, skyHor: 0x123550, sun: 0xcfe8ff, sunDir: [0.2, 0.35, 0.7], ground: 0xc6d8ee, off: 0x8fa8c8, road: 0x3c4860, curb1: 0x2fe0a8, curb2: 0xffffff, wall1: 0x7fe0d0, wall2: 0x4a9ac8, fog: 0x12304a, fogD: 0.002, hemiSky: 0x7fd0ff, hemiGnd: 0x405a7a, tint: 0x8aa4c8, sunI: 0.6, hemiI: 0.9, night: 1, aur: 1 };
+THEMES.dusk = { ...THEMES.meadow, skyTop: 0x2a1f5e, skyHor: 0xff9a62, sun: 0xff8a4a, sunDir: [-0.7, 0.14, 0.45], ground: 0x3f7a3a, off: 0x6a7a3a, road: 0x3a3d52, curb1: 0xff4a7a, curb2: 0xffe8c8, wall1: 0xd8a04a, wall2: 0xa0682a, fog: 0xc07a7a, fogD: 0.0019, hemiSky: 0xffb090, hemiGnd: 0x3a4a6a, tint: 0xc0b0d0, sunI: 0.85, hemiI: 0.9, night: 0.25, amb: { n: 260, col: 0xd8ff70, size: 2.4, mode: 'fire', box: 60 } };
+THEMES.neon = { ...THEMES.harbor, skyTop: 0x050818, skyHor: 0x2a2f7a, sun: 0x8aa8ff, sunDir: [0.4, 0.5, -0.5], ground: 0x1c2a40, off: 0x2a3550, road: 0x1e2433, curb1: 0xff2ea6, curb2: 0x2ef0ff, wall1: 0xff2ea6, wall2: 0x2ef0ff, fog: 0x141a46, fogD: 0.0021, hemiSky: 0x6a7aff, hemiGnd: 0x1a2040, tint: 0x7482b4, sunI: 0.5, hemiI: 0.85, night: 1, amb: { n: 200, col: 0x66f0ff, size: 1.8, mode: 'fire', box: 70 } };
+THEMES.ember = { ...THEMES.mesa, skyTop: 0x3a0f2a, skyHor: 0xff5a1f, sun: 0xff7a30, sunDir: [-0.5, 0.1, 0.4], ground: 0x8a4a2a, off: 0x6a3a22, road: 0x4a3030, curb1: 0xff5a2a, curb2: 0xffe0b0, wall1: 0xa03a22, wall2: 0x6a2418, fog: 0xc4502a, fogD: 0.0019, hemiSky: 0xff9a60, hemiGnd: 0x5a2a2a, tint: 0xd8a080, sunI: 0.8, hemiI: 0.9, night: 0.15, amb: { n: 320, col: 0xff8a2a, size: 2.0, mode: 'rise', box: 60 } };
+THEMES.aurora = { ...THEMES.frost, skyTop: 0x02081c, skyHor: 0x123550, sun: 0xcfe8ff, sunDir: [0.2, 0.35, 0.7], ground: 0xc6d8ee, off: 0x8fa8c8, road: 0x3c4860, curb1: 0x2fe0a8, curb2: 0xffffff, wall1: 0x7fe0d0, wall2: 0x4a9ac8, fog: 0x12304a, fogD: 0.002, hemiSky: 0x7fd0ff, hemiGnd: 0x405a7a, tint: 0x8aa4c8, sunI: 0.6, hemiI: 0.9, night: 1, aur: 1, amb: { n: 380, col: 0xe8f6ff, size: 1.6, mode: 'snow', box: 60 } };
 function canvasTex(w, h, fn, repeat = true) { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); fn(g, w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; } return t; }
 function noise(g, w, h, n, a, cols) { const r = rng(7); for (let i = 0; i < n; i++) { g.fillStyle = cols[(r() * cols.length) | 0]; g.globalAlpha = a * (0.4 + r() * 0.6); const s = 1 + r() * 3; g.fillRect(r() * w, r() * h, s, s); } g.globalAlpha = 1; }
 function groundTex(th) {
@@ -121,7 +121,7 @@ export class TrackView {
   constructor(tc, scene, renderer, opts = {}) {
     this.tc = tc; this.scene = scene; this.group = new THREE.Group(); scene.add(this.group); this.th = THEMES[(tc.meta && tc.meta.skin) || tc.theme]; this.anim = []; this.hq = !!opts.hq; this.opts = opts; this.disposables = []; this.tex = {};
     const th = this.th; scene.background = new THREE.Color(th.fog); scene.fog = new THREE.FogExp2(th.fog, th.fogD);
-    this._sky(renderer); this._lights(); this._ground(); this._road(); if (opts.hqTex) this._applyHQ(opts.hqTex); this._curbsWalls(); this._shortcut(); this._startLine(); this._props(); this._landmark(); this._boxesCoinsPads(); this._water();
+    this._sky(renderer); this._lights(); this._ground(); this._road(); if (opts.hqTex) this._applyHQ(opts.hqTex); this._curbsWalls(); this._shortcut(); this._startLine(); this._props(); this._landmark(); this._boxesCoinsPads(); this._water(); this._ambient();
   }
   add(o) { this.group.add(o); return o; }
   _sky(renderer) {
@@ -219,6 +219,23 @@ export class TrackView {
     for (let i = 0; i < 46; i++) { const a = (i / 46) * TAU + R() * 0.1, r = maxR + 260 + R() * 220; const hh = 60 + R() * 120, ww = 100 + R() * 140; hm.add(LP.sph, { p: [cx + Math.cos(a) * r, -hh * 0.35, cz + Math.sin(a) * r], s: [ww, hh, ww], c: hc[(R() * hc.length) | 0] }); }
     const hmm = hm.build(std({ vertexColors: true, roughness: 1 })); if (hmm) this.add(hmm);
   }
+  _ambient() { // drifting fireflies / rising embers / falling snow around the camera (Starlight Cup skins)
+    const a = this.th.amb; if (!a) return; const n = Math.max(40, Math.round(a.n * (this.opts.lod || 1) * (this.opts.lod < 1 ? 0.8 : 1))); const g = new THREE.BufferGeometry(); const seed = new Float32Array(n * 3); const R = rng(4242 + n);
+    for (let i = 0; i < n; i++) { seed[i * 3] = R(); seed[i * 3 + 1] = R(); seed[i * 3 + 2] = R(); }
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3)); g.setAttribute('seed', new THREE.BufferAttribute(seed, 3));
+    const mode = { fire: 0, rise: 1, snow: 2 }[a.mode] || 0; const col = hex(a.col);
+    const mat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, uniforms: { time: { value: 0 }, cam: { value: new THREE.Vector3() }, col: { value: col }, size: { value: a.size }, box: { value: a.box }, mode: { value: mode }, scale: { value: 45 } },
+      vertexShader: `attribute vec3 seed; uniform float time, size, box, scale; uniform vec3 cam; uniform int mode; varying float vA;
+      void main(){ vec3 s = seed; float t = time; vec3 p; float bw = box;
+        if (mode == 0) { p = vec3(s.x - 0.5, s.y * 0.14, s.z - 0.5) * bw * 2.0; p.x += sin(t * 0.6 + s.y * 40.0) * 2.5; p.z += cos(t * 0.5 + s.x * 40.0) * 2.5; p.y += 0.8 + sin(t * 0.8 + s.z * 30.0) * 0.8; vA = 0.35 + 0.65 * pow(max(0.0, sin(t * (1.2 + s.x * 1.6) + s.z * 50.0)), 3.0); }
+        else if (mode == 1) { p = vec3(s.x - 0.5, 0.0, s.z - 0.5) * bw * 2.0; p.y = mod(s.y * 22.0 + t * (2.0 + s.x * 3.0), 22.0); p.x += sin(t * 0.7 + s.z * 30.0) * 2.0; vA = (1.0 - p.y / 22.0) * 0.9; }
+        else { p = vec3(s.x - 0.5, 0.0, s.z - 0.5) * bw * 2.0; p.y = 22.0 - mod(s.y * 22.0 + t * (1.4 + s.x * 1.4), 22.0); p.x += sin(t * 0.5 + s.y * 30.0) * 1.5; vA = 0.8; }
+        vec3 w = vec3(0.0, p.y, 0.0);
+        w.x = cam.x + mod(p.x - cam.x + bw, bw * 2.0) - bw; w.z = cam.z + mod(p.z - cam.z + bw, bw * 2.0) - bw;
+        vec4 mv = viewMatrix * vec4(w, 1.0); gl_Position = projectionMatrix * mv; gl_PointSize = clamp(size * scale / max(1.0, -mv.z), 1.0, 14.0); }`,
+      fragmentShader: `uniform vec3 col; varying float vA; void main(){ vec2 c = gl_PointCoord - 0.5; float d = length(c); float a = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(col * (0.6 + a), a * a * vA); }` });
+    const pts = new THREE.Points(g, mat); pts.frustumCulled = false; pts.renderOrder = 5; this.add(pts); this.ambPts = pts;
+  }
   _water() {
     if (this.tc.theme !== 'harbor') return; const tc = this.tc;
     // deck plane replaces the ground colour; sea is below
@@ -267,6 +284,7 @@ export class TrackView {
     this.coins.forEach((c, i) => { if (!c.active) { c.respawn -= dt; if (c.respawn <= 0) c.active = true; } o.position.set(c.x, 1.0, c.z); o.rotation.set(0, t * 3 + i * 0.7, 0); o.scale.setScalar(c.active ? 1 : 0.0001); o.updateMatrix(); this.coinMesh.setMatrixAt(i, o.matrix); }); this.coinMesh.instanceMatrix.needsUpdate = true;
     if (this.sea) { this.sea.position.y = -0.9 + Math.sin(t * 0.8) * 0.08; }
     if (this.sky && camPos) this.sky.position.copy(camPos);
+    if (this.ambPts && camPos) { const u = this.ambPts.material.uniforms; u.time.value = t; u.cam.value.copy(camPos); }
     if (this.groundMesh && camPos) { this.groundMesh.position.x = camPos.x - (camPos.x % 33.33); this.groundMesh.position.z = camPos.z - (camPos.z % 33.33); }
   }
   dispose() { this.scene.remove(this.group); this.group.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) { const ms = Array.isArray(o.material) ? o.material : [o.material]; ms.forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); } }); if (this.envTex) this.envTex.dispose(); }

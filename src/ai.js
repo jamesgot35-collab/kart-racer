@@ -52,6 +52,8 @@ export class AI {
   useItem(k, inp) {
     const R = this.race, s = k.sim, id = k.item.id; const L = R.track.length; const ahead = R.nearestAhead(k, 45), behind = R.nearestBehind(k, 28); const calm = Math.abs(R.track.lineCurv(s.lastS + 15)) < 0.006;
     const done = () => { this.itemT = 0.6 + Math.random() * 1.8; };
+    // mercy window: right after the human was hit, CPUs hold offensive items for a few seconds so they can't chain-hit them
+    if (R.localKart && k !== R.localKart && R.t - (R.localKart.lastHitAt ?? -99) < 4.5 && (id === 'nova' || id === 'rocket' || id === 'jolt' || id === 'disc')) { this.itemT = 1.0; return; }
     if (id === 'pod' || id === 'trio') { if (calm && s.boostT <= 0) { R.items.press(k); R.items.release(k); done(); } else this.itemT = 0.3; }
     else if (id === 'nova' || id === 'rocket' || id === 'jolt') { R.items.press(k); done(); }
     else if (id === 'veil') { if (ahead || Math.random() < 0.02) { R.items.press(k); done(); } else this.itemT = 0.5; }
