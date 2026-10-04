@@ -1,3 +1,6 @@
 node_modules/
 dist/
 *.log
+shim.html
+app_shim.js
+tests/_t1.mjs

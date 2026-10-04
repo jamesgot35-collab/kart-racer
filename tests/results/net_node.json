@@ -1,0 +1,122 @@
+{
+ "date": "Sun Oct 04 2026 04:44:55 GMT-0400 (Eastern Daylight Time)",
+ "transport": "PeerJS cloud (0.peerjs.com) + real WebRTC data channels via @roamhq/wrtc",
+ "pass": true,
+ "res": [
+  {
+   "name": "room-code alphabet is 20 symbols",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "host opens room on PeerJS cloud",
+   "ok": true,
+   "extra": "PN7UYX "
+  },
+  {
+   "name": "code is 6 valid chars",
+   "ok": true,
+   "extra": "PN7UYX"
+  },
+  {
+   "name": "client connects by code (WebRTC data channel open)",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "both lobbies list 2 members",
+   "ok": true,
+   "extra": "A=2 B=2 you=1"
+  },
+  {
+   "name": "ready flag syncs to host",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "host cfg syncs to client",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "rtt measured",
+   "ok": true,
+   "extra": "2 ms"
+  },
+  {
+   "name": "both apps got startRace",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "grid has 12 racers (2 humans + 10 CPU)",
+   "ok": true,
+   "extra": "12/12"
+  },
+  {
+   "name": "roles correct",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "app cfg carried to client",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "go not sent until all loaded",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "go broadcast after all loaded",
+   "ok": true,
+   "extra": "1101 ms"
+  },
+  {
+   "name": "client kart snapshots reach host (20 Hz)",
+   "ok": true,
+   "extra": "{\"x\":333,\"z\":0,\"th\":0,\"phi\":0,\"s\":20,\"lap\":0}"
+  },
+  {
+   "name": "host + CPU kart snapshots reach client",
+   "ok": true,
+   "extra": "0,4,5"
+  },
+  {
+   "name": "snapshot rate ~20/s",
+   "ok": true,
+   "extra": "A.recv=37 B.recv=39"
+  },
+  {
+   "name": "item-use event replays on host for remote kart",
+   "ok": true,
+   "extra": "[[1,\"disc\",true]]"
+  },
+  {
+   "name": "item-box pickup syncs",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "client drop -> host takes over kart with CPU AI",
+   "ok": true,
+   "extra": "K1 disconnected — CPU takes over"
+  },
+  {
+   "name": "lobby member removed after drop",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "client notices host leaving",
+   "ok": true,
+   "extra": ""
+  },
+  {
+   "name": "wrong code gives clear error",
+   "ok": true,
+   "extra": "No room with that code. Check the code and ask the host to keep the lobby open."
+  }
+ ]
+}

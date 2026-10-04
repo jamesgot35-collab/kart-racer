@@ -18,7 +18,7 @@ export class AudioEngine {
     const AC = window.AudioContext || window.webkitAudioContext; const ctx = this.ctx = new AC({ latencyHint: 'interactive' }); const g = (v = 1) => { const n = ctx.createGain(); n.gain.value = v; return n; };
     // buses -> mix -> glue compressor -> limiter -> master
     this.bus = { sfx: g(1), engine: g(0.9), music: g(0.8), voice: g(1), amb: g(0.7), ui: g(0.9) }; this.duck = g(1); this.musicFilter = ctx.createBiquadFilter(); this.musicFilter.type = 'lowpass'; this.musicFilter.frequency.value = 20000; this.musicFilter.Q.value = 0.7;
-    this.mix = g(1); this.glue = ctx.createDynamicsCompressor(); this.glue.threshold.value = -16; this.glue.knee.value = 14; this.glue.ratio.value = 2.5; this.glue.attack.value = 0.012; this.glue.release.value = 0.22;
+    this.mix = g(0.46); this.glue = ctx.createDynamicsCompressor(); this.glue.threshold.value = -16; this.glue.knee.value = 14; this.glue.ratio.value = 2.5; this.glue.attack.value = 0.012; this.glue.release.value = 0.22;
     this.limiter = ctx.createDynamicsCompressor(); this.limiter.threshold.value = -2.5; this.limiter.knee.value = 0; this.limiter.ratio.value = 20; this.limiter.attack.value = 0.002; this.limiter.release.value = 0.09;
     this.masterGain = g(this.vol.master); this.analyser = ctx.createAnalyser(); this.analyser.fftSize = 2048;
     this.bus.music.connect(this.musicFilter); this.musicFilter.connect(this.duck); this.duck.connect(this.mix);

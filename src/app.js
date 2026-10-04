@@ -50,7 +50,7 @@ app.applySettings = applySettings;
 // ------------------------------------------------------------------ screens
 const screens = $('#screens');
 function show(name, p) { app.screen = name; screens.innerHTML = ''; $('#hud').classList.add('hidden'); $('#touch').classList.add('hidden'); const f = SCREENS[name]; if (f) f(p || {}); }
-app.show = show;
+app.show = show; app.TRACK_DEFS = TRACK_DEFS; app.onHostLost = () => { if (app.race) { endRace(); toMenuMusic(); } app.toast('The host left the room', '#ff8a8a'); if (app.net) { app.net.close(); app.net = null; } show('menu'); };
 const SCREENS = {};
 function screenEl(cls = '') { const d = document.createElement('div'); d.className = 'screen ' + cls; screens.appendChild(d); return d; }
 app.screenEl = screenEl;
@@ -63,7 +63,7 @@ SCREENS.title = () => {
   <div style="color:var(--mut);font-weight:700;max-width:420px">Arcade kart racing built for phones. Drift, boost, outsmart 11 rivals.</div>
   <button class="btn" id="goBtn" style="font-size:20px;padding:16px 38px">Tap to start</button>
   <div style="font-size:12px;color:var(--mut)">🎧 Headphones recommended — the sound is half the game.<br>v${app.v} · vertical slice · free & open (see CREDITS)</div></div>`;
-  $('#goBtn').onclick = async () => { await bootAudio(); show('menu'); };
+  $('#goBtn').onclick = async () => { await bootAudio(); const rm = params.get('room'); if (rm) { app.pendingRoom = rm; show('lobby'); } else show('menu'); };
 };
 async function bootAudio() {
   setLoading(true, 'Warming up the engines', 0.05, 'Starting audio');
@@ -140,7 +140,7 @@ SCREENS.setup = () => {
 };
 const _meas = {}; function measured(id) { if (!_meas[id]) _meas[id] = buildTrack(id).length; return _meas[id]; }
 const CPU_NAMES = DATA.characters.filter(c => c.free).map(c => c.name);
-function makeCpuBuild(i) { const bodies = DATA.bodies.map(b => b.name); const r = (n) => Math.floor(Math.random() * n); const b = defaultBuild(bodies[i % bodies.length]); b.paint = r(DATA.paintColors.length); b.finish = r(5); b.wheel = DATA.wheels[r(DATA.wheels.length)].name; b.size = 1 + r(3); b.rim = r(DATA.rimColors.length); b.spoiler = DATA.spoilers[r(DATA.spoilers.length)].name; b.exhaust = DATA.exhausts[r(DATA.exhausts.length)].name; b.bumper = DATA.bumpers[r(DATA.bumpers.length)].name; if (r(3) === 0) { b.twoTone = r(8); b.paint2 = r(32); } if (r(2) === 0) { b.decal = r(24); b.decalColor = '#ffffff'; } return b; }
+app.CPU_NAMES = CPU_NAMES; function makeCpuBuild(i) { const bodies = DATA.bodies.map(b => b.name); const r = (n) => Math.floor(Math.random() * n); const b = defaultBuild(bodies[i % bodies.length]); b.paint = r(DATA.paintColors.length); b.finish = r(5); b.wheel = DATA.wheels[r(DATA.wheels.length)].name; b.size = 1 + r(3); b.rim = r(DATA.rimColors.length); b.spoiler = DATA.spoilers[r(DATA.spoilers.length)].name; b.exhaust = DATA.exhausts[r(DATA.exhausts.length)].name; b.bumper = DATA.bumpers[r(DATA.bumpers.length)].name; if (r(3) === 0) { b.twoTone = r(8); b.paint2 = r(32); } if (r(2) === 0) { b.decal = r(24); b.decalColor = '#ffffff'; } return b; }
 async function prepareAudioFor(trackId, chars, onP) {
   if (!audio.ready) return; const def = TRACK_DEFS[trackId]; const steps = []; const names = Object.keys(audio.sfxMan); const ann = Object.keys(audio.voiceMan.announcer).filter(k => !k.startsWith('welcome') && k !== 'room_ready' && k !== 'player_joined' && k !== 'player_left' && k !== 'unlocked' && k !== 'pod_ready');
   let done = 0; const total = 5; const tick = (t) => { done++; onP && onP(done / total, t); };
@@ -160,13 +160,13 @@ async function startRace(opts = {}) {
   await prepareAudioFor(track, chars, (f, t) => setLoading(true, def.name, 0.1 + f * 0.8, 'Loading ' + t));
   const q = app.quality; await new Promise(r => setTimeout(r, 10));
   const race = new Race({ scene, renderer, camera, audio, trackId: track, laps: cfg.laps, mirror: cfg.mirror, reverse: cfg.reverse, itemsOn: solo ? false : cfg.items, players, quality: q, hq: s.settings.hq, ui: onRaceUi, netId: net ? net.myId : 'L', rnd: net ? net.rnd : Math.random, introSec: 2.6 });
-  race.net = net ? net.link : null; app.race = race; app.paused = false; if (net) net.attach(race);
+  race.net = net ? net.link : null; app.race = race; app.paused = false; if (net) { net.attach(race); setLoading(true, def.name, 0.95, 'Waiting for other racers…'); net.loaded(); await net.goP; }
   if (solo) { const key = ghostKey(); const g = s.ghosts[key]; if (g) { app.ghost = makeGhost(g, myBuild, s.sel.char); } else app.ghost = null; app.rec = { t: 0, a: [] }; }
   else app.ghost = null;
   race.state = 'grid'; screens.innerHTML = ''; setLoading(false); buildHud(race); $('#hud').classList.remove('hidden'); $('#touch').classList.remove('hidden'); input.active = true; input.reset(); race.input = input.state; app.screen = 'race'; app.resultsShown = false;
   audio.stopMusic(0.6); if (audio.musicBufs && audio.musicMeta && audio.musicMeta.piece === def.music) { audio.startMusic(def.music, 'grid'); } race.start();
 }
-app.startRace = startRace;
+app.startRace = startRace; app.makeCpuBuild = makeCpuBuild;
 function ghostKey() { const c = app.cfg; return c.track + (c.mirror ? 'm' : '') + (c.reverse ? 'r' : '') + c.laps; }
 function makeGhost(g, build, name) {
   const k = buildKart(build, name); k.root.traverse(o => { if (o.material) { const m = o.material.clone(); m.transparent = true; m.opacity = 0.38; m.depthWrite = false; o.material = m; } }); scene.add(k.root); k.root.visible = false; return { k, d: g, i: 0 };
@@ -191,7 +191,7 @@ function buildHud(race) {
 }
 function mm(x, z) { const m = hud.map; return [m.ox + (x - m.minx) * m.sc, m.oz + (m.maxz - z) * m.sc]; }
 function updateHud(race, dt) {
-  const lk = race.localKart; if (!lk) return; const s = lk.sim; const L = hud.last;
+  const lk = race.localKart; if (!lk || !hud.last) return; const s = lk.sim; const L = hud.last;
   const pos = lk.place; if (L.pos !== pos) { L.pos = pos; hud.pos.innerHTML = `${pos}<small>${ORD(pos).replace(/^\d+/, '')}</small><span class="of">/${race.karts.length}</span>`; }
   const lap = clamp(s.lap + 1, 1, race.laps); const lt = `LAP ${lap}/${race.laps}`; if (L.lap !== lt) { L.lap = lt; hud.lap.textContent = lt; } hud.time.textContent = race.state === 'racing' || race.state === 'finished' ? SAVE.fmtTime(race.t).slice(0, -1) : '0:00.00';
   const sp = Math.round(Math.abs(s.s) * 4); if (L.sp !== sp) { L.sp = sp; hud.spd.textContent = sp; }
@@ -228,12 +228,12 @@ function onRaceUi(type, d) {
 }
 // ------------------------------------------------------------------ pause / results
 function showPause() {
-  const r = app.race; if (!r || app.paused) return; app.paused = true; const d = screenEl('center'); d.style.justifyContent = 'center'; d.style.alignItems = 'center'; d.style.background = 'rgba(5,10,24,.6)';
-  d.innerHTML = `<div class="panel col" style="padding:18px;min-width:min(86vw,320px)"><h2>Paused</h2><button class="btn" id="rs">Resume</button><button class="btn blue" id="rt">Restart race</button><button class="btn ghost" id="qt">Quit to menu</button></div>`;
-  if (audio.ctx) audio.ctx.suspend();
+  const r = app.race; if (!r || app.paused) return; const online = !!app.net; if (!online) app.paused = true; const d = screenEl('center'); d.style.justifyContent = 'center'; d.style.alignItems = 'center'; d.style.background = 'rgba(5,10,24,.6)';
+  d.innerHTML = `<div class="panel col" style="padding:18px;min-width:min(86vw,320px)"><h2>Paused</h2><button class="btn" id="rs">Resume</button>${online ? '<div style="font-size:12px;color:var(--mut)">Online race keeps running while this menu is open.</div>' : '<button class="btn blue" id="rt">Restart race</button>'}<button class="btn ghost" id="qt">Quit to menu</button></div>`;
+  if (audio.ctx && !online) audio.ctx.suspend();
   $('#rs').onclick = () => { app.paused = false; d.remove(); if (audio.ctx) audio.ctx.resume(); };
-  $('#rt').onclick = () => { app.paused = false; d.remove(); if (audio.ctx) audio.ctx.resume(); if (app.net) return; startRace(); };
-  $('#qt').onclick = async () => { app.paused = false; d.remove(); if (audio.ctx) await audio.ctx.resume(); endRace(); toMenuMusic(); show('menu'); };
+  if ($('#rt')) $('#rt').onclick = () => { app.paused = false; d.remove(); if (audio.ctx) audio.ctx.resume(); if (app.net) return; startRace(); };
+  $('#qt').onclick = async () => { app.paused = false; d.remove(); if (audio.ctx) await audio.ctx.resume(); endRace(); if (app.net) { app.net.close(); app.net = null; } toMenuMusic(); show('menu'); };
 }
 async function toMenuMusic() { audio.stopMusic(0.5); audio.stopAllLoops(); audio.setReverb('menu'); if (await audio.loadMusic('menu')) audio.startMusic('menu', 'menu'); audio.startAmbience('menu'); }
 function showResults(res) {
@@ -242,7 +242,7 @@ function showResults(res) {
   const key = cfg.track + (cfg.mirror ? 'm' : '') + (cfg.reverse ? 'r' : ''); let newBest = false; if (me.time && (!s.bests[key] || (cfg.laps === 3 && me.time < s.bests[key]))) { if (cfg.laps === 3) { s.bests[key] = me.time; newBest = true; } }
   if (solo && me.time) { const gk = ghostKey(); const old = s.ghosts[gk]; if (!old || me.time < s.ghosts[gk + 't']) { s.ghosts[gk] = app.rec.a; s.ghosts[gk + 't'] = me.time; newBest = true; } }
   if (cfg.daily) { const dk = 'd' + cfg.daily; s.daily[dk] = s.daily[dk] && s.daily[dk] < me.time ? s.daily[dk] : me.time; }
-  let cupHtml = ''; let nextLabel = 'Race again';
+  let cupHtml = ''; let nextLabel = app.net ? 'Back to lobby' : 'Race again';
   if (app.mode === 'gp' && app.cup) { const cup = app.cup; for (const r of res) cup.pts[r.name] = (cup.pts[r.name] || 0) + PTS[r.place - 1]; cup.idx++; const st = Object.entries(cup.pts).sort((a, b) => b[1] - a[1]); const lastRace = cup.idx >= 4; nextLabel = lastRace ? 'Finish cup' : 'Next race'; cupHtml = `<div class="panel" style="padding:10px"><b>Cup standings (${cup.idx}/4)</b><table class="res">${st.slice(0, 6).map(([n, p], i) => `<tr class="${n === s.sel.char ? 'me' : ''}"><td>${i + 1}</td><td>${n}</td><td>${p} pts</td></tr>`).join('')}</table></div>`; if (lastRace) { const rank = st.findIndex(x => x[0] === s.sel.char) + 1; const trophy = rank === 1 ? 'Gold' : rank === 2 ? 'Silver' : rank === 3 ? 'Bronze' : 'None'; cupHtml += `<div class="panel" style="padding:10px"><b>Seedling Cup result: ${ORD(rank)} — ${trophy} trophy</b></div>`; if (rank <= 3) { s.coins += [300, 200, 120][rank - 1]; } } }
   persist(); audio.ready && audio.setMusicState('results');
   setTimeout(() => {
@@ -250,8 +250,8 @@ function showResults(res) {
     <div class="grow row wrap scroll" style="align-items:flex-start;gap:10px"><div class="panel grow" style="padding:10px;min-width:260px"><table class="res">${res.slice(0, 12).map(r => `<tr class="${r.local ? 'me' : ''}"><td>${r.place}</td><td>${r.disp}</td><td class="n">${r.time ? SAVE.fmtTime(r.time) : '—'}</td></tr>`).join('')}</table></div>
     <div class="col" style="min-width:230px;flex:1"><div class="panel" style="padding:12px"><div class="row sp"><b>Coins earned</b><span class="coins">${ICONS.coin}+${reward}</span></div><div style="font-size:12px;color:var(--mut);margin-top:6px">${me.coins} collected · placing bonus ${solo ? 0 : BON[place - 1]} · finish +20${newBest ? '<br><b style="color:var(--y)">New personal best!</b>' : ''}</div></div>${cupHtml}</div></div>
     <div class="row wrap"><button class="btn ghost" id="mn">Menu</button><div class="grow"></div><button class="btn" id="nx">${nextLabel}</button></div>`;
-    $('#mn').onclick = async () => { ui('ui_back'); endRace(); app.cup = null; await toMenuMusic(); show('menu'); };
-    $('#nx').onclick = async () => { ui('ui_confirm'); if (app.mode === 'gp' && app.cup) { if (app.cup.idx >= 4) { endRace(); app.cup = null; await toMenuMusic(); show('menu'); return; } app.cfg.track = TRACK_ORDER[app.cup.idx]; } startRace(); };
+    $('#mn').onclick = async () => { ui('ui_back'); endRace(); if (app.net) { app.net.close(); app.net = null; } app.cup = null; await toMenuMusic(); show('menu'); };
+    $('#nx').onclick = async () => { ui('ui_confirm'); if (app.net) { endRace(); await toMenuMusic(); show('lobby'); return; } if (app.mode === 'gp' && app.cup) { if (app.cup.idx >= 4) { endRace(); app.cup = null; await toMenuMusic(); show('menu'); return; } app.cfg.track = TRACK_ORDER[app.cup.idx]; } startRace(); };
     if (audio.ready) audio.play(place <= 3 ? 'fanfare_win' : 'fanfare_mid', { bus: 'ui', vol: 0.6 });
   }, 1200);
 }

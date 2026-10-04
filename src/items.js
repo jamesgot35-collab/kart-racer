@@ -44,7 +44,7 @@ export class ItemSystem {
   release(k) { if (!k.holding) return; const h = k.holding; k.holding = null; if (!k.item || k.item.id !== h.id) return; this.fire(k, h.id, { held: h.t > 0.22, back: !!k.backHeld }); }
   tickHold(k, dt) { if (k.holding) { k.holding.t += dt; if (k.holding.t > 0.22 && !k.shield) { k.shield = k.holding.id; this.race.onEvent('shieldUp', { k }); } } if (!k.holding && k.shield) k.shield = null; }
   fire(k, id, o) {
-    const R = this.race, s = k.sim; const consume = () => { k.item.n--; if (k.item.n <= 0) k.item = null; k.shield = null; };
+    const R = this.race, s = k.sim; if (R.net && k.auth) R.net.send('use', { k: k.id, id, back: !!o.back, held: !!o.held }); const consume = () => { k.item.n--; if (k.item.n <= 0) k.item = null; k.shield = null; };
     switch (id) {
       case 'pod': s.addBoost(P.item.pod.sec, P.item.pod.mul, 'pod'); s.ev('podBoost', {}); consume(); R.onEvent('use', { k, id }); break;
       case 'trio': if (k.trioCd > 0) return; s.addBoost(P.item.podTrio.sec, P.item.podTrio.mul, 'pod'); k.trioCd = 0.6; consume(); R.onEvent('use', { k, id }); break;
