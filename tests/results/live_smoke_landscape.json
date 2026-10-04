@@ -2,17 +2,17 @@
  "track": "meadow",
  "tag": "landscape",
  "url": "https://jamesgot35-collab.github.io/kart-racer/",
- "tLoad": 1262,
- "tTitle": 3161,
- "tMenu": 6255,
- "tRace": 55316,
+ "tLoad": 1179,
+ "tTitle": 3296,
+ "tMenu": 7448,
+ "tRace": 72598,
  "audio": {
   "decoded": 223,
   "bytes": 24523158,
   "failed": []
  },
  "timing": {
-  "audioPrepMs": 2946,
+  "audioPrepMs": 3849,
   "decodedBuffers": 223
  },
  "errors": []

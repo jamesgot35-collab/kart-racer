@@ -1,18 +1,18 @@
 {
- "track": "aurora",
+ "track": "frost",
  "tag": "portrait",
  "url": "https://jamesgot35-collab.github.io/kart-racer/",
- "tLoad": 1141,
- "tTitle": 2869,
- "tMenu": 5970,
- "tRace": 37199,
+ "tLoad": 1478,
+ "tTitle": 3323,
+ "tMenu": 6260,
+ "tRace": 45921,
  "audio": {
   "decoded": 223,
   "bytes": 25256192,
   "failed": []
  },
  "timing": {
-  "audioPrepMs": 2918,
+  "audioPrepMs": 2915,
   "decodedBuffers": 223
  },
  "errors": []

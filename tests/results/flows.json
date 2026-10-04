@@ -1,8 +1,8 @@
 {
  "steps": [
-  "quick results after 230s wall {\"rows\":12,\"title\":\"Race complete — 8th\",\"coins\":634,\"races\":1,\"ghosts\":0,\"cup\":null,\"track\":\"meadow\",\"nx\":\"Race again\"}",
-  "timetrial results after 75s wall {\"rows\":1,\"title\":\"🏆 Victory! — 1st\",\"coins\":664,\"races\":2,\"ghosts\":2,\"cup\":null,\"track\":\"meadow\",\"nx\":\"Race again\"}",
-  "grandprix results after 234s wall {\"rows\":18,\"title\":\"Race complete — 11th\",\"coins\":688,\"races\":3,\"ghosts\":2,\"cup\":1,\"track\":\"dusk\",\"nx\":\"Next race\"}",
+  "quick results after 267s wall {\"rows\":12,\"title\":\"Race complete — 11th\",\"coins\":624,\"races\":1,\"ghosts\":0,\"cup\":null,\"track\":\"meadow\",\"nx\":\"Race again\"}",
+  "timetrial results after 79s wall {\"rows\":1,\"title\":\"🏆 Victory! — 1st\",\"coins\":655,\"races\":2,\"ghosts\":2,\"cup\":null,\"track\":\"meadow\",\"nx\":\"Race again\"}",
+  "grandprix results after 179s wall {\"rows\":18,\"title\":\"Race complete — 12th\",\"coins\":677,\"races\":3,\"ghosts\":2,\"cup\":1,\"track\":\"dusk\",\"nx\":\"Next race\"}",
   "PASS quick race reaches results with 12 rows",
   "PASS coins awarded & persisted",
   "PASS race counted",
