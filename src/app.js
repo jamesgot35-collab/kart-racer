@@ -28,7 +28,7 @@ let pr = Math.min(window.devicePixelRatio || 1, app.save.settings.quality === 'h
 function resize() { const w = innerWidth, h = innerHeight; renderer.setPixelRatio(pr); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); const rot = $('#rotate'); const portrait = h > w; if (rot) rot.classList.toggle('hidden', true); }
 addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 200)); resize();
 const showroom = new Showroom(renderer); app.showroom = showroom;
-const audio = new AudioEngine({ base: 'audio/' }); app.audio = audio; window.__audio = audio;
+const audio = new AudioEngine({ base: 'audio/' }); app.audio = audio; window.__audio = audio; audio.hq = !!app.save.settings.hq;
 const input = new Input($('#touch'), app.save.settings); app.input = input; input.autoOn = app.save.settings.autoGas;
 input.onPause = () => { if (app.race && app.race.state === 'racing' && !app.paused) showPause(); };
 // ------------------------------------------------------------------ helpers
@@ -68,7 +68,7 @@ SCREENS.title = () => {
 async function bootAudio() {
   setLoading(true, 'Warming up the engines', 0.05, 'Starting audio');
   try {
-    await audio.unlock(); await audio.loadManifest(); applySettings(); setLoading(true, 'Warming up the engines', 0.3, 'Loading menu sounds');
+    await audio.unlock(); if (audio.hq) await loadHQManifest(); await audio.loadManifest(); applySettings(); setLoading(true, 'Warming up the engines', 0.3, 'Loading menu sounds');
     await audio.preloadSfx(['ui_click', 'ui_hover', 'ui_confirm', 'ui_back', 'ui_error', 'ui_toggle', 'ui_tick', 'ui_buy', 'ui_unlock', 'ui_whoosh', 'coin', 'lobby_join', 'lobby_leave', 'lobby_ready']); setLoading(true, 'Warming up the engines', 0.6, 'Loading menu music');
     if (await audio.loadMusic('menu')) { audio.startMusic('menu', 'menu'); } audio.startAmbience('menu'); audio.setReverb('menu');
   } catch (e) { console.warn('audio boot', e); }
@@ -116,8 +116,8 @@ SCREENS.settings = () => {
 };
 // ------------------------------------------------------------------ quality / HQ pack
 async function loadHQManifest() { if (app.hqState.manifest) return app.hqState.manifest; try { const r = await fetch('hq-manifest.json'); app.hqState.manifest = await r.json(); audio.hqBase = (p) => { const m = app.hqState.manifest; const rec = m.files[p] || m.files[p.replace('.wav', '.flac')]; return rec ? m.repos[rec.r] + p : m.repos[m.default] + p; }; } catch (e) { app.hqState.manifest = null; } return app.hqState.manifest; }
-async function setQuality(q) { const hq = q === 'high'; app.save.settings.hq = hq; audio.hq = hq; if (hq) await loadHQManifest(); prMax = Math.min(window.devicePixelRatio || 1, hq ? 2.5 : 1.75); pr = Math.min(pr, prMax); resize(); }
-async function prefetchHQ(cb) { const m = await loadHQManifest(); if (!m) { cb(0, 'HQ manifest unavailable'); return; } const keys = Object.keys(m.files).filter(k => k.startsWith('music/') || k.startsWith('voice/announcer')); let done = 0, bytes = 0; const total = keys.reduce((a, k) => a + m.files[k].b, 0); await audio.unlock(); const q = keys.slice(); const worker = async () => { while (q.length) { const k = q.shift(); const url = audio.hqBase(k); try { const c = await caches.open('sdgp-hq-v1'); let r = await c.match(url); if (!r) { r = await fetch(url, { mode: 'cors' }); if (r.ok) await c.put(url, r.clone()); } if (r.ok) await r.arrayBuffer(); } catch (e) { } bytes += m.files[k].b; done++; cb(bytes / total, `${(bytes / 1048576).toFixed(0)} / ${(total / 1048576).toFixed(0)} MB`); } }; await Promise.all([worker(), worker(), worker(), worker()]); cb(1, 'Downloaded & cached'); }
+async function setQuality(q) { const hq = q === 'high'; const changed = !!app.save.settings.hq !== hq; app.save.settings.hq = hq; if (changed && audio.ctx && audio.ctx.sampleRate !== (hq ? 48000 : 32000)) { app.save.settings.quality = q; persist(); toast('Switching audio engine… reloading', '#ffd23f'); setTimeout(() => location.reload(), 700); return; } audio.hq = hq; if (hq) await loadHQManifest(); prMax = Math.min(window.devicePixelRatio || 1, hq ? 2.5 : 1.75); pr = Math.min(pr, prMax); resize(); }
+async function prefetchHQ(cb) { const m = await loadHQManifest(); if (!m) { cb(0, 'HQ manifest unavailable'); return; } const keys = Object.keys(m.files).filter(k => (k.startsWith('music/') && !k.endsWith('/master.flac')) || k.startsWith('voice/announcer')); let done = 0, bytes = 0; const total = keys.reduce((a, k) => a + m.files[k].b, 0); await audio.unlock(); const q = keys.slice(); const worker = async () => { while (q.length) { const k = q.shift(); const url = audio.hqBase(k); try { const c = await caches.open('sdgp-hq-v1'); let r = await c.match(url); if (!r) { r = await fetch(url, { mode: 'cors' }); if (r.ok) await c.put(url, r.clone()); } if (r.ok) await r.arrayBuffer(); } catch (e) { } bytes += m.files[k].b; done++; cb(bytes / total, `${(bytes / 1048576).toFixed(0)} / ${(total / 1048576).toFixed(0)} MB`); } }; await Promise.all([worker(), worker(), worker(), worker()]); cb(1, 'Downloaded & cached'); }
 // ------------------------------------------------------------------ race setup
 SCREENS.setup = () => {
   const cfg = app.cfg = { track: app.cfg.track || 'meadow', laps: app.cfg.laps || 3, mirror: false, reverse: false, items: true, ...app.cfg }; const mode = app.mode; const d = screenEl();
@@ -149,6 +149,7 @@ async function prepareAudioFor(trackId, chars, onP) {
   await audio.load(`amb/${def.amb}.wav`, `amb/${def.amb}.flac`); await audio.loadMusic(def.music); tick('Music');
 }
 import { CHAR_VOICE } from './audio.js';
+import { loadHQTrackTextures, loadHQEnv } from './hqgfx.js';
 async function startRace(opts = {}) {
   const cfg = app.cfg; const s = app.save; const track = cfg.track; const def = TRACK_DEFS[track]; setLoading(true, def.name, 0.02, 'Preparing race');
   await new Promise(r => setTimeout(r, 30)); if (app.race) endRace();
@@ -158,8 +159,8 @@ async function startRace(opts = {}) {
   const net = opts.net || null; if (net) players = net.players;
   const chars = players.map(p => ({ id: CHAR_VOICE[p.name], local: !!p.local })).filter((v, i, a) => a.findIndex(x => x.id === v.id) === i);
   await prepareAudioFor(track, chars, (f, t) => setLoading(true, def.name, 0.1 + f * 0.8, 'Loading ' + t));
-  const q = app.quality; await new Promise(r => setTimeout(r, 10));
-  const race = new Race({ scene, renderer, camera, audio, trackId: track, laps: cfg.laps, mirror: cfg.mirror, reverse: cfg.reverse, itemsOn: solo ? false : cfg.items, players, quality: q, hq: s.settings.hq, ui: onRaceUi, netId: net ? net.myId : 'L', rnd: net ? net.rnd : Math.random, introSec: 2.6 });
+  const q = app.quality; let hqTex = null, hqEnv = null; if (s.settings.hq) { try { await loadHQManifest(); audio.hqManifest = app.hqState.manifest; setLoading(true, def.name, 0.88, 'Loading high-quality textures'); hqTex = await loadHQTrackTextures(track, renderer, audio, (f) => setLoading(true, def.name, 0.88 + f * 0.08, 'Loading high-quality textures')); hqEnv = await loadHQEnv(track, audio); } catch (e) { console.warn('HQ textures unavailable', e); toast('HQ textures unavailable — using standard', '#ffd23f'); } } await new Promise(r => setTimeout(r, 10));
+  const race = new Race({ scene, renderer, camera, audio, trackId: track, laps: cfg.laps, mirror: cfg.mirror, reverse: cfg.reverse, itemsOn: solo ? false : cfg.items, players, quality: q, hq: s.settings.hq, ui: onRaceUi, netId: net ? net.myId : 'L', rnd: net ? net.rnd : Math.random, introSec: 2.6, hqTex, hqEnv });
   race.net = net ? net.link : null; app.race = race; app.paused = false; if (net) { net.attach(race); setLoading(true, def.name, 0.95, 'Waiting for other racers…'); net.loaded(); await net.goP; }
   if (solo) { const key = ghostKey(); const g = s.ghosts[key]; if (g) { app.ghost = makeGhost(g, myBuild, s.sel.char); } else app.ghost = null; app.rec = { t: 0, a: [] }; }
   else app.ghost = null;

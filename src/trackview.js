@@ -113,9 +113,9 @@ const SCATTER = { // [prop, count, minOff, maxOff, scaleMin, scaleMax, yOffset]
 
 export class TrackView {
   constructor(tc, scene, renderer, opts = {}) {
-    this.tc = tc; this.scene = scene; this.group = new THREE.Group(); scene.add(this.group); this.th = THEMES[tc.theme]; this.anim = []; this.hq = !!opts.hq; this.disposables = []; this.tex = {};
+    this.tc = tc; this.scene = scene; this.group = new THREE.Group(); scene.add(this.group); this.th = THEMES[tc.theme]; this.anim = []; this.hq = !!opts.hq; this.opts = opts; this.disposables = []; this.tex = {};
     const th = this.th; scene.background = new THREE.Color(th.fog); scene.fog = new THREE.FogExp2(th.fog, th.fogD);
-    this._sky(renderer); this._lights(); this._ground(); this._road(); this._curbsWalls(); this._shortcut(); this._startLine(); this._props(); this._landmark(); this._boxesCoinsPads(); this._water();
+    this._sky(renderer); this._lights(); this._ground(); this._road(); if (opts.hqTex) this._applyHQ(opts.hqTex); this._curbsWalls(); this._shortcut(); this._startLine(); this._props(); this._landmark(); this._boxesCoinsPads(); this._water();
   }
   add(o) { this.group.add(o); return o; }
   _sky(renderer) {
@@ -134,7 +134,7 @@ export class TrackView {
       }` });
     this.skyMat = mat; this.sky = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), mat); this.sky.scale.setScalar(1500); this.sky.renderOrder = -10; this.sky.frustumCulled = false; this.group.add(this.sky);
     // environment lighting from the same sky
-    const pm = new THREE.PMREMGenerator(renderer); const es = new THREE.Scene(); const em = mat.clone(); es.add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), em)); this.envTex = pm.fromScene(es, 0.02).texture; this.scene.environment = this.envTex; pm.dispose();
+    const pm = new THREE.PMREMGenerator(renderer); const es = new THREE.Scene(); const em = mat.clone(); es.add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), em)); this.envTex = pm.fromScene(es, 0.02).texture; this.scene.environment = this.envTex; if (this.opts.hqEnv) { this.envTex = pm.fromEquirectangular(this.opts.hqEnv).texture; this.scene.environment = this.envTex; this.hqEnvApplied = true; } pm.dispose();
   }
   _lights() {
     const th = this.th; this.hemi = new THREE.HemisphereLight(th.hemiSky, th.hemiGnd, 1.15); this.sun = new THREE.DirectionalLight(th.sun, 2.6); const sd = new THREE.Vector3(...th.sunDir).normalize(); this.sun.position.copy(sd).multiplyScalar(100);
@@ -148,6 +148,11 @@ export class TrackView {
     const offMat = std({ color: th.off, roughness: 1, metalness: 0 }); const tOff = groundTex({ ground: th.off }); tOff.repeat.set(1, 1); offMat.map = tOff;
     this.add(new THREE.Mesh(ribbon(tc, -tc.limit, -tc.halfW, 0.01, 24), offMat)); this.add(new THREE.Mesh(ribbon(tc, tc.halfW, tc.limit, 0.01, 24), offMat)); tOff.wrapS = tOff.wrapT = THREE.RepeatWrapping;
     offMat.map.repeat.set(0.6, 1); offMat.map.needsUpdate = true;
+  }
+  _applyHQ(h) { // swap the 512px canvas textures for 2K/4K PBR sets (albedo + normal + roughness)
+    const g = h.ground, r = h.road; if (g) { g.albedo.repeat.set(120, 120); g.normal.repeat.set(120, 120); g.rough.repeat.set(120, 120); const m = this.groundMat; m.map = g.albedo; m.normalMap = g.normal; m.normalScale = new THREE.Vector2(0.9, 0.9); m.roughnessMap = g.rough; m.roughness = 1; m.needsUpdate = true; this.tex.ground = g.albedo; }
+    if (r) { const m = this.roadMat; m.map = r.albedo; m.normalMap = r.normal; m.normalScale = new THREE.Vector2(0.8, 0.8); m.roughnessMap = r.rough; m.roughness = 1; m.needsUpdate = true; this.tex.road = r.albedo; }
+    this.hqApplied = true; for (const set of [g, r]) if (set) for (const k in set) this.disposables.push(set[k]);
   }
   _road() {
     const th = this.th, tc = this.tc; const rt = roadTex(th, tc.id); this.tex.road = rt;

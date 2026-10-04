@@ -41,6 +41,7 @@ export function mountGarage(app, T) {
   const sel = (q, fn) => d.querySelectorAll(q).forEach(e => e.onclick = () => { app.ui('ui_click'); fn(e); });
   const wire = () => {
     sel('[data-tab]', e => { tab = e.dataset.tab; app.garageTab = tab; draw(); });
+    if (app.save.settings.hq && app.hqState.manifest && app.audio.hqBase) d.querySelectorAll('.pcard[data-char] img').forEach(img => { const nm = img.parentElement.dataset.char; const p = 'portraits/' + nm.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.png'; if (!app.hqState.manifest.files[p]) return; const im = new Image(); im.onload = () => { img.src = im.src; }; im.src = app.audio.hqBase(p); }); // HQ 1024px portraits
     sel('[data-char]', e => { char = e.dataset.char; s.sel.char = char; app.persist(); draw(); refresh3d(); const id = CHAR_VOICE[char]; app.audio.preloadVoices([id], ['ready', 'taunt', 'win']).then(() => app.audio.bark(char, 'ready', { cooldown: 0 })); });
     sel('[data-body]', e => { body = e.dataset.body; draft = { ...s.builds[body] }; draw(); refresh3d(); });
     sel('[data-kind]', e => { draft[e.dataset.kind] = e.dataset.name; commit(); draw(); refresh3d(); });

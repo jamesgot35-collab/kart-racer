@@ -20,7 +20,7 @@ export class Race {
   constructor(o) {
     Object.assign(this, { scene: o.scene, renderer: o.renderer, camera: o.camera, audio: o.audio, ui: o.ui || (() => { }), net: o.net || null });
     this.opts = o; this.laps = o.laps || 3; this.itemsOn = o.itemsOn !== false; this.rnd = o.rnd || Math.random; this.netId = o.netId || 'L'; this.quality = o.quality || 1; this.t = 0; this.state = 'grid'; this.cdT = 3.999; this.stateT = 0; this.acc = 0; this.goTime = 0; this.finishedCount = 0; this.results = null; this.cam = { yaw: 0, pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 62, shake: 0, back: false, introT: 0 };
-    this.track = buildTrack(o.trackId, { mirror: !!o.mirror, reverse: !!o.reverse }); this.view = new TrackView(this.track, this.scene, this.renderer, { hq: o.hq });
+    this.track = buildTrack(o.trackId, { mirror: !!o.mirror, reverse: !!o.reverse }); this.view = new TrackView(this.track, this.scene, this.renderer, { hq: o.hq, hqTex: o.hqTex, hqEnv: o.hqEnv });
     this.fx = new FX(this.scene, this.quality); this.hazards = new Hazards(this); this.items = new ItemSystem(this);
     this.karts = []; this.ranked = []; this.localKart = null; this.input = { steer: 0, throttle: 0, brake: 0, drift: false, driftPressed: false, itemDown: false, itemUp: false, look: false, gas: false };
     this.shadowMat = new THREE.MeshBasicMaterial({ map: getShadowTex(), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 }); this.shadowGeo = new THREE.PlaneGeometry(1, 1); this.shadowGeo.rotateX(-Math.PI / 2);
