@@ -5,6 +5,7 @@ import { buildTrack, TRACK_ORDER, CUPS, ALL_TRACKS } from './tracks.js';
 import { Race } from './race.js';
 import { AudioEngine } from './audio.js';
 import { Input } from './input.js';
+import { installIOSGuard } from './iosguard.js';
 import { Showroom } from './showroom.js';
 import { ICONS } from './icons.js';
 import { ITEM_INFO } from './items.js';
@@ -17,7 +18,7 @@ import { P } from './stats.js';
 
 const $ = (s, r = document) => r.querySelector(s); const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 > 10 && n % 100 < 14) ? 0 : (n % 10 < 4 ? n % 10 : 0)]);
-export const app = { v: '1.2.0', save: SAVE.load(), screen: 'boot', race: null, quality: 1, ghost: null, cup: null, mode: 'quick', cfg: {}, hqState: { on: false, bytes: 0 } };
+export const app = { v: '1.2.4', save: SAVE.load(), screen: 'boot', race: null, quality: 1, ghost: null, cup: null, mode: 'quick', cfg: {}, hqState: { on: false, bytes: 0 } };
 window.__app = app;
 const params = new URLSearchParams(location.search);
 // ------------------------------------------------------------------ renderer
@@ -36,7 +37,7 @@ function resize() { const w = innerWidth, h = innerHeight; renderer.setPixelRati
 addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 200)); resize();
 const showroom = new Showroom(renderer); app.showroom = showroom;
 const audio = new AudioEngine({ base: 'audio/' }); app.audio = audio; window.__audio = audio; audio.hq = !!app.save.settings.hq;
-const input = new Input($('#touch'), app.save.settings); app.input = input; input.autoOn = app.save.settings.autoGas;
+const input = new Input($('#touch'), app.save.settings); app.input = input; installIOSGuard($('#touch')); input.autoOn = app.save.settings.autoGas;
 input.onPause = () => { if (app.race && app.race.state === 'racing' && !app.paused) showPause(); };
 // ------------------------------------------------------------------ helpers
 export const T = {

@@ -1,0 +1,298 @@
+{
+ "landscape viewport meta": {
+  "ok": true,
+  "d": "width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+ },
+ "landscape css #gl": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "landscape css #hud": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "landscape css #touch": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "landscape css #tcSlider": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "landscape css #tcGas": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "landscape css #tcBrake": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "landscape css #tcDrift": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "landscape css #tcItem": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "landscape css #tcLook": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "landscape event gesturestart cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event gesturechange cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event gestureend cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event touchstart cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event touchmove cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event touchend1 cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event touchend2_fast cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event touchendCanvas1 cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event touchendCanvas2_fast cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event contextmenu cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event selectstart cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape event pinchMove cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "landscape inputs >=16px & selectable": {
+  "ok": true,
+  "d": [
+   {
+    "type": "text",
+    "id": "code",
+    "px": 26,
+    "sel": "text"
+   }
+  ]
+ },
+ "landscape no console errors": {
+  "ok": true,
+  "d": []
+ },
+ "portrait viewport meta": {
+  "ok": true,
+  "d": "width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+ },
+ "portrait css #gl": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "portrait css #hud": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "portrait css #touch": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "portrait css #tcSlider": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "portrait css #tcGas": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "portrait css #tcBrake": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "portrait css #tcDrift": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "portrait css #tcItem": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "portrait css #tcLook": {
+  "ok": true,
+  "d": {
+   "ta": "none",
+   "us": "none",
+   "wus": "none",
+   "th": "rgba(0, 0, 0, 0)"
+  }
+ },
+ "portrait event gesturestart cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event gesturechange cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event gestureend cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event touchstart cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event touchmove cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event touchend1 cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event touchend2_fast cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event touchendCanvas1 cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event touchendCanvas2_fast cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event contextmenu cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event selectstart cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait event pinchMove cancelled": {
+  "ok": true,
+  "d": true
+ },
+ "portrait inputs >=16px & selectable": {
+  "ok": true,
+  "d": [
+   {
+    "type": "text",
+    "id": "code",
+    "px": 26,
+    "sel": "text"
+   }
+  ]
+ },
+ "portrait no console errors": {
+  "ok": true,
+  "d": []
+ }
+}

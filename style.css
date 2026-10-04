@@ -101,3 +101,14 @@ table.res{width:100%;border-collapse:collapse;font-size:14px}table.res td,table.
 
 #speedfx{position:fixed;inset:0;pointer-events:none;opacity:0;will-change:opacity,transform;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,0) 0deg 3.2deg,rgba(255,255,255,.55) 3.4deg 3.7deg,rgba(255,255,255,0) 3.9deg 7.1deg,rgba(255,255,255,.35) 7.3deg 7.5deg,rgba(255,255,255,0) 7.7deg 11deg);-webkit-mask-image:radial-gradient(circle at 50% 52%,transparent 34%,#000 82%);mask-image:radial-gradient(circle at 50% 52%,transparent 34%,#000 82%)}
 #speedfx.boost{background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(120,220,255,0) 0deg 3.2deg,rgba(150,230,255,.65) 3.4deg 3.8deg,rgba(120,220,255,0) 4deg 7.1deg,rgba(255,255,255,.4) 7.3deg 7.6deg,rgba(120,220,255,0) 7.8deg 11deg)}
+
+/* iOS Safari zoom/selection guards (v1.2.4): game surface = no browser touch handling; menus = no double-tap zoom; inputs stay editable and >=16px so focus never zooms */
+html,body,#gl,#hud,#touch,#touch *,#center,#fxlines,#speedfx,#toasts{touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#touch .tc-btn,#touch .tc-slider,#touch .tc-thumb,#touch .tc-btn span{touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-user-drag:none}
+.pausebtn{touch-action:manipulation;-webkit-touch-callout:none}
+#screens,#screens button,#screens .btn,#screens .tab,#screens .chip,#screens .card,#screens .pcard,#screens label,#screens a{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+#screens .scroll{touch-action:pan-y}
+input,textarea,select{font-size:16px;-webkit-text-size-adjust:100%;touch-action:manipulation}
+input[type=text],input:not([type]),input.code,textarea{-webkit-user-select:text;user-select:text}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+img{-webkit-user-drag:none}

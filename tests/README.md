@@ -29,3 +29,4 @@ Headless Chrome here uses SwiftShader (software GL, ~5-9 fps), so these are corr
 | `kart_sheet.mjs` | Contact sheet of all 12 kart bodies | `shots/kart_sheet.png` |
 | `cup2_shots.mjs` | Grid + race screenshots of the 4 Starlight Cup tracks, both orientations; fails on console errors | `shots/*_cup2_*.png` |
 | `live_smoke.mjs [url w h track tag]` | Loads the PUBLISHED site, starts a race, screenshots, reports errors | `results/live_smoke_<tag>.json` |
+| `ios_guard.mjs` | iOS Safari zoom guards: viewport meta, touch-action/user-select CSS on canvas/HUD/controls, gesture/touch/contextmenu events cancelled, double-tap window, inputs >=16 px | `results/ios_guard.json` |
