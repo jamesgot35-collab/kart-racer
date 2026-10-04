@@ -24,3 +24,5 @@ Headless Chrome here uses SwiftShader (software GL, ~5-9 fps), so these are corr
 | `../tools/size_audit.py` | Exact bytes of every published file in all four repos | `results/size_audit.json` |
 | `assist_eval.mjs` | Steering assist: a deliberately sloppy simulated thumb drives 100 s on 8 tracks with assist off/low/high; wall hits must drop without losing progress | `results/assist_eval.txt/json` |
 | `settings_check.mjs` | Settings screen renders the Steering assist control and persists the choice | - |
+| `skid_test.mjs` | Skid marks are generated during an AI race and render on the road (close-up screenshot) | `shots/skidmarks_closeup.png` |
+| `speedfx_check.mjs` | Speed-lines overlay shows when boosting (Standard) and is hidden on the Performance tier | `results/speedfx_check.txt`, `shots/speedfx_*.png` |

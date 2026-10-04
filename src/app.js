@@ -206,6 +206,16 @@ function buildHud(race) {
   const a = tc.at(0, 0, {}); const q = P2([a.x, a.z]); og.fillStyle = '#ff4d6d'; og.fillRect(q[0] - 7, q[1] - 7, 14, 14); hud.mapBase = off;
 }
 function mm(x, z) { const m = hud.map; return [m.ox + (x - m.minx) * m.sc, m.oz + (m.maxz - z) * m.sc]; }
+// Speed lines: radial streaks fade in near top speed and while boosting (skipped on the Performance tier to save fill-rate)
+let speedFx = null, sfxT = 0;
+function updateSpeedFx(race, dt) {
+  if (app.save.settings.quality === 'performance' || app.save.settings.reduceFx) { if (speedFx) speedFx.style.opacity = 0; return; }
+  if (!speedFx) { speedFx = document.createElement('div'); speedFx.id = 'speedfx'; document.body.insertBefore(speedFx, $('#hud')); }
+  const lk = race.localKart; if (!lk || race.state !== 'racing') { speedFx.style.opacity = 0; return; } const s = lk.sim;
+  const f = Math.max(0, Math.min(1, (s.s / lk.st.vmax - 0.86) / 0.3)); const target = Math.max(f * 0.45, s.boostT > 0 ? 0.8 : 0, s.draft && s.draft.sling > 0 ? 0.7 : 0);
+  speedFx.dataset.v = (speedFx.dataset.v ? +speedFx.dataset.v : 0) + (target - (+speedFx.dataset.v || 0)) * Math.min(1, dt * 6); const o = +speedFx.dataset.v; speedFx.style.opacity = o.toFixed(2);
+  sfxT -= dt; if (sfxT <= 0 && o > 0.03) { sfxT = 0.07; speedFx.style.transform = `rotate(${(Math.random() * 360) | 0}deg) scale(1.6)`; speedFx.classList.toggle('boost', s.boostT > 0); }
+}
 function updateHud(race, dt) {
   const lk = race.localKart; if (!lk || !hud.last) return; const s = lk.sim; const L = hud.last;
   const pos = lk.place; if (L.pos !== pos) { L.pos = pos; hud.pos.innerHTML = `${pos}<small>${ORD(pos).replace(/^\d+/, '')}</small><span class="of">/${race.karts.length}</span>`; }
@@ -277,7 +287,7 @@ function frame(now) {
   requestAnimationFrame(frame); let dt = (now - last) / 1000; last = now; if (dt > 0.25) dt = 0.25; frameCount++;
   const race = app.race;
   if (race && !app.paused) {
-    input.poll(race.state === 'racing' && input.autoOn); race.update(dt); updateGhost(race); recordGhost(race, dt); if (frameCount % 2 === 0 || !app.frameSkip) updateHud(race, dt);
+    input.poll(race.state === 'racing' && input.autoOn); race.update(dt); updateSpeedFx(race, dt); updateGhost(race); recordGhost(race, dt); if (frameCount % 2 === 0 || !app.frameSkip) updateHud(race, dt);
     if (app.frameSkip && frameCount % 2) { adapt(dt); return; }
     renderer.render(scene, camera);
   } else if (!race) { if (['menu', 'garage', 'title', 'setup', 'settings', 'lobby', 'boot', 'results'].includes(app.screen)) showroom.render(dt, innerWidth, innerHeight, app.screen === 'garage' ? (innerWidth > innerHeight ? -1.0 : 'garage') : app.screen === 'menu' ? 0.9 : 0); }

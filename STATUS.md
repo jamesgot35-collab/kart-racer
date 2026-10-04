@@ -11,6 +11,8 @@
 
 - [07:25 ET] **Steering assist (touch default Low; Off/Low/High in Settings):** nudges the kart away from walls/grass only when it is heading outward near the road edge; never while drifting, spinning, on a shortcut, or in mid-road. Sloppy-thumb simulation over 8 tracks x 100 s: wall hits 33 (off) -> 18 (low) -> 14 (high), progress unchanged (tests/assist_eval.mjs). Camera/handling constants were NOT retuned: with no human playtest data, changing them would be guesswork.
 
+- [07:35 ET] **Speed feel:** (a) tyre skid marks (src/skids.js, one instanced draw call, ring buffer of 520 quads, 200 on Performance tier) laid while any kart drifts/slides/spins on tarmac; (b) speed-lines overlay that fades in near top speed and while boosting/slingshotting (blue on boost), off on the Performance tier; tests: tests/skid_test.mjs (marks generated + close-up shots/skidmarks_closeup.png), tests/speedfx_check.mjs (visible on Standard, hidden on Performance).
+
 ## READY
 - **Live URL:** https://jamesgot35-collab.github.io/kart-racer/ (GitHub Pages, repo `jamesgot35-collab/kart-racer`). Verified live == local build (md5 of app.js), 0 console errors (tests/results/live_smoke.json).
 - **What it is:** original three.js mobile kart racer "Sparkdrift GP": 4 tracks (Buttercup Meadows, Lantern Harbor, Mirage Mesa, Frostbite Pass), 12 racers, 9 items, 3-tier drift/boost, slipstream, hazards + shortcuts per track, CPU rivals with rubber-banding, garage (kart/wheels/wing/exhaust/bumper/paint), Grand Prix (Seedling Cup), quick race, time trial with ghost, daily challenge (leaderboard is LOCAL to the device), online room-code lobby (up to 4 humans + CPU fill to 12), touch/keyboard/gamepad/tilt controls.

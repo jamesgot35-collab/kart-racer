@@ -8,6 +8,7 @@ import { finalStats, P } from './stats.js';
 import { KartSim } from './kart.js';
 import { AI } from './ai.js';
 import { FX, rgba } from './fx.js';
+import { Skids } from './skids.js';
 import { Hazards } from './hazards.js';
 import { ItemSystem } from './items.js';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v)); const lerp = (a, b, t) => a + (b - a) * t; const TAU = Math.PI * 2;
@@ -22,7 +23,7 @@ export class Race {
     Object.assign(this, { scene: o.scene, renderer: o.renderer, camera: o.camera, audio: o.audio, ui: o.ui || (() => { }), net: o.net || null });
     this.opts = o; this.laps = o.laps || 3; this.itemsOn = o.itemsOn !== false; this.rnd = o.rnd || Math.random; this.netId = o.netId || 'L'; this.quality = o.quality || 1; this.t = 0; this.state = 'grid'; this.cdT = 3.999; this.stateT = 0; this.acc = 0; this.goTime = 0; this.finishedCount = 0; this.results = null; this.cam = { yaw: 0, pos: new THREE.Vector3(), look: new THREE.Vector3(), fov: 62, shake: 0, back: false, introT: 0 };
     this.track = buildTrack(o.trackId, { mirror: !!o.mirror, reverse: !!o.reverse }); this.view = new TrackView(this.track, this.scene, this.renderer, { hq: o.hq, hqTex: o.hqTex, hqEnv: o.hqEnv, lod: o.lod || 1 });
-    this.fx = new FX(this.scene, this.quality); this.hazards = new Hazards(this); this.items = new ItemSystem(this);
+    this.fx = new FX(this.scene, this.quality); this.skids = new Skids(this.scene, Math.round(520 * Math.min(1.2, this.quality))); this.hazards = new Hazards(this); this.items = new ItemSystem(this);
     this.karts = []; this.ranked = []; this.localKart = null; this.input = { steer: 0, throttle: 0, brake: 0, drift: false, driftPressed: false, itemDown: false, itemUp: false, look: false, gas: false };
     this.shadowMat = new THREE.MeshBasicMaterial({ map: getShadowTex(), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 }); this.shadowGeo = new THREE.PlaneGeometry(1, 1); this.shadowGeo.rotateX(-Math.PI / 2);
     this.rivalEng = [null, null, null]; this.sfxCd = new Map(); this.statsRace = { coins: 0, hits: 0, boosts: 0, drifts: 0, shortcuts: 0, maxTier: 0 }; this.announced = {}; this.lastPosCall = 0; this.timeline = [];
@@ -68,7 +69,7 @@ export class Race {
   update(dtReal) {
     const dt = Math.min(dtReal, 0.1); this.acc += dt; let n = 0;
     while (this.acc >= STEP && n < 6) { this.step(STEP); this.acc -= STEP; n++; } if (n >= 6) this.acc = 0;
-    this.view.update(dt, this.t, this.camera.position); this.updateVisuals(dt); this.positionCamera(dt); this.fx.update(dt); this.updateAudio(dt);
+    this.view.update(dt, this.t, this.camera.position); this.updateVisuals(dt); this.positionCamera(dt); this.fx.update(dt); this.skids.flush(); this.updateAudio(dt);
   }
   step(dt) {
     this.stateT += dt;
@@ -242,6 +243,7 @@ export class Race {
     const s = k.sim, fx = this.fx; const camP = this.camera.position; if (Math.hypot(s.x - camP.x, s.z - camP.z) > 70) return; const sn = Math.sin(s.th), cs = Math.cos(s.th); const rx = cs, rz = -sn; // right-side vector (visual)
     const rearZ = k.vis.shape.zr, wx = k.vis.shape.wx; const vx = Math.sin(s.phi) * s.s, vz = Math.cos(s.phi) * s.s;
     if (s.drift.on && s.grounded) { const tier = s.drift.tier; for (const sd of [-1, 1]) { const px = s.x + sn * (rearZ - 0.2) - rx * sd * wx * -1, pz = s.z + cs * (rearZ - 0.2) - rz * sd * wx * -1; if (Math.random() < 0.9) fx.spark(px, 0.15, pz, tier, vx, vz); } if (Math.random() < 0.4) fx.dust(s.x - sn * 1.2, s.z - cs * 1.2, vx, vz, SURF_DUST[s.surf] || 0xb8bcc4, 0.8); }
+    if (s.grounded && s.surf === 'road' && s.s > 9 && (s.drift.on || s.slip > 0.3 || s.spinT > 0)) { const sk = k._sk || (k._sk = [null, null]); [-1, 1].forEach((sd, j) => { const px = s.x + sn * (rearZ - 0.2) + rx * sd * wx, pz = s.z + cs * (rearZ - 0.2) + rz * sd * wx; const last = sk[j]; if (!last || Math.hypot(px - last[0], pz - last[1]) > 0.8) { this.skids.add(px, pz, s.phi); sk[j] = [px, pz]; } }); } else k._sk = null;
     if (s.boostT > 0) { const col = s.boostKind === 'drift3' ? 0xc16bff : s.boostKind === 'drift2' ? 0xff9a2e : s.boostKind === 'pad' ? 0x38e1ff : s.boostKind === 'start' ? 0xffffff : s.boostKind === 'pod' ? 0x37e08a : 0x4db8ff; for (const sd of [-0.45, 0.45]) fx.flame(s.x + sn * (k.vis.shape.ex[1] - 0.2) + rx * sd, 0.5, s.z + cs * (k.vis.shape.ex[1] - 0.2) + rz * sd, -vx * 0.3, -vz * 0.3, col); }
     if (s.starT > 0 && Math.random() < 0.5) fx.add.emit(s.x + (Math.random() - 0.5) * 2, 0.8 + Math.random(), s.z + (Math.random() - 0.5) * 2, 0, 1.5, 0, 0.5, 0.8, 0.1, rgba(0xffe14a, 1), rgba(0xff6ad5, 0), 0, 1);
     if (s.spinT > 0 && Math.random() < 0.5) fx.dust(s.x, s.z, 0, 0, 0xfff0d0, 0.9);
@@ -286,7 +288,7 @@ export class Race {
   snapshot(k) { const s = k.sim; return { x: s.x, z: s.z, th: s.th, phi: s.phi, s: s.s, steer: s.steer, hopY: s.hopY, dr: s.drift.on ? s.drift.tier + 1 : 0, dd: s.drift.dir, boost: s.boostT > 0, spin: s.spinT, star: s.starT, ghost: s.ghostT, shrink: s.shrinkT, lap: s.lap, prog: s.prog, ls: s.lastS, lat: s.lat, surf: s.surf, fin: k.finished, item: k.item ? k.item.id : null, shield: k.shield, slip: s.slipT, ft: k.finishT }; }
   applySnapshot(id, snap) { const k = this.karts.find(q => q.id === id); if (!k || !k.remote) return; k.tgt = { ...snap, at: performance.now() }; if (snap.fin && !k.finished) { k.finished = true; k.finishT = snap.ft; k.finishOrder = ++this.finishedCount; } }
   dispose() {
-    for (const k of this.karts) { this.scene.remove(k.vis.root); this.scene.remove(k.shadow); if (k.glow) this.scene.remove(k.glow); if (k.shieldMesh) this.scene.remove(k.shieldMesh); } this.view.dispose(); this.hazards.dispose(); this.items.dispose(); this.fx.dispose(this.scene);
+    for (const k of this.karts) { this.scene.remove(k.vis.root); this.scene.remove(k.shadow); if (k.glow) this.scene.remove(k.glow); if (k.shieldMesh) this.scene.remove(k.shieldMesh); } this.view.dispose(); this.hazards.dispose(); this.items.dispose(); this.fx.dispose(this.scene); this.skids.dispose();
     if (this.engine) this.engine.stop(); for (const r of this.rivalEng) if (r) r.eng.stop(); if (this.audio && this.audio.ready) { this.audio.stopAllLoops(); this.audio.stopAmbience(); }
   }
 }

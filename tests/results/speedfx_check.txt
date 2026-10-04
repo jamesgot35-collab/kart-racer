@@ -1,0 +1,2 @@
+standard speedfx opacity 0.8 PASS errors []
+performance speedfx opacity -1 PASS errors []
