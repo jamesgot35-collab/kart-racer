@@ -13,6 +13,7 @@ import { ItemSystem } from './items.js';
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v)); const lerp = (a, b, t) => a + (b - a) * t; const TAU = Math.PI * 2;
 const angDiff = (a, b) => { let d = a - b; while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU; return d; };
 const STEP = 1 / 60; const POINTS = [15, 12, 10, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+let glowTex = null; function getGlowTex() { if (glowTex) return glowTex; const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 1, 32, 32, 31); gr.addColorStop(0, 'rgba(255,255,255,0.9)'); gr.addColorStop(0.5, 'rgba(255,255,255,0.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); glowTex = new THREE.CanvasTexture(c); return glowTex; }
 let shadowTex = null; function getShadowTex() { if (shadowTex) return shadowTex; const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 2, 32, 32, 31); gr.addColorStop(0, 'rgba(0,0,0,0.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); shadowTex = new THREE.CanvasTexture(c); return shadowTex; }
 export const SURF_DUST = { road: 0xb8bcc4, off: 0x9c8a5a, rough: 0xb59a6a, sand: 0xe3c283, ice: 0xe8f6ff };
 
@@ -33,8 +34,8 @@ export class Race {
   addKart(p, slot) {
     const tc = this.track; const ch = DATA.characters.find(c => c.name === p.name) || DATA.characters[0]; const st = finalStats(p.build, ch.cls); const sim = new KartSim(st, tc);
     const row = Math.floor(slot / 2), col = slot % 2; const s = tc.length - 7 - row * 8.5 - (col ? 3 : 0); const lat = col ? 3.6 : -3.6; const a = tc.at(s, lat, {}); sim.lap = -1; sim.place(a.x, a.z, a.heading);
-    const vis = buildKart(p.build, p.name); this.scene.add(vis.root); const sh = new THREE.Mesh(this.shadowGeo, this.shadowMat); sh.scale.set(3.4, 1, 4.6); sh.position.y = 0.06; this.scene.add(sh);
-    const k = { id: p.id ?? slot, name: p.name, cls: ch.cls, build: p.build, st, sim, vis, shadow: sh, slot, human: !!p.human, local: !!p.local, remote: !!p.remote, auth: !p.remote, cpu: !p.human, ai: null, item: null, roll: null, holding: null, shield: null, lockT: 0, braceT: 0, coins: 0, place: slot + 1, finished: false, finishT: 0, finishOrder: 0, lastHitBy: null, shieldMesh: null, dispName: p.dispName || p.name, rev: 0, rpm: 0.1, gear: 0, gasAt: null, startRes: null, padCd: 0, hazCd: 0, lastBumpSnd: 0, tgt: null, lastLap: -1, auto: false, bark: {} };
+    const vis = buildKart(p.build, p.name); this.scene.add(vis.root); const sh = new THREE.Mesh(this.shadowGeo, this.shadowMat); sh.scale.set(3.4, 1, 4.6); sh.position.y = 0.06; this.scene.add(sh); let glow = null; if (this.view && this.view.th.night >= 0.9) { const hx = (DATA.paintColors[p.build.paint] || { hex: '#66ccff' }).hex; this._glowMats = this._glowMats || {}; const gm = this._glowMats[hx] || (this._glowMats[hx] = new THREE.MeshBasicMaterial({ map: getGlowTex(), color: new THREE.Color(hx), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.85, polygonOffset: true, polygonOffsetFactor: -4, fog: false })); glow = new THREE.Mesh(this.shadowGeo, gm); glow.position.y = 0.08; glow.scale.set(3.0, 1, 4.0); this.scene.add(glow); }
+    const k = { id: p.id ?? slot, name: p.name, cls: ch.cls, build: p.build, st, sim, vis, shadow: sh, glow, slot, human: !!p.human, local: !!p.local, remote: !!p.remote, auth: !p.remote, cpu: !p.human, ai: null, item: null, roll: null, holding: null, shield: null, lockT: 0, braceT: 0, coins: 0, place: slot + 1, finished: false, finishT: 0, finishOrder: 0, lastHitBy: null, shieldMesh: null, dispName: p.dispName || p.name, rev: 0, rpm: 0.1, gear: 0, gasAt: null, startRes: null, padCd: 0, hazCd: 0, lastBumpSnd: 0, tgt: null, lastLap: -1, auto: false, bark: {} };
     if (k.cpu && k.auth) k.ai = new AI(k, this, p.skill ?? (0.82 + this.rnd() * 0.16)); if (k.local) this.localKart = k; this.karts.push(k); return k;
   }
   hazardOkForCpu(k) { const g = this.hazards.list.find(h => h.type === 'gate'); if (!g) return true; const ph = (this.t + g.off) % g.cycle; return ph < 1.8 || Math.random() < 0.15; }
@@ -212,7 +213,7 @@ export class Race {
   updateVisuals(dt) {
     const t = this.t, camP = this.camera.position;
     for (const k of this.karts) {
-      const s = k.sim, v = k.vis; const near = Math.hypot(s.x - camP.x, s.z - camP.z) < 160; v.root.visible = near; k.shadow.visible = near; if (!near) continue;
+      const s = k.sim, v = k.vis; const near = Math.hypot(s.x - camP.x, s.z - camP.z) < 160; v.root.visible = near; k.shadow.visible = near; if (k.glow) k.glow.visible = near; if (!near) continue;
       let yaw = s.th; v.root.position.set(s.x, s.hopY, s.z); v.root.rotation.y = yaw;
       const lean = clamp(-s.steer * 0.05 - (s.drift.on ? -s.drift.dir * 0.09 : 0), -0.2, 0.2); v.body.rotation.z = lerp(v.body.rotation.z, lean, Math.min(1, dt * 10)); const sq = clamp((s.boostT > 0 ? 0.05 : 0) + (k.throttleLast || 0) * 0.02, 0, 0.1); v.body.rotation.x = lerp(v.body.rotation.x, -sq + clamp(s.hopY * 0.12, 0, 0.1), Math.min(1, dt * 8));
       const shr = s.shrinkT > 0 ? 0.55 : 1; k.scaleCur = lerp(k.scaleCur ?? 1, shr, Math.min(1, dt * 8)); v.root.scale.setScalar(k.scaleCur);
@@ -221,7 +222,7 @@ export class Race {
       // star / ghost looks
       if (s.starT > 0) { v.paintMat.emissive.setHSL((t * 1.6) % 1, 1, 0.45); v.paintMat.emissiveIntensity = 0.9; } else if (v.paintMat.emissiveIntensity > 0 && v.paintMat.userData.star) { v.paintMat.emissiveIntensity = 0; } v.paintMat.userData.star = s.starT > 0; if (s.starT <= 0 && !v.paintMat.userData.pearl) { v.paintMat.emissive.setHex(0); }
       v.root.traverse(o => { if (o.material && o.material.transparent !== (s.ghostT > 0) && !o.material.userData.keep) { } });
-      k.shadow.position.set(s.x, 0.06, s.z); k.shadow.rotation.y = yaw; const sc = k.scaleCur * (1 - clamp(s.hopY * 0.2, 0, 0.4)); k.shadow.scale.set(3.4 * sc, 1, 4.6 * sc);
+      k.shadow.position.set(s.x, 0.06, s.z); k.shadow.rotation.y = yaw; if (k.glow) { k.glow.position.set(s.x, 0.08, s.z); k.glow.rotation.y = yaw; } const sc = k.scaleCur * (1 - clamp(s.hopY * 0.2, 0, 0.4)); k.shadow.scale.set(3.4 * sc, 1, 4.6 * sc);
       // shield trailing mesh
       if (k.shield) { if (!k.shieldMesh) { const src = k.shield === 'disc' ? this.items.meshes.disc : this.items.meshes.peel; k.shieldMesh = src.clone(); k.shieldMesh.material = src.material; this.scene.add(k.shieldMesh); k.shieldKind = k.shield; } const a = t * 5; k.shieldMesh.position.set(s.x - Math.sin(s.th) * 2.4 + Math.cos(a) * 0.3, 0.5, s.z - Math.cos(s.th) * 2.4 + Math.sin(a) * 0.3); k.shieldMesh.rotation.y = a; } else if (k.shieldMesh) { this.scene.remove(k.shieldMesh); k.shieldMesh = null; }
       this.kartFx(k, dt);
@@ -275,7 +276,7 @@ export class Race {
   snapshot(k) { const s = k.sim; return { x: s.x, z: s.z, th: s.th, phi: s.phi, s: s.s, steer: s.steer, hopY: s.hopY, dr: s.drift.on ? s.drift.tier + 1 : 0, dd: s.drift.dir, boost: s.boostT > 0, spin: s.spinT, star: s.starT, ghost: s.ghostT, shrink: s.shrinkT, lap: s.lap, prog: s.prog, ls: s.lastS, lat: s.lat, surf: s.surf, fin: k.finished, item: k.item ? k.item.id : null, shield: k.shield, slip: s.slipT, ft: k.finishT }; }
   applySnapshot(id, snap) { const k = this.karts.find(q => q.id === id); if (!k || !k.remote) return; k.tgt = { ...snap, at: performance.now() }; if (snap.fin && !k.finished) { k.finished = true; k.finishT = snap.ft; k.finishOrder = ++this.finishedCount; } }
   dispose() {
-    for (const k of this.karts) { this.scene.remove(k.vis.root); this.scene.remove(k.shadow); if (k.shieldMesh) this.scene.remove(k.shieldMesh); } this.view.dispose(); this.hazards.dispose(); this.items.dispose(); this.fx.dispose(this.scene);
+    for (const k of this.karts) { this.scene.remove(k.vis.root); this.scene.remove(k.shadow); if (k.glow) this.scene.remove(k.glow); if (k.shieldMesh) this.scene.remove(k.shieldMesh); } this.view.dispose(); this.hazards.dispose(); this.items.dispose(); this.fx.dispose(this.scene);
     if (this.engine) this.engine.stop(); for (const r of this.rivalEng) if (r) r.eng.stop(); if (this.audio && this.audio.ready) { this.audio.stopAllLoops(); this.audio.stopAmbience(); }
   }
 }

@@ -1,2 +1,9 @@
 quick results after 219s wall {"rows":12,"title":"Race complete — 11th","coins":624,"races":1,"ghosts":0,"cup":null,"track":"meadow","nx":"Race again"}
 timetrial results after 97s wall {"rows":1,"title":"🏆 Victory! — 1st","coins":658,"races":2,"ghosts":2,"cup":null,"track":"meadow","nx":"Race again"}
+grandprix results after 240s wall {"rows":18,"title":"Race complete — 10th","coins":688,"races":3,"ghosts":2,"cup":1,"track":"dusk","nx":"Next race"}
+PASS quick race reaches results with 12 rows
+PASS coins awarded & persisted
+PASS race counted
+PASS time trial saves a ghost
+PASS grand prix shows cup standings & next race
+PASS no console errors

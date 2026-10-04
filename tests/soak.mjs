@@ -1,6 +1,6 @@
 // Soak: autopilots the player's kart (AI) in a full 12-kart race and runs 60 s of GAME time on a track; fails on any console/page error, NaN, or unbounded growth.
 import { serve, launch } from '../tools/apptest.mjs'; import fs from 'fs';
-const tracks = process.argv.slice(2).length ? process.argv.slice(2) : ['meadow', 'harbor', 'mesa', 'frost']; const results = [];
+const tracks = process.argv.slice(2).length ? process.argv.slice(2) : ['meadow', 'harbor', 'mesa', 'frost', 'dusk', 'neon', 'ember', 'aurora']; const results = [];
 for (const track of tracks) {
   const { srv, port } = await serve(); const { b, pg, logs } = await launch(400, 225, { mobile: true }); const t0 = Date.now();
   await pg.goto(`http://localhost:${port}/index.html?autostart=1&track=${track}&laps=3`); await pg.waitForFunction('window.__app && __app.race', { timeout: 120000, polling: 300 });

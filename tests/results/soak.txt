@@ -1,0 +1,18 @@
+{"track":"meadow","wallSec":279,"gameSec":61.3,"samples":47,"lastLap":1,"place":7,"anyNaN":false,"heapStart":43,"heapEnd":44,"geosStart":192,"geosEnd":196,"texsEnd":22,"voicesMax":17,"fpsMedianSwiftshader":7,"errors":[],"pass":true}
+file:///workspace/kart-racer/node_modules/puppeteer-core/lib/puppeteer/api/Realm.js:65
+        this.taskManager.terminateAll(new Error('waitForFunction failed: frame got detached.'));
+                                      ^
+
+Error: waitForFunction failed: frame got detached.
+    at IsolatedWorld.dispose (file:///workspace/kart-racer/node_modules/puppeteer-core/lib/puppeteer/api/Realm.js:65:39)
+    at [nodejs.dispose] (file:///workspace/kart-racer/node_modules/puppeteer-core/lib/puppeteer/api/Realm.js:68:14)
+    at [nodejs.dispose] (file:///workspace/kart-racer/node_modules/puppeteer-core/lib/puppeteer/cdp/IsolatedWorld.js:161:29)
+    at [nodejs.dispose] (file:///workspace/kart-racer/node_modules/puppeteer-core/lib/puppeteer/cdp/Frame.js:350:51)
+    at #removeFramesRecursively (file:///workspace/kart-racer/node_modules/puppeteer-core/lib/puppeteer/cdp/FrameManager.js:589:29)
+    at #onClientDisconnect (file:///workspace/kart-racer/node_modules/puppeteer-core/lib/puppeteer/cdp/FrameManager.js:145:46)
+    at file:///workspace/kart-racer/node_modules/puppeteer-core/lib/puppeteer/cdp/FrameManager.js:120:42
+    at onceHandler (file:///workspace/kart-racer/node_modules/puppeteer-core/lib/puppeteer/common/EventEmitter.js:91:13)
+    at file:///workspace/kart-racer/node_modules/puppeteer-core/lib/third_party/mitt/mitt.js:36:7
+    at Array.map (<anonymous>)
+
+Node.js v20.19.2
