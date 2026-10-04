@@ -1,0 +1,1064 @@
+{
+"classMods": {
+"Light": {
+"S": -0.5,
+"A": 1.0,
+"H": 0.5,
+"G": 0.0,
+"W": -2.0
+},
+"Medium": {
+"S": 0.0,
+"A": 0.0,
+"H": 0.0,
+"G": 0.0,
+"W": 0.0
+},
+"Heavy": {
+"S": 0.8,
+"A": -1.0,
+"H": -0.5,
+"G": 0.2,
+"W": 2.5
+}
+},
+"characters": [
+{
+"id": 1,
+"name": "Pip Thistledown",
+"cls": "Light",
+"setname": "Meadow Folk",
+"personality": "Bubbly scout who narrates everything she does out loud",
+"idle": "hops in place, straightening her acorn cap",
+"victory": "cartwheel while petals burst from her satchel",
+"silhouette": "tall acorn cap with a feather tuft",
+"free": true,
+"playable": true
+},
+{
+"id": 2,
+"name": "Bramble Quill",
+"cls": "Medium",
+"setname": "Meadow Folk",
+"personality": "Grumpy hedgehog mechanic who secretly loves the cheering",
+"idle": "polishes his spiky helmet with a rag",
+"victory": "takes a deep bow and fans his quills like a peacock",
+"silhouette": "spiky fan-shaped helmet",
+"free": true,
+"playable": true
+},
+{
+"id": 3,
+"name": "Marigold Hoofsworth",
+"cls": "Heavy",
+"setname": "Meadow Folk",
+"personality": "Gentle giant deer who bakes and hugs every rival after the race",
+"idle": "chews a pastry, ears twitching",
+"victory": "lifts the trophy overhead on her antlers",
+"silhouette": "wide antler crown with ribbons",
+"free": true,
+"playable": true
+},
+{
+"id": 4,
+"name": "Fennel Vix",
+"cls": "Light",
+"setname": "Meadow Folk",
+"personality": "Sly fox courier who always claims she planned it",
+"idle": "flicks her tail, checks a pocket watch",
+"victory": "spins her tail like a fan and winks",
+"silhouette": "huge swooshing tail",
+"free": true,
+"playable": true
+},
+{
+"id": 5,
+"name": "Hobb Mossback",
+"cls": "Heavy",
+"setname": "Meadow Folk",
+"personality": "Slow-talking tortoise farmer, completely unshakable",
+"idle": "tucks head in and out of the shell",
+"victory": "shell spins like a top with the trophy on it",
+"silhouette": "domed moss-covered shell backpack",
+"free": true,
+"playable": false
+},
+{
+"id": 6,
+"name": "Juniper Wren",
+"cls": "Light",
+"setname": "Meadow Folk",
+"personality": "Songbird sprinter who hums the whole race",
+"idle": "taps the steering wheel in rhythm",
+"victory": "flaps up and lands on the kart nose, singing",
+"silhouette": "tiny wings flared at the shoulders",
+"free": true,
+"playable": true
+},
+{
+"id": 7,
+"name": "Clover Dash",
+"cls": "Medium",
+"setname": "Meadow Folk",
+"personality": "Over-caffeinated bunny who speed-reads the map",
+"idle": "bounces on her toes",
+"victory": "triple back-flip with a fist pump",
+"silhouette": "long ears streaming behind",
+"free": true,
+"playable": true
+},
+{
+"id": 9,
+"name": "Sage Willowmere",
+"cls": "Medium",
+"setname": "Meadow Folk",
+"personality": "Calm owl tactician who whispers race advice to himself",
+"idle": "swivels his head almost all the way round",
+"victory": "glides a slow victory loop with wings out",
+"silhouette": "big round facial disc and ear tufts",
+"free": true,
+"playable": false
+},
+{
+"id": 10,
+"name": "Barnaby Bruin",
+"cls": "Heavy",
+"setname": "Meadow Folk",
+"personality": "Honey-loving bear who befriends every rival by lap two",
+"idle": "licks honey off a paw",
+"victory": "bear-hugs the trophy and a nearby official",
+"silhouette": "round ears and a broad belly",
+"free": true,
+"playable": false
+},
+{
+"id": 11,
+"name": "Captain Dusk Marlowe",
+"cls": "Medium",
+"setname": "Neon Harbor",
+"personality": "Weathered tug pilot who calls everyone kid",
+"idle": "leans on the wheel and sips tea",
+"victory": "tips his cap as an air-horn sounds",
+"silhouette": "peaked captain's cap and pipe",
+"free": true,
+"playable": true
+},
+{
+"id": 13,
+"name": "Gus Gantry",
+"cls": "Heavy",
+"setname": "Neon Harbor",
+"personality": "Patient crane operator who plans three turns ahead",
+"idle": "swings an imaginary crane hook",
+"victory": "picks up his own kart with a cheer (hook animation)",
+"silhouette": "broad yellow hard hat and hi-vis vest",
+"free": true,
+"playable": true
+},
+{
+"id": 18,
+"name": "Pearl Quayside",
+"cls": "Light",
+"setname": "Neon Harbor",
+"personality": "Ferry-boat kid with a heart of gold and a fast hand",
+"idle": "juggles three coins",
+"victory": "coin shower from her oversized coat",
+"silhouette": "tiny frame in a huge coat",
+"free": true,
+"playable": false
+}
+],
+"bodies": [
+{
+"name": "Corsa Standard",
+"family": "Cruiser",
+"S": 6,
+"A": 5,
+"H": 6,
+"G": 5,
+"W": 5,
+"desc": "The all-rounder every driver learns on: a red open-wheel with a friendly nose",
+"price": 0,
+"slice": true
+},
+{
+"name": "Needle",
+"family": "Dart",
+"S": 9,
+"A": 3,
+"H": 5,
+"G": 5,
+"W": 3,
+"desc": "Ultra-narrow dart that wants a long straight",
+"price": 600,
+"slice": true
+},
+{
+"name": "Slidewinder",
+"family": "Drifter",
+"S": 4,
+"A": 5,
+"H": 6,
+"G": 7,
+"W": 4,
+"desc": "Low serpent body with a spiral exhaust",
+"price": 0,
+"slice": true
+},
+{
+"name": "Ironclad",
+"family": "Bruiser",
+"S": 7,
+"A": 2,
+"H": 4,
+"G": 9,
+"W": 10,
+"desc": "Armour-plated brick on tracks, nothing moves it",
+"price": 1000,
+"slice": true
+},
+{
+"name": "Pogo",
+"family": "Rocket",
+"S": 3,
+"A": 9,
+"H": 5,
+"G": 5,
+"W": 2,
+"desc": "Spring-loaded pogo kart that explodes off the line",
+"price": 0,
+"slice": true
+},
+{
+"name": "Pumpkin Coach",
+"family": "Oddball",
+"S": 6,
+"A": 4,
+"H": 6,
+"G": 6,
+"W": 6,
+"desc": "Carved pumpkin carriage with lantern lights",
+"price": 1000,
+"slice": true
+}
+],
+"wheels": [
+{
+"name": "Six-Spoke Standard",
+"tire": "Street",
+"S": 0.0,
+"A": 0.0,
+"H": 0.0,
+"G": 0.0,
+"W": 0.0,
+"off": 0.0,
+"desc": "Classic six-spoke alloy",
+"price": 0
+},
+{
+"name": "Turbine Fan",
+"tire": "Street",
+"S": 0.3,
+"A": -0.2,
+"H": 0.0,
+"G": 0.0,
+"W": 0.0,
+"off": 0.0,
+"desc": "Fan-blade rim, tuned for top speed",
+"price": 250
+},
+{
+"name": "Mesh Classic",
+"tire": "Street",
+"S": 0.0,
+"A": 0.2,
+"H": 0.0,
+"G": -0.1,
+"W": -0.2,
+"off": 0.0,
+"desc": "Lightweight mesh rim",
+"price": 250
+},
+{
+"name": "Dish Deep",
+"tire": "Racing",
+"S": 0.2,
+"A": 0.0,
+"H": 0.1,
+"G": -0.1,
+"W": 0.2,
+"off": 0.0,
+"desc": "Deep-dish chrome look",
+"price": 350
+},
+{
+"name": "Starburst",
+"tire": "Street",
+"S": 0.0,
+"A": 0.1,
+"H": 0.2,
+"G": 0.0,
+"W": 0.0,
+"off": 0.0,
+"desc": "Ten-spoke star rim",
+"price": 300
+},
+{
+"name": "Slick Racing",
+"tire": "Slick",
+"S": 0.2,
+"A": 0.0,
+"H": 0.0,
+"G": 0.5,
+"W": 0.0,
+"off": -0.5,
+"desc": "Slick compound, loves tarmac, hates dirt",
+"price": 500
+},
+{
+"name": "Trail Grip",
+"tire": "Trail",
+"S": -0.2,
+"A": 0.0,
+"H": 0.0,
+"G": 0.1,
+"W": 0.2,
+"off": 0.6,
+"desc": "Knobbly trail tyres for shortcuts",
+"price": 450
+},
+{
+"name": "Mudder",
+"tire": "Mud",
+"S": -0.3,
+"A": 0.0,
+"H": 0.0,
+"G": 0.2,
+"W": 0.4,
+"off": 1.0,
+"desc": "Deep-lug mud tyres, best off-road",
+"price": 600
+},
+{
+"name": "Balloon Soft",
+"tire": "Balloon",
+"S": -0.3,
+"A": 0.1,
+"H": 0.2,
+"G": 0.0,
+"W": 0.2,
+"off": 0.3,
+"desc": "Soft balloon tyres that absorb bumps",
+"price": 400
+},
+{
+"name": "Featherweight",
+"tire": "Carbon",
+"S": 0.1,
+"A": 0.4,
+"H": 0.0,
+"G": -0.2,
+"W": -0.5,
+"off": -0.2,
+"desc": "Carbon rims, ultra light",
+"price": 700
+},
+{
+"name": "Anvil Steel",
+"tire": "Street",
+"S": 0.0,
+"A": -0.3,
+"H": 0.0,
+"G": 0.2,
+"W": 0.5,
+"off": 0.1,
+"desc": "Heavy steel rims, planted",
+"price": 400
+},
+{
+"name": "Rally Grip",
+"tire": "Trail",
+"S": 0.0,
+"A": 0.1,
+"H": 0.1,
+"G": 0.3,
+"W": 0.0,
+"off": 0.4,
+"desc": "Rally compound all-rounder",
+"price": 550
+},
+{
+"name": "Ice Studs",
+"tire": "Studded",
+"S": -0.1,
+"A": 0.0,
+"H": 0.0,
+"G": 0.3,
+"W": 0.1,
+"off": 0.2,
+"desc": "Studded for slippery ice sections",
+"price": 500
+},
+{
+"name": "Hover Pad",
+"tire": "Hover",
+"S": -0.2,
+"A": 0.2,
+"H": 0.3,
+"G": -0.2,
+"W": -0.6,
+"off": 0.5,
+"desc": "Short hover pads, light but loose",
+"price": 900
+},
+{
+"name": "Flywheel",
+"tire": "Racing",
+"S": 0.3,
+"A": -0.1,
+"H": 0.0,
+"G": 0.0,
+"W": 0.3,
+"off": 0.0,
+"desc": "Flywheel-balanced racing rim",
+"price": 650
+},
+{
+"name": "Spinner Disc",
+"tire": "Racing",
+"S": 0.1,
+"A": 0.1,
+"H": 0.1,
+"G": 0.0,
+"W": 0.0,
+"off": 0.0,
+"desc": "Disc cover with a spinner",
+"price": 500
+},
+{
+"name": "Candy Cane",
+"tire": "Street",
+"S": 0.0,
+"A": 0.0,
+"H": 0.2,
+"G": 0.1,
+"W": 0.0,
+"off": 0.0,
+"desc": "Striped twisted spoke",
+"price": 350
+},
+{
+"name": "Gearwheel",
+"tire": "Street",
+"S": 0.0,
+"A": 0.2,
+"H": 0.0,
+"G": 0.1,
+"W": 0.1,
+"off": 0.0,
+"desc": "Cog-shaped rim, clanks on corners",
+"price": 450
+}
+],
+"wheelSizes": [
+{
+"size": "12\"",
+"S": -0.4,
+"A": 0.4,
+"H": 0.2,
+"G": 0.1,
+"W": -0.2
+},
+{
+"size": "13\"",
+"S": -0.2,
+"A": 0.2,
+"H": 0.1,
+"G": 0.05,
+"W": -0.1
+},
+{
+"size": "14\"",
+"S": 0.0,
+"A": 0.0,
+"H": 0.0,
+"G": 0.0,
+"W": 0.0
+},
+{
+"size": "15\"",
+"S": 0.2,
+"A": -0.2,
+"H": -0.1,
+"G": -0.05,
+"W": 0.1
+},
+{
+"size": "16\"",
+"S": 0.4,
+"A": -0.4,
+"H": -0.2,
+"G": -0.1,
+"W": 0.2
+}
+],
+"spoilers": [
+{
+"name": "None",
+"S": 0.0,
+"A": 0.0,
+"H": 0.0,
+"G": 0.0,
+"W": 0.0,
+"desc": "No wing",
+"price": 0
+},
+{
+"name": "Low Lip",
+"S": 0.1,
+"A": 0.0,
+"H": 0.0,
+"G": 0.1,
+"W": 0.0,
+"desc": "Small ducktail lip",
+"price": 100
+},
+{
+"name": "Duck Tail",
+"S": 0.1,
+"A": 0.1,
+"H": 0.0,
+"G": 0.1,
+"W": 0.1,
+"desc": "Classic ducktail",
+"price": 150
+},
+{
+"name": "GT Wing",
+"S": 0.2,
+"A": -0.1,
+"H": 0.0,
+"G": 0.3,
+"W": 0.1,
+"desc": "Large wing, more grip at speed",
+"price": 300
+},
+{
+"name": "Dual Plane",
+"S": 0.3,
+"A": -0.2,
+"H": 0.0,
+"G": 0.3,
+"W": 0.2,
+"desc": "Double-element wing for fast tracks",
+"price": 450
+},
+{
+"name": "Swan Neck",
+"S": 0.2,
+"A": 0.0,
+"H": -0.1,
+"G": 0.4,
+"W": 0.1,
+"desc": "Swan-neck mount, strong downforce",
+"price": 500
+},
+{
+"name": "Barn Door",
+"S": -0.1,
+"A": -0.3,
+"H": 0.1,
+"G": 0.6,
+"W": 0.3,
+"desc": "Huge barn-door wing, great grip but slow",
+"price": 450
+},
+{
+"name": "Shark Fin",
+"S": 0.1,
+"A": 0.1,
+"H": 0.3,
+"G": 0.0,
+"W": 0.0,
+"desc": "Vertical fin for crisp handling",
+"price": 350
+},
+{
+"name": "Roof Scoop",
+"S": 0.0,
+"A": 0.3,
+"H": 0.0,
+"G": 0.0,
+"W": 0.1,
+"desc": "Intake scoop, helps accel",
+"price": 350
+},
+{
+"name": "Twin Tail",
+"S": 0.2,
+"A": 0.1,
+"H": 0.1,
+"G": 0.0,
+"W": 0.0,
+"desc": "Twin-tail rudders",
+"price": 500
+},
+{
+"name": "Pop-up Flap",
+"S": 0.3,
+"A": -0.3,
+"H": 0.0,
+"G": 0.1,
+"W": 0.0,
+"desc": "Air-brake flap used on long straights",
+"price": 400
+},
+{
+"name": "Feather Wing",
+"S": 0.1,
+"A": 0.2,
+"H": 0.0,
+"G": -0.1,
+"W": -0.3,
+"desc": "Carbon feather-light wing",
+"price": 600
+}
+],
+"exhausts": [
+{
+"name": "Stock Pipe",
+"S": 0.0,
+"A": 0.0,
+"H": 0.0,
+"G": 0.0,
+"W": 0.0,
+"desc": "Standard single tailpipe",
+"price": 0
+},
+{
+"name": "Twin Chrome",
+"S": 0.1,
+"A": 0.1,
+"H": 0.0,
+"G": 0.0,
+"W": 0.1,
+"desc": "Twin chrome pipes",
+"price": 150
+},
+{
+"name": "Side Pipes",
+"S": 0.0,
+"A": 0.2,
+"H": 0.0,
+"G": 0.0,
+"W": 0.0,
+"desc": "Side-exit pipes",
+"price": 200
+},
+{
+"name": "Megaphone",
+"S": 0.2,
+"A": 0.1,
+"H": 0.0,
+"G": 0.0,
+"W": 0.1,
+"desc": "Loud megaphone exhaust",
+"price": 250
+},
+{
+"name": "Upswept",
+"S": 0.1,
+"A": 0.0,
+"H": 0.1,
+"G": 0.0,
+"W": 0.0,
+"desc": "Upswept pipe, tiny gain in clearance",
+"price": 250
+},
+{
+"name": "Flame Thrower",
+"S": 0.0,
+"A": 0.3,
+"H": 0.0,
+"G": -0.1,
+"W": 0.1,
+"desc": "Shoots flames on boost",
+"price": 400
+},
+{
+"name": "Quad Stack",
+"S": 0.3,
+"A": 0.1,
+"H": 0.0,
+"G": -0.1,
+"W": 0.2,
+"desc": "Four-barrel stack",
+"price": 500
+},
+{
+"name": "Turbo Whistle",
+"S": 0.1,
+"A": 0.3,
+"H": 0.0,
+"G": 0.0,
+"W": 0.0,
+"desc": "Whistling turbo exhaust",
+"price": 550
+},
+{
+"name": "Bubbler",
+"S": 0.0,
+"A": 0.1,
+"H": 0.1,
+"G": 0.1,
+"W": 0.0,
+"desc": "Blows bubbles on boost",
+"price": 400
+},
+{
+"name": "Rocket Nozzle",
+"S": 0.4,
+"A": 0.3,
+"H": -0.1,
+"G": -0.1,
+"W": 0.2,
+"desc": "Single rocket nozzle, high power but demanding",
+"price": 700
+}
+],
+"bumpers": [
+{
+"name": "Stock Bumper",
+"S": 0.0,
+"A": 0.0,
+"H": 0.0,
+"G": 0.0,
+"W": 0.0,
+"desc": "Standard bumper",
+"price": 0
+},
+{
+"name": "Rubber Pusher",
+"S": 0.0,
+"A": 0.0,
+"H": 0.0,
+"G": 0.1,
+"W": 0.2,
+"desc": "Soft rubber bumper that shrugs off bumps",
+"price": 200
+},
+{
+"name": "Splitter",
+"S": 0.1,
+"A": 0.0,
+"H": 0.1,
+"G": 0.0,
+"W": -0.1,
+"desc": "Aero splitter",
+"price": 300
+},
+{
+"name": "Cow Catcher",
+"S": -0.1,
+"A": -0.1,
+"H": 0.0,
+"G": 0.0,
+"W": 0.4,
+"desc": "Heavy cow-catcher grille",
+"price": 350
+},
+{
+"name": "Spike Guard",
+"S": 0.0,
+"A": 0.0,
+"H": 0.0,
+"G": 0.1,
+"W": 0.3,
+"desc": "Decorative spikes, increases push-through",
+"price": 400
+},
+{
+"name": "Tiny Bumper",
+"S": 0.1,
+"A": 0.1,
+"H": 0.1,
+"G": -0.1,
+"W": -0.3,
+"desc": "Minimal bumper for lightness",
+"price": 450
+},
+{
+"name": "Rubber Duck Horn",
+"S": 0.0,
+"A": 0.1,
+"H": 0.0,
+"G": 0.0,
+"W": 0.1,
+"desc": "Squeaky horn bumper (cosmetic horn sound)",
+"price": 250
+},
+{
+"name": "Twin Prongs",
+"S": 0.1,
+"A": 0.0,
+"H": 0.2,
+"G": 0.0,
+"W": 0.1,
+"desc": "Forked prongs for light contact",
+"price": 500
+}
+],
+"rimColors": [
+{
+"name": "Chrome",
+"hex": "#e8edf2"
+},
+{
+"name": "Gunmetal",
+"hex": "#5b6571"
+},
+{
+"name": "Gold",
+"hex": "#e5b84a"
+},
+{
+"name": "Bronze",
+"hex": "#b0793a"
+},
+{
+"name": "Signal Red",
+"hex": "#d7263d"
+},
+{
+"name": "Cherry",
+"hex": "#a31735"
+},
+{
+"name": "Sunset Orange",
+"hex": "#ff7a1a"
+},
+{
+"name": "Lemon",
+"hex": "#ffe347"
+},
+{
+"name": "Lime",
+"hex": "#8bd800"
+},
+{
+"name": "Mint",
+"hex": "#7fe0b0"
+},
+{
+"name": "Teal",
+"hex": "#13b3b3"
+},
+{
+"name": "Sky Blue",
+"hex": "#3fa9f5"
+},
+{
+"name": "Cobalt",
+"hex": "#2457d6"
+},
+{
+"name": "Violet",
+"hex": "#7d4fd1"
+},
+{
+"name": "Hot Pink",
+"hex": "#ff3f95"
+},
+{
+"name": "Pearl White",
+"hex": "#f4f1ea"
+},
+{
+"name": "Jet Black",
+"hex": "#16181d"
+},
+{
+"name": "Rainbow Anodized",
+"hex": "rainbow"
+}
+],
+"rimFinishes": [
+"Polished",
+"Satin",
+"Anodized"
+],
+"paintColors": [
+{
+"name": "Cherry Red",
+"hex": "#d7263d"
+},
+{
+"name": "Sunset Orange",
+"hex": "#ff7a1a"
+},
+{
+"name": "Marigold",
+"hex": "#ffb400"
+},
+{
+"name": "Lemon Zest",
+"hex": "#ffe347"
+},
+{
+"name": "Lime Pop",
+"hex": "#8bd800"
+},
+{
+"name": "Meadow Green",
+"hex": "#2fae4a"
+},
+{
+"name": "Mint Julep",
+"hex": "#7fe0b0"
+},
+{
+"name": "Teal Wave",
+"hex": "#13b3b3"
+},
+{
+"name": "Sky Blue",
+"hex": "#3fa9f5"
+},
+{
+"name": "Cobalt",
+"hex": "#2457d6"
+},
+{
+"name": "Indigo Night",
+"hex": "#2a2f87"
+},
+{
+"name": "Violet Haze",
+"hex": "#7d4fd1"
+},
+{
+"name": "Orchid",
+"hex": "#b46ad8"
+},
+{
+"name": "Hot Pink",
+"hex": "#ff3f95"
+},
+{
+"name": "Bubblegum",
+"hex": "#ff9ec7"
+},
+{
+"name": "Coral",
+"hex": "#ff6b57"
+},
+{
+"name": "Chocolate",
+"hex": "#6b3f2a"
+},
+{
+"name": "Sandstone",
+"hex": "#d9b97a"
+},
+{
+"name": "Pearl White",
+"hex": "#f4f1ea"
+},
+{
+"name": "Ice Silver",
+"hex": "#c9d1d9"
+},
+{
+"name": "Gunmetal",
+"hex": "#5b6571"
+},
+{
+"name": "Jet Black",
+"hex": "#16181d"
+},
+{
+"name": "Midnight Blue",
+"hex": "#142a4f"
+},
+{
+"name": "Forest",
+"hex": "#1f5a34"
+},
+{
+"name": "Rust",
+"hex": "#a4472a"
+},
+{
+"name": "Peach",
+"hex": "#ffb08a"
+},
+{
+"name": "Aqua",
+"hex": "#41d8e8"
+},
+{
+"name": "Lavender",
+"hex": "#bda9ee"
+},
+{
+"name": "Burgundy",
+"hex": "#7d1633"
+},
+{
+"name": "Olive",
+"hex": "#7b7d2a"
+},
+{
+"name": "Turquoise",
+"hex": "#20c9b0"
+},
+{
+"name": "Gold Leaf",
+"hex": "#e5b84a"
+}
+],
+"paintFinishes": [
+"Gloss",
+"Matte",
+"Metallic",
+"Pearl",
+"Candy"
+],
+"twoTone": [
+"Hood Stripe",
+"Split Down",
+"Roof Cap",
+"Fade Front-Back",
+"Racing Number Panel",
+"Bib",
+"Lower Skirt",
+"Diagonal"
+],
+"decals": [
+"Racing Stripes",
+"Twin Stripes",
+"Checker Flag",
+"Lightning Bolt",
+"Flame Licks",
+"Polka Dots",
+"Star Field",
+"Camo Splash",
+"Zigzag",
+"Wave Crest",
+"Honeycomb",
+"Number 7",
+"Number 42",
+"Number 99",
+"Sun Burst",
+"Skull & Wrenches",
+"Paw Prints",
+"Leaf Pattern",
+"Snowflakes",
+"Circuit Lines",
+"Candy Swirl",
+"Tiger Stripes",
+"Argyle",
+"Galaxy Swirl"
+],
+"modCap": 1.5
+}

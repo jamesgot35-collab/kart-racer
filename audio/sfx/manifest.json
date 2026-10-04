@@ -1,0 +1,447 @@
+{
+"ui_click": {
+"file": "ui_click.wav",
+"loop": false,
+"dur": 0.05
+},
+"ui_hover": {
+"file": "ui_hover.wav",
+"loop": false,
+"dur": 0.04
+},
+"ui_confirm": {
+"file": "ui_confirm.wav",
+"loop": false,
+"dur": 0.5
+},
+"ui_back": {
+"file": "ui_back.wav",
+"loop": false,
+"dur": 0.4
+},
+"ui_error": {
+"file": "ui_error.wav",
+"loop": false,
+"dur": 0.4
+},
+"ui_toggle": {
+"file": "ui_toggle.wav",
+"loop": false,
+"dur": 0.06
+},
+"ui_tick": {
+"file": "ui_tick.wav",
+"loop": false,
+"dur": 0.02
+},
+"ui_buy": {
+"file": "ui_buy.wav",
+"loop": false,
+"dur": 1.0
+},
+"ui_unlock": {
+"file": "ui_unlock.wav",
+"loop": false,
+"dur": 1.5
+},
+"ui_whoosh": {
+"file": "ui_whoosh.wav",
+"loop": false,
+"dur": 0.4
+},
+"lobby_join": {
+"file": "lobby_join.wav",
+"loop": false,
+"dur": 0.5
+},
+"lobby_leave": {
+"file": "lobby_leave.wav",
+"loop": false,
+"dur": 0.5
+},
+"lobby_ready": {
+"file": "lobby_ready.wav",
+"loop": false,
+"dur": 0.45
+},
+"cd_beep": {
+"file": "cd_beep.wav",
+"loop": false,
+"dur": 0.3
+},
+"cd_go": {
+"file": "cd_go.wav",
+"loop": false,
+"dur": 0.8
+},
+"lap_chime": {
+"file": "lap_chime.wav",
+"loop": false,
+"dur": 1.0
+},
+"finallap": {
+"file": "finallap.wav",
+"loop": false,
+"dur": 1.8
+},
+"coin": {
+"file": "coin.wav",
+"loop": false,
+"dur": 0.3
+},
+"itembox": {
+"file": "itembox.wav",
+"loop": false,
+"dur": 0.6
+},
+"roulette_tick": {
+"file": "roulette_tick.wav",
+"loop": false,
+"dur": 0.04
+},
+"item_ready": {
+"file": "item_ready.wav",
+"loop": false,
+"dur": 0.6
+},
+"boost_pad": {
+"file": "boost_pad.wav",
+"loop": false,
+"dur": 0.55
+},
+"hop": {
+"file": "hop.wav",
+"loop": false,
+"dur": 0.14
+},
+"land": {
+"file": "land.wav",
+"loop": false,
+"dur": 0.18
+},
+"drift_tick1": {
+"file": "drift_tick1.wav",
+"loop": false,
+"dur": 0.3
+},
+"drift_tick2": {
+"file": "drift_tick2.wav",
+"loop": false,
+"dur": 0.3
+},
+"drift_tick3": {
+"file": "drift_tick3.wav",
+"loop": false,
+"dur": 0.3
+},
+"spark_loop": {
+"file": "spark_loop.wav",
+"loop": true,
+"dur": 1.0
+},
+"skid_road": {
+"file": "skid_road.wav",
+"loop": true,
+"dur": 1.2
+},
+"skid_snow": {
+"file": "skid_snow.wav",
+"loop": true,
+"dur": 1.2
+},
+"skid_sand": {
+"file": "skid_sand.wav",
+"loop": true,
+"dur": 1.2
+},
+"offroad_loop": {
+"file": "offroad_loop.wav",
+"loop": true,
+"dur": 1.2
+},
+"wind_loop": {
+"file": "wind_loop.wav",
+"loop": true,
+"dur": 2.0
+},
+"draft_loop": {
+"file": "draft_loop.wav",
+"loop": true,
+"dur": 1.5
+},
+"slingshot": {
+"file": "slingshot.wav",
+"loop": false,
+"dur": 0.7
+},
+"start_boost": {
+"file": "start_boost.wav",
+"loop": false,
+"dur": 1.0
+},
+"start_stall": {
+"file": "start_stall.wav",
+"loop": false,
+"dur": 1.2
+},
+"boost_t1": {
+"file": "boost_t1.wav",
+"loop": false,
+"dur": 0.7
+},
+"boost_t2": {
+"file": "boost_t2.wav",
+"loop": false,
+"dur": 1.0
+},
+"boost_t3": {
+"file": "boost_t3.wav",
+"loop": false,
+"dur": 1.4
+},
+"pod_use": {
+"file": "pod_use.wav",
+"loop": false,
+"dur": 1.0
+},
+"bump_light_a": {
+"file": "bump_light_a.wav",
+"loop": false,
+"dur": 0.35
+},
+"bump_light_b": {
+"file": "bump_light_b.wav",
+"loop": false,
+"dur": 0.35
+},
+"bump_med_a": {
+"file": "bump_med_a.wav",
+"loop": false,
+"dur": 0.35
+},
+"bump_med_b": {
+"file": "bump_med_b.wav",
+"loop": false,
+"dur": 0.35
+},
+"bump_heavy_a": {
+"file": "bump_heavy_a.wav",
+"loop": false,
+"dur": 0.35
+},
+"bump_heavy_b": {
+"file": "bump_heavy_b.wav",
+"loop": false,
+"dur": 0.35
+},
+"wall_scrape": {
+"file": "wall_scrape.wav",
+"loop": true,
+"dur": 0.8
+},
+"wall_hit": {
+"file": "wall_hit.wav",
+"loop": false,
+"dur": 0.5
+},
+"crash_big": {
+"file": "crash_big.wav",
+"loop": false,
+"dur": 1.0
+},
+"spin_whirl": {
+"file": "spin_whirl.wav",
+"loop": false,
+"dur": 0.9
+},
+"disc_launch": {
+"file": "disc_launch.wav",
+"loop": false,
+"dur": 0.4
+},
+"disc_bounce": {
+"file": "disc_bounce.wav",
+"loop": false,
+"dur": 0.12
+},
+"disc_pop": {
+"file": "disc_pop.wav",
+"loop": false,
+"dur": 0.4
+},
+"disc_hit": {
+"file": "disc_hit.wav",
+"loop": false,
+"dur": 1.0
+},
+"peel_drop": {
+"file": "peel_drop.wav",
+"loop": false,
+"dur": 0.15
+},
+"peel_throw": {
+"file": "peel_throw.wav",
+"loop": false,
+"dur": 0.25
+},
+"peel_hit": {
+"file": "peel_hit.wav",
+"loop": false,
+"dur": 0.9
+},
+"spill_drop": {
+"file": "spill_drop.wav",
+"loop": false,
+"dur": 0.55
+},
+"spill_slip": {
+"file": "spill_slip.wav",
+"loop": false,
+"dur": 0.8
+},
+"jolt_arm": {
+"file": "jolt_arm.wav",
+"loop": false,
+"dur": 1.6
+},
+"jolt_zap": {
+"file": "jolt_zap.wav",
+"loop": false,
+"dur": 0.9
+},
+"jolt_shrink": {
+"file": "jolt_shrink.wav",
+"loop": false,
+"dur": 0.7
+},
+"nova_start": {
+"file": "nova_start.wav",
+"loop": false,
+"dur": 1.3
+},
+"nova_loop": {
+"file": "nova_loop.wav",
+"loop": true,
+"dur": 2.0
+},
+"nova_end": {
+"file": "nova_end.wav",
+"loop": false,
+"dur": 0.9
+},
+"veil_on": {
+"file": "veil_on.wav",
+"loop": false,
+"dur": 0.7
+},
+"veil_off": {
+"file": "veil_off.wav",
+"loop": false,
+"dur": 0.5
+},
+"steal": {
+"file": "steal.wav",
+"loop": false,
+"dur": 0.4
+},
+"rocket_launch": {
+"file": "rocket_launch.wav",
+"loop": false,
+"dur": 1.2
+},
+"rocket_loop": {
+"file": "rocket_loop.wav",
+"loop": true,
+"dur": 1.0
+},
+"rocket_lock": {
+"file": "rocket_lock.wav",
+"loop": false,
+"dur": 0.09
+},
+"rocket_explode": {
+"file": "rocket_explode.wav",
+"loop": false,
+"dur": 1.8
+},
+"brace_ok": {
+"file": "brace_ok.wav",
+"loop": false,
+"dur": 0.6
+},
+"shield_up": {
+"file": "shield_up.wav",
+"loop": false,
+"dur": 0.4
+},
+"item_denied": {
+"file": "item_denied.wav",
+"loop": false,
+"dur": 0.18
+},
+"crowd_cheer": {
+"file": "crowd_cheer.wav",
+"loop": false,
+"dur": 2.2
+},
+"crowd_gasp": {
+"file": "crowd_gasp.wav",
+"loop": false,
+"dur": 0.9
+},
+"crowd_loop": {
+"file": "crowd_loop.wav",
+"loop": true,
+"dur": 8.0
+},
+"applause_loop": {
+"file": "applause_loop.wav",
+"loop": true,
+"dur": 4.0
+},
+"fanfare_win": {
+"file": "fanfare_win.wav",
+"loop": false,
+"dur": 2.39
+},
+"fanfare_mid": {
+"file": "fanfare_mid.wav",
+"loop": false,
+"dur": 1.8
+},
+"fanfare_lose": {
+"file": "fanfare_lose.wav",
+"loop": false,
+"dur": 1.76
+},
+"pos_up": {
+"file": "pos_up.wav",
+"loop": false,
+"dur": 0.25
+},
+"pos_down": {
+"file": "pos_down.wav",
+"loop": false,
+"dur": 0.25
+},
+"shortcut_found": {
+"file": "shortcut_found.wav",
+"loop": false,
+"dur": 0.6
+},
+"horn": {
+"file": "horn.wav",
+"loop": false,
+"dur": 0.7
+},
+"trophy": {
+"file": "trophy.wav",
+"loop": false,
+"dur": 1.5
+},
+"engine_start": {
+"file": "engine_start.wav",
+"loop": false,
+"dur": 1.2
+}
+}

@@ -1,0 +1,178 @@
+{
+ "_comment": "Single source of truth for kart physics. Used by docs/01-game-design-document.md (generated) and by the game (src/config via esbuild JSON import).",
+ "units": "metres, seconds, radians internally; HUD speed = m/s x 4 (km/h-style readout)",
+ "topSpeed": {
+  "base": 34.0,
+  "perStat": 1.2,
+  "note": "vmax = base + perStat * S  (m/s)"
+ },
+ "accel": {
+  "t90Base": 6.4,
+  "t90PerStat": 0.38,
+  "note": "time to 90% of vmax on tarmac; a(v)=a0*(1-(v/vmax)^2), a0 = 1.472*vmax/t90"
+ },
+ "brake": 30.0,
+ "coastDrag": 3.0,
+ "reverseMax": 10.0,
+ "steer": {
+  "yawRateMaxDeg": 105,
+  "yawPerStatDeg": 3.0,
+  "latAccelBase": 18.0,
+  "latAccelPerGrip": 1.6,
+  "speedFade": 0.35,
+  "note": "yaw rate cap = (yawRateMax-ish) limited by lateral accel / v, so high speed turns wide"
+ },
+ "grip": {
+  "normal": 11.0,
+  "driftSlide": 1.6,
+  "offroadGrip": 7.0,
+  "note": "per-second lateral velocity decay rates"
+ },
+ "drift": {
+  "minSpeed": 17.0,
+  "hopImpulse": 0.9,
+  "angleDeg": 32,
+  "innerYawMul": 1.25,
+  "outerYawMul": 0.72,
+  "chargeSec": [
+   0.9,
+   1.9,
+   3.1
+  ],
+  "boostSec": [
+   0.8,
+   1.5,
+   2.3
+  ],
+  "boostMul": [
+   1.14,
+   1.22,
+   1.3
+  ],
+  "chargeFullSteerMul": 1.0,
+  "chargeNoSteerMul": 0.55,
+  "tiers": [
+   "Blue",
+   "Orange",
+   "Purple"
+  ],
+  "baseYaw": 0.62
+ },
+ "startBoost": {
+  "windowSec": 0.28,
+  "boostSec": 1.3,
+  "boostMul": 1.25,
+  "earlyStallSec": 1.0
+ },
+ "offroad": {
+  "topMul": 0.55,
+  "accelMul": 0.6,
+  "rough": 0.8
+ },
+ "boostPad": {
+  "sec": 1.1,
+  "mul": 1.28
+ },
+ "item": {
+  "pod": {
+   "sec": 1.8,
+   "mul": 1.35
+  },
+  "podTrio": {
+   "sec": 1.4,
+   "mul": 1.3,
+   "uses": 3
+  },
+  "disc": {
+   "speed": 58,
+   "bounces": 4,
+   "lifeSec": 8,
+   "spinOutSec": 1.2,
+   "speedLoss": 0.6
+  },
+  "peel": {
+   "spinOutSec": 0.9,
+   "speedLoss": 0.25,
+   "throwDist": 12
+  },
+  "jolt": {
+   "armSec": 1.5,
+   "shrinkSec": 6.0,
+   "speedMul": 0.78,
+   "minRankToGet": 6
+  },
+  "nova": {
+   "sec": 7.0,
+   "mul": 1.2
+  },
+  "veil": {
+   "sec": 5.0,
+   "stealRange": 25
+  },
+  "spill": {
+   "radius": 1.8,
+   "lifeSec": 15,
+   "slipSec": 1.2,
+   "speedLoss": 0.1
+  },
+  "rocket": {
+   "speed": 72,
+   "lockSec": 2.0,
+   "spinOutSec": 1.6,
+   "braceWindowSec": 0.25,
+   "minRankToGet": 3
+  }
+ },
+ "bump": {
+  "kartRadius": 1.15,
+  "restitution": 0.45,
+  "spinImpactSpeed": 14.0,
+  "spinSec": 0.6,
+  "lightLoss": 0.15,
+  "heavyLoss": 0.03,
+  "massBase": 0.7,
+  "massPerWeight": 0.12,
+  "wallScrapeLoss": 0.08,
+  "wallHeadOnLoss": 0.5
+ },
+ "draft": {
+  "minDist": 4.0,
+  "maxDist": 22.0,
+  "lateral": 1.8,
+  "chargeSec": 1.2,
+  "topMul": 1.06,
+  "slingshotAfterSec": 2.0,
+  "slingshotSec": 1.2,
+  "slingshotMul": 1.12
+ },
+ "rubber": {
+  "cpuMulMin": 0.965,
+  "cpuMulMax": 1.035,
+  "rangeM": 90,
+  "cpuBaseMul": 0.97
+ },
+ "class": {
+  "Light": {
+   "S": -0.5,
+   "A": 1.0,
+   "H": 0.5,
+   "G": 0.0,
+   "W": -2.0
+  },
+  "Medium": {
+   "S": 0.0,
+   "A": 0.0,
+   "H": 0.0,
+   "G": 0.0,
+   "W": 0.0
+  },
+  "Heavy": {
+   "S": 0.8,
+   "A": -1.0,
+   "H": -0.5,
+   "G": 0.2,
+   "W": 2.5
+  }
+ },
+ "modCapPerStat": 1.5
+}

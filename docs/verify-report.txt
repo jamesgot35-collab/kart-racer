@@ -1,0 +1,34 @@
+PASS roster rows = 100 (need exactly 100)
+PASS unique roster names = 100 (need 100)
+PASS classes ['Heavy', 'Light', 'Medium']: Heavy=33, Light=33, Medium=34
+PASS free starters marked = 12 (need 12)
+PASS themed sets = 10 (need 10)
+PASS kart bodies = 42 (need >= 40)
+PASS body names unique
+PASS all bodies have S+A+H+G = 22 []
+PASS tracks = 20 (need exactly 20)
+PASS track names unique
+PASS cups: [('Seedling Cup', 4), ('Copper Cup', 4), ('Tempest Cup', 4), ('Zenith Cup', 4), ('Bonus', 4)]
+PASS every track has shortcut, hazard, mirror/reverse
+PASS slice character exists in roster: Pip Thistledown
+PASS slice character exists in roster: Fennel Vix
+PASS slice character exists in roster: Juniper Wren
+PASS slice character exists in roster: Bramble Quill
+PASS slice character exists in roster: Clover Dash
+PASS slice character exists in roster: Captain Dusk Marlowe
+PASS slice character exists in roster: Marigold Hoofsworth
+PASS slice character exists in roster: Gus Gantry
+PASS slice kart exists: Corsa Standard
+PASS slice kart exists: Needle
+PASS slice kart exists: Slidewinder
+PASS slice kart exists: Ironclad
+PASS slice kart exists: Pogo
+PASS slice kart exists: Pumpkin Coach
+PASS slice track exists: Buttercup Meadows
+PASS slice track exists: Lantern Harbor
+PASS slice track exists: Mirage Mesa
+PASS slice track exists: Frostbite Pass
+PASS no unresolved template tokens in GDD
+PASS GDD names the four cups
+PASS room alphabet 20 unambiguous symbols: ACDEFHJKMNPRTUWXY347
+ALL OK

@@ -1,0 +1,10 @@
+import * as THREE from 'three';
+import { buildTrack } from './tracks.js';
+import { TrackView } from './trackview.js';
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); renderer.setSize(1000, 700); document.body.appendChild(renderer.domElement);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene(); const cam = new THREE.PerspectiveCamera(60, 1000 / 700, 0.5, 3000);
+let view;
+window.show = (id, s, opts = {}) => { if (view) view.dispose(); const tc = buildTrack(id, opts); view = new TrackView(tc, scene, renderer); const a = tc.at(s, 0, {}); cam.position.set(a.x - a.tx * 12, 5.5, a.z - a.tz * 12); cam.lookAt(a.x + a.tx * 20, 1.5, a.z + a.tz * 20); view.update(0.016, 1, cam.position); renderer.render(scene, cam); return { info: renderer.info.render.calls, tris: renderer.info.render.triangles, len: tc.length }; };
+window.showTop = (id) => { const tc = buildTrack(id); if (view) view.dispose(); view = new TrackView(tc, scene, renderer); const [cx, cz] = view.center; cam.position.set(cx, view.radius * 2.3, cz + 1); cam.lookAt(cx, 0, cz); cam.far = 6000; cam.updateProjectionMatrix(); view.update(0.016, 1, cam.position); renderer.render(scene, cam); return renderer.info.render.calls; };
+window.ready = true;

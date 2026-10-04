@@ -1,0 +1,4651 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Sparkdrift GP: Design Package</title><style>body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:1180px;margin:0 auto;padding:24px;color:#1b1f2a;line-height:1.5}
+h1{border-bottom:4px solid #ff7a1a;padding-bottom:6px;color:#14213d} h2{color:#0b6e99;margin-top:2em;border-bottom:1px solid #dde} h3{color:#444}
+table{border-collapse:collapse;margin:12px 0;font-size:12.5px;width:100%} th,td{border:1px solid #cfd6e0;padding:4px 7px;vertical-align:top} th{background:#14213d;color:#fff;text-align:left} tr:nth-child(even) td{background:#f4f7fb}
+code,pre{background:#eef2f7;border-radius:4px} pre{padding:10px;overflow:auto} code{padding:1px 4px} .doc{page-break-before:always} nav a{margin-right:10px}
+@media print{body{max-width:none;padding:0} table{font-size:9px}}</style></head><body><h1>Sparkdrift GP: Design Package</h1><nav><a href="#00-README">00-README</a> <a href="#01-game-design-document">01-game-design-document</a> <a href="#02-roster">02-roster</a> <a href="#03-kart-and-mod-matrix">03-kart-and-mod-matrix</a> <a href="#04-tracks">04-tracks</a> <a href="#05-vertical-slice-plan">05-vertical-slice-plan</a> <a href="#06-production-risks-perf">06-production-risks-perf</a></nav><section class="doc" id="00-README"><h1>Sparkdrift GP: Executive Summary</h1>
+<ol>
+<li><strong>What:</strong> an original, premium-feel arcade kart racer for phones, in the spirit of a top console kart racer but with its own world, characters and music.</li>
+<li><strong>Scale:</strong> 100 original racers in 10 themed sets of 10, 42 kart bodies, 18 wheel styles in 5 sizes, 12 spoilers, 10 exhausts, 8 bumpers, 32 paints × 5 finishes, and 20 tracks (4 cups of 4 plus 4 bonus).</li>
+<li><strong>Feel:</strong> drift for a 3-tier boost, a timed start boost, drafting, bump rules by weight class, light rubber-banding, and 8 skill-based items that each have a counter.</li>
+<li><strong>Modes:</strong> Grand Prix (12-racer field), Time Trial with ghosts, Versus with 6-character code rooms for 2 to 4 humans (CPU fill to 12), optional Battle, Daily Challenge with a leaderboard.</li>
+<li><strong>Economy:</strong> coins from racing buy everything; money buys cosmetics only; every kart body shares one stat budget (no pay-to-win).</li>
+<li><strong>Multiplayer:</strong> unambiguous 20-symbol code alphabet, host-authoritative items with lag compensation, client prediction, host migration, CPU takeover on drop.</li>
+<li><strong>Sound first:</strong> class-specific layered engines, tiered drift/boost sounds, an announcer, character barks, per-track ambience, and a six-stem dynamic score that reacts to position and the final lap, through a ducking mixer and master limiter.</li>
+<li><strong>Vertical slice:</strong> 8 characters, 6 karts, full garage, 4 tracks, 4-player code lobbies, all items, 3-tier drift boost. A playable browser build ships alongside these docs.</li>
+<li><strong>Production:</strong> 24 months, ~85 people, $10M; Unity 6 + Nakama + FMOD recommended; risks and the performance budget are in <code>06</code>.</li>
+<li><strong>Docs:</strong> <code>01</code> game design, <code>02</code> roster, <code>03</code> karts/mods, <code>04</code> tracks, <code>05</code> vertical slice, <code>06</code> production/risks/perf. All names and stats are generated from one data source and verified by script.</li>
+</ol></section><section class="doc" id="01-game-design-document"><h1>Sparkdrift GP: Game Design Document</h1>
+<p><em>Version 1.0 · Original IP · Feel reference only: "a polished arcade kart racer in the spirit of a premium console kart racer". No third-party characters, tracks, names or audio are used anywhere in this project.</em></p>
+<hr />
+<h2>1. Vision and pillars</h2>
+<p><strong>One-line pitch.</strong> A saturated, readable, fast arcade kart racer for phones: 100 expressive racers, 40+ customisable karts, 20 tracks with shortcuts, skill-based items, 1 to 4 humans in code rooms, and a score that reacts to every overtake.</p>
+<h3>Design pillars</h3>
+<ol>
+<li><strong>Readable at speed.</strong> Every kart, hazard and item reads from silhouette and colour at thumbnail size. The racing line is always the brightest, cleanest shape on screen. The HUD never covers the racing line.</li>
+<li><strong>Drift is the instrument.</strong> Drifting is the main skill expression: choose a line, charge a tier, release at the right moment. Three tiers, three distinct audio-visual signatures.</li>
+<li><strong>Skill beats luck.</strong> Items can be held as shields, dodged, baited and countered. Rubber-banding is light enough that a better driver can still pull away.</li>
+<li><strong>Customisation is identity, not power creep.</strong> Every kart body has the same power budget (stat sum 22). Mods trade one stat for another, capped at ±1.5 per stat. No pay-to-win: money buys cosmetics only; coins buy everything else, earned by racing.</li>
+<li><strong>Sound is half the game.</strong> Engines, drift squeals, boost whooshes, an announcer, crowd, barks and a position-reactive score are designed as one mix, not as an afterthought (see section 14).</li>
+<li><strong>Friends in ten seconds.</strong> A host taps once, gets a 6-character code, says it aloud, and friends join in seconds. If someone drops, a CPU takes over.</li>
+</ol>
+<h3>Target feel</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame rate</td>
+<td>60 fps on flagship phones, stable 30 fps on mid-range</td>
+</tr>
+<tr>
+<td>Input latency (touch to steering)</td>
+<td>below 60 ms</td>
+</tr>
+<tr>
+<td>First load</td>
+<td>under 8 s on a good phone (core download under 6 MB for the web slice)</td>
+</tr>
+<tr>
+<td>Race length</td>
+<td>3 laps, about 2:30 to 4:30</td>
+</tr>
+<tr>
+<td>Session loop</td>
+<td>a race, a reward screen, a garage tweak, the next race in under 90 s</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. Platforms and technology targets</h2>
+<ul>
+<li><strong>Production target:</strong> iOS and Android phones and tablets (ARM64), Bluetooth gamepad support.</li>
+<li><strong>This repository's playable slice:</strong> a free static browser build (three.js, WebAudio, WebRTC) that runs on iPhone Safari and Android Chrome. It implements the vertical slice defined in <code>05-vertical-slice-plan.md</code> with the same numbers as this document.</li>
+<li>Units: metres, seconds. HUD speed readout = m/s × 4.</li>
+</ul>
+<hr />
+<h2>3. Controls</h2>
+<h3>3.1 Touch (default)</h3>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Position / behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Steering slider</strong></td>
+<td>A horizontal slider, bottom-left thumb zone, 38% of screen width. Dead zone 6%, response curve <code>y = sign(x)·|x|^1.25</code>, optional auto-centre.</td>
+</tr>
+<tr>
+<td><strong>Accelerate</strong></td>
+<td>Automatic by default (Assist: Auto-Accel on). Hold-to-accelerate is available for experts.</td>
+</tr>
+<tr>
+<td><strong>Brake / reverse</strong></td>
+<td>Pedal under the right thumb, lower centre-right.</td>
+</tr>
+<tr>
+<td><strong>Drift / hop button</strong></td>
+<td>Large round button, bottom-right, 14% of screen height. Tap to hop; hold while steering to drift. Release to fire the boost.</td>
+</tr>
+<tr>
+<td><strong>Item button</strong></td>
+<td>Right side, above the drift button. Tap to use, hold to keep the item trailing behind as a shield, swipe up/down to aim forward/back.</td>
+</tr>
+<tr>
+<td><strong>Look-back</strong></td>
+<td>Small button near the item slot. Hold to view behind.</td>
+</tr>
+<tr>
+<td><strong>Pause</strong></td>
+<td>Top-right corner, away from controls.</td>
+</tr>
+</tbody>
+</table>
+<p>Optional <strong>tilt steering</strong> (gyro) with calibration, 12° dead zone, sensitivity slider. Touch controls can be moved and resized in settings. Left-handed layout mirrors everything.</p>
+<h3>3.2 Gamepad (Bluetooth)</h3>
+<p>Standard mapping: left stick steer, right trigger accelerate, left trigger brake, <strong>A</strong> drift/hop, <strong>X</strong> item, <strong>Y</strong> look-back, <strong>Start</strong> pause, d-pad menu navigation.</p>
+<h3>3.3 Accessibility</h3>
+<p>Auto-accelerate, steering assist (adds a soft lane pull of up to 20%), colour-blind-safe item and drift-tier indicators (shape + colour), reduced camera shake, reduced flashing, large HUD, haptics slider, subtitles for the announcer and barks, one-handed mode (steer by tilt and drift by screen tap).</p>
+<hr />
+<h2>4. Physics and handling targets</h2>
+<p>All numbers are tuned for 60 Hz fixed-step simulation (30 Hz render fallback runs the same fixed step with interpolation).</p>
+<h3>4.1 Stats and how they map to physics</h3>
+<p>Every kart has five stats (1 to 10): <strong>S</strong> top speed, <strong>A</strong> acceleration, <strong>H</strong> handling, <strong>G</strong> drift grip, <strong>W</strong> weight. Final stats = body + character-class modifier + wheel + spoiler + exhaust + bumper (each clamped so total mod per stat is within ±1.5), then clamped to 1 to 10.</p>
+<table>
+<thead>
+<tr>
+<th>Stat</th>
+<th>Formula</th>
+<th>Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top speed</td>
+<td><code>vmax = 34 + 1.2·S</code> m/s</td>
+<td>35.2 to 46.0 m/s (141 to 184 on the HUD)</td>
+</tr>
+<tr>
+<td>Acceleration</td>
+<td>time to 90% of vmax on tarmac <code>t90 = 6.4 − 0.38·A</code> s; <code>a(v) = a0·(1 − (v/vmax)²)</code>, <code>a0 = 1.472·vmax/t90</code></td>
+<td>6.0 s down to 2.6 s</td>
+</tr>
+<tr>
+<td>Handling</td>
+<td>yaw-rate cap <code>105°/s</code> scaled by <code>(0.72 + 0.03·H)</code>, limited by lateral acceleration</td>
+<td>wider turns at higher speed</td>
+</tr>
+<tr>
+<td>Drift grip</td>
+<td>lateral acceleration cap <code>18 + 1.6·G</code> m/s²</td>
+<td>19.6 to 34 m/s²</td>
+</tr>
+<tr>
+<td>Weight</td>
+<td>mass <code>0.7 + 0.12·W</code></td>
+<td>0.82 to 1.9</td>
+</tr>
+</tbody>
+</table>
+<p>Other base values: brake 30 m/s², coasting drag 3.0 m/s², reverse top speed 10 m/s, off-road top speed ×0.55 and acceleration ×0.6, rough shortcut ground ×0.8 top speed, boost pad 1.1 s at ×1.28.</p>
+<h3>4.2 Character classes</h3>
+<p>Classes add small modifiers to the body stats:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>S</th>
+<th>A</th>
+<th>H</th>
+<th>G</th>
+<th>W</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light</td>
+<td>-0.5</td>
+<td>+1.0</td>
+<td>+0.5</td>
+<td>0.0</td>
+<td>-2.0</td>
+<td>Fast acceleration, quick recovery, weak in bumps (loses 15% speed on a heavy hit and is spun out above 14 m/s impact)</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>Balanced</td>
+</tr>
+<tr>
+<td>Heavy</td>
+<td>+0.8</td>
+<td>-1.0</td>
+<td>-0.5</td>
+<td>+0.2</td>
+<td>+2.5</td>
+<td>Slow acceleration, high top speed, wins bump contests (loses only 3% speed)</td>
+</tr>
+</tbody>
+</table>
+<h3>4.3 Steering model</h3>
+<p>Heading and velocity are separate. Steering rotates the heading at yaw rate ω, capped by <code>ω ≤ a_lat / v</code> so cornering is bounded by grip. Lateral velocity (slip) decays at <strong>11 s⁻¹</strong> on a normal line (feels glued), <strong>1.6 s⁻¹</strong> while drifting (feels sliding), and <strong>7.0 s⁻¹</strong> off-road.</p>
+<h3>4.4 Surfaces</h3>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Top speed</th>
+<th>Accel</th>
+<th>Grip</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Road</td>
+<td>×1.00</td>
+<td>×1.00</td>
+<td>normal</td>
+<td>racing line</td>
+</tr>
+<tr>
+<td>Rough (shortcut ground)</td>
+<td>×0.8</td>
+<td>×0.85</td>
+<td>slightly loose</td>
+<td>cut risks speed loss without a boost</td>
+</tr>
+<tr>
+<td>Off-road (grass, sand, snow)</td>
+<td>×0.55</td>
+<td>×0.6</td>
+<td>low</td>
+<td>slows to a crawl, camera shakes</td>
+</tr>
+<tr>
+<td>Ice</td>
+<td>×1.00</td>
+<td>×0.9</td>
+<td>very low</td>
+<td>reduced by Studded wheels</td>
+</tr>
+<tr>
+<td>Boost pad</td>
+<td>1.1 s ×1.28</td>
+<td>boost</td>
+<td>n/a</td>
+<td>arrows glow</td>
+</tr>
+<tr>
+<td>Walls</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>see bump rules</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>5. Drifting and boost</h2>
+<ol>
+<li><strong>Hop.</strong> Tap the drift button above 17 m/s to hop (small jump, 0.9 m/s upward impulse for feel only). Hold steer left or right to commit to a direction.</li>
+<li><strong>Drift.</strong> While held, the kart slides at up to <strong>32°</strong> between heading and velocity. Steering <em>into</em> the drift multiplies yaw by ×1.25 (tightens), steering <em>against</em> multiplies by ×0.72 (widens). Steer commitment sets the charge rate: full steer charges at ×1.0, no steer at ×0.55.</li>
+<li><strong>Charge tiers (seconds of drifting at full commitment):</strong> Blue / Orange / Purple = <strong>0.9 / 1.9 / 3.1</strong> s.</li>
+<li><strong>Release.</strong> Releasing the button fires the boost: <strong>0.8 / 1.5 / 2.3</strong> s at ×<strong>1.14 / 1.22 / 1.3</strong> top speed for tiers 1 to 3.</li>
+<li><strong>Feedback.</strong> Spark colours: blue, orange, purple. Sparks change at each threshold with a rising "tick" tone; tier 3 adds a screen-edge streak and a bass swell. Releasing fires the tiered whoosh and a camera FOV kick.</li>
+<li><strong>Start boost.</strong> On the countdown, press accelerate within <strong>0.28 s</strong> of "GO": <strong>1.3 s at ×1.25</strong>. Pressing too early stalls the engine for 1.0 s (sputter sound, smoke).</li>
+<li><strong>Stacking.</strong> Boosts do not stack: the strongest multiplier applies and the longest remaining time is kept.</li>
+</ol>
+<hr />
+<h2>6. Bumping, drafting and slipstream</h2>
+<h3>6.1 Kart-to-kart bumps</h3>
+<ul>
+<li>Collision is circle vs circle, radius <strong>1.15 m</strong>, restitution <strong>0.45</strong>.</li>
+<li>Mass <code>m = 0.7 + 0.12·W</code>. The impulse is split by inverse mass, so a heavy kart pushes a light kart further.</li>
+<li>Speed loss on a heavy-vs-light hit: light loses <strong>15%</strong>, heavy loses <strong>3%</strong> of forward speed.</li>
+<li>Relative impact speed above <strong>14 m/s</strong> spins the lighter kart for <strong>0.6 s</strong> (hit-stun, cannot steer; still has momentum). Stars and ghosts ignore this.</li>
+<li>Side contact during a drift transfers no charge but gives the attacker a short +4% speed shove for 0.4 s ("rub is racing").</li>
+</ul>
+<h3>6.2 Walls</h3>
+<p>Glancing contact (angle below 25°) scrapes for <strong>8%</strong> speed loss per second of contact with sparks. Head-on contact (angle above 60°) cuts speed by <strong>50%</strong> with a screen shake. Walls never dead-stop a kart: a minimum outward push keeps it moving.</p>
+<h3>6.3 Draft and slipstream</h3>
+<ul>
+<li>A kart is in a draft when it is <strong>4.0 to 22 m</strong> behind another and within <strong>1.8 m</strong> laterally of its path.</li>
+<li>While in draft: +<strong>6%</strong> top speed (×1.06) and +10% acceleration.</li>
+<li>After <strong>2.0 s</strong> of continuous draft, leaving the wake triggers a <strong>slingshot</strong>: ×1.12 for 1.2 s. The HUD draws a curved air-line behind the lead kart.</li>
+<li>Draft charge starts after 1.2 s inside the zone and decays at twice the build rate when you leave it.</li>
+</ul>
+<hr />
+<h2>7. Items</h2>
+<p>Eight items, all with original names. Items are collected from <strong>item rows</strong> (rainbow orbs, row of 4 to 6 across the road). Each racer holds <strong>one item at a time</strong> (a second item is only picked up when the slot is empty; a shield item counts as held).</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item (original name)</th>
+<th>Based on</th>
+<th>Exact behaviour</th>
+<th>Counterplay</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Turbo Pod</strong></td>
+<td>boost mushroom</td>
+<td>Instant boost: 1.8 s at ×1.35 top speed, also removes 50% of off-road slowdown for the duration. Rarely a <strong>Pod Trio</strong>: 3 uses, 1.4 s at ×1.3 each.</td>
+<td>Use on a straight or off-road shortcut; combine with a drift boost for max speed; the boost can be wasted if used before a wall</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Rebound Disc</strong></td>
+<td>shell</td>
+<td>Fired forward (tap) or backward (swipe down) at <strong>58 m/s</strong>, bounces off walls up to <strong>4</strong> times, lifetime 8 s. Holding the button trails it behind you as a <strong>shield</strong> that absorbs one hit (it pops with a sound). A hit spins the victim for 1.2 s and removes 60% of speed.</td>
+<td>Shield, Phantom Veil, Nova Core, steering around its bounce prediction line (a faint trail), out-driving it</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Peel Trap</strong></td>
+<td>banana</td>
+<td>Drop behind you, or throw forward 12 m. A kart that touches it spins for 0.9 s and loses 25% of speed. Stays until hit; each racer can have at most 3 on the course. Holding it trails behind as a shield.</td>
+<td>Shield, steer around it, burn it with a Rebound Disc</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Storm Jolt</strong></td>
+<td>lightning</td>
+<td>Only obtainable from rank 6 or lower. After a <strong>1.5 s</strong> thunder arming (a visible cloud above the leader and an audible rumble), every racer <em>ahead</em> of you shrinks for <strong>6.0 s</strong> at ×0.78 top speed and drops a shield item.</td>
+<td>Be protected by Nova Core or Phantom Veil before it fires; drive in the draft to close the gap; not obtainable by leaders</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Nova Core</strong></td>
+<td>star</td>
+<td>Invincible for <strong>7.0 s</strong> at ×1.2 top speed, ignores off-road, spins any kart it touches (as a Disc hit), crushes hazards. The last 1.5 s flash to warn.</td>
+<td>Dodge, don't collide, let it pass</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Phantom Veil</strong></td>
+<td>ghost</td>
+<td><strong>5.0 s</strong> of intangibility: passes through karts and items; immune to Disc, Peel, Spill, Rocket and Storm Jolt. On activation it steals the held item (not shields) from the nearest racer within <strong>25 m</strong> ahead. Cannot use items while ghosted.</td>
+<td>Keep a shield item up (shields cannot be stolen); stay out of 25 m ahead of a Veil holder</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Slick Spill</strong></td>
+<td>oil</td>
+<td>Drop behind: a puddle radius <strong>1.8 m</strong> lasts 15 s. A kart crossing loses steering for <strong>1.2 s</strong> and 10% speed.</td>
+<td>Steer around it, Trail or Mud wheels halve the slip time, Nova Core</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Hornet Rocket</strong></td>
+<td>rocket</td>
+<td>Only obtainable from rank 3 or lower. A homing rocket at <strong>72 m/s</strong> seeking the race leader along the racing line. The target gets a lock warning for <strong>2.0 s</strong> (beeps accelerating, red reticle on the HUD). A hit spins out 1.6 s.</td>
+<td><strong>Perfect Brace</strong>: press the item button in the 0.25 s window as the rocket arrives to burn your held item and cancel it; also Phantom Veil, Nova Core, or hiding behind another kart in a narrow section</td>
+</tr>
+</tbody>
+</table>
+<h3>7.1 Item distribution (percent chance, by rank in a 12-kart field)</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>1st</th>
+<th>2nd to 4th</th>
+<th>5th to 8th</th>
+<th>9th to 12th</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Turbo Pod</td>
+<td>18</td>
+<td>22</td>
+<td>22</td>
+<td>18</td>
+</tr>
+<tr>
+<td>Pod Trio</td>
+<td>0</td>
+<td>4</td>
+<td>10</td>
+<td>14</td>
+</tr>
+<tr>
+<td>Rebound Disc</td>
+<td>30</td>
+<td>22</td>
+<td>14</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Peel Trap</td>
+<td>30</td>
+<td>20</td>
+<td>10</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Slick Spill</td>
+<td>16</td>
+<td>12</td>
+<td>8</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Phantom Veil</td>
+<td>6</td>
+<td>8</td>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Nova Core</td>
+<td>0</td>
+<td>4</td>
+<td>12</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Storm Jolt</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Hornet Rocket</td>
+<td>0</td>
+<td>8</td>
+<td>8</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p>Items are blocked for the first <strong>8 s</strong> of a race (only Pod, Disc, Peel and Spill can drop) and no item row exists in the first corner or within 120 m of the grid.</p>
+<h3>7.2 Defensive play</h3>
+<ul>
+<li>A held <strong>shield</strong> (Disc, Peel, Spill used as trailing items) blocks one hit of any kind but a Storm Jolt.</li>
+<li><strong>Perfect Brace</strong> (see Rocket) turns any held item into a counter.</li>
+<li>Weight class and wheel compound change how much damage an item does: Heavy karts lose 20% less speed from Peel/Spill; Light karts recover from spin-outs 0.2 s faster.</li>
+<li>Item boxes respawn after 5 s. A skilled leader holding a shield can defend the lead without spending it.</li>
+</ul>
+<hr />
+<h2>8. Rubber-banding and CPU behaviour</h2>
+<ul>
+<li><strong>Light rubber-banding.</strong> CPU karts multiply their top speed by <code>0.97</code> plus a gap term: from 0.965 to 1.035 depending on the distance to the <em>player</em> (gap normalised over ±90 m). Players are never speed-boosted by rubber-banding. The comeback comes from item distribution only.</li>
+<li>Skilled players can still pull away: a perfect line, three-tier drifts and no hits give about +6% over a CPU's average speed.</li>
+<li><strong>CPU skill tiers:</strong> Easy (aggression 0.3, 15% mistakes), Normal (0.5, 8%), Hard (0.7, 4%), Expert (0.9, 1.5%). Mistakes mean late braking, wide lines or missed drifts.</li>
+<li><strong>CPU behaviours.</strong> They follow the racing line with per-driver lane offsets, drift on long corners, take shortcuts according to skill and rank, use items sensibly (fire backwards at close followers, hold shields, drop traps in narrows), and do not catch up unfairly after player spin-outs.</li>
+<li><strong>CPU field.</strong> Grand Prix: 12 racers (you plus 11 CPUs). Versus: humans (2 to 4) plus CPUs filled to 12.</li>
+</ul>
+<hr />
+<h2>9. Game modes</h2>
+<h3>9.1 Grand Prix</h3>
+<p>Four cups of four tracks each: <strong>Seedling Cup, Copper Cup, Tempest Cup, Zenith Cup</strong>. 12-racer field. Points: 15, 12, 10, 8, 7, 6, 5, 4, 3, 2, 1, 0 per race. Trophy at the end: Gold for first overall, Silver second, Bronze third. Engine classes: 100cc, 150cc, 200cc (speed ×0.93, ×1.00, ×1.07) and Mirror mode.</p>
+<h3>9.2 Time Trial</h3>
+<p>Solo. Track-specific personal best and ghost. Developer ghosts at Bronze, Silver and Gold times. Ghost data is compact: input stream sampled at 30 Hz with quantised steering (6 bits), drift/item flags, and a position checkpoint every 2 s for error correction, around 30 bytes per second, around 8 KB per 3-lap run after delta compression and DEFLATE. Up to 3 ghosts at once (PB, friend, developer).</p>
+<h3>9.3 Versus (code rooms)</h3>
+<p>Private rooms for 2 to 4 humans (CPU fill to 12). The host picks the track, laps (1 to 5), items on/off, CPU fill and CPU difficulty. Quick Match (public matchmaking) uses the same netcode.</p>
+<h3>9.4 Battle (optional, post-launch if it does not delay the racer)</h3>
+<p>Three balloons per racer, 4-player arena maps, items only, 3-minute timer. Specified in the roadmap; not part of the vertical slice.</p>
+<h3>9.5 Daily Challenge</h3>
+<p>One seeded race a day (track, items and CPU seed fixed for everyone). One attempt per day counts for the global and friends leaderboards; unlimited practice. Rewards: 200 coins for finishing, +25 coins per day of streak up to 7 days, and a rotating cosmetic at 7 days.</p>
+<h3>9.6 Laps</h3>
+<p>Default <strong>3</strong>; host can set <strong>1 to 5</strong>.</p>
+<hr />
+<h2>10. Progression and economy</h2>
+<h3>10.1 Earnings</h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Coins</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Finish position payout (1st to 12th)</td>
+<td>120, 100, 85, 70, 60, 50, 42, 35, 28, 22, 16, 10</td>
+</tr>
+<tr>
+<td>On-track coins</td>
+<td>1 each, up to 40 per lap</td>
+</tr>
+<tr>
+<td>First race of the day</td>
+<td>+100</td>
+</tr>
+<tr>
+<td>Grand Prix trophy</td>
+<td>Gold 400, Silver 250, Bronze 150</td>
+</tr>
+<tr>
+<td>Daily challenge</td>
+<td>200 + streak (25 × day, max 7)</td>
+</tr>
+<tr>
+<td>Achievements</td>
+<td>50 to 500 each</td>
+</tr>
+</tbody>
+</table>
+<p>Typical average: about <strong>190 coins per race</strong> (4 to 5 minutes including menus, so about 45 coins per minute).</p>
+<h3>10.2 Prices</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Total coins to buy everything</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Characters (coin-bought: 61 of 100)</td>
+<td>75,180</td>
+</tr>
+<tr>
+<td>Kart bodies (42)</td>
+<td>34,050</td>
+</tr>
+<tr>
+<td>Wheel styles (sizes and rim colours free)</td>
+<td>8,100</td>
+</tr>
+<tr>
+<td>Spoilers</td>
+<td>4,150</td>
+</tr>
+<tr>
+<td>Exhausts</td>
+<td>3,400</td>
+</tr>
+<tr>
+<td>Bumpers</td>
+<td>2,450</td>
+</tr>
+<tr>
+<td>Paint, finishes, two-tones, decals</td>
+<td>6,320</td>
+</tr>
+<tr>
+<td><strong>Everything</strong></td>
+<td><strong>133,650</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Unlock plan: most content is bought with coins; the rest is earned from trophies and achievements. A dedicated set of 12 free starters is available on first launch. Players can unlock all 100 characters in about <strong>28 hours</strong> of play, and everything else in roughly 50 hours; none of it requires money.</p>
+<h3>10.3 No pay-to-win</h3>
+<ul>
+<li>Money (optional) buys <strong>cosmetics only</strong>: kart skins, trails, emotes, announcer packs, horn sounds, profile frames. These have no stats and are marked "Cosmetic".</li>
+<li>Every body has the same stat sum (22). Mods have trade-offs; total modifier per stat is capped at ±1.5.</li>
+<li>Online matches show <strong>no stat badges</strong>; karts are matched by cup class, not wallet.</li>
+</ul>
+<h3>10.4 Save and cloud profile</h3>
+<p>Local save in IndexedDB/SQLite with a version number, mirrored to a cloud profile tied to the player account (platform sign-in or email). Conflict rule: per-record last-write-wins with max() for currencies spent only counted once, via a transaction log.</p>
+<hr />
+<h2>11. Multiplayer flow and netcode</h2>
+<h3>11.1 Room codes</h3>
+<ul>
+<li><strong>Alphabet (20 unambiguous symbols):</strong> <code>A C D E F H J K M N P R T U W X Y 3 4 7</code>. Removed look-alike and sound-alike symbols: <code>0 O Q</code>, <code>1 I L</code>, <code>5 S</code>, <code>2 Z</code>, <code>8 B</code>, <code>6 G</code>, <code>9</code>, <code>V</code>. Codes are shown in two groups of three, e.g. <code>K7A MPC</code>, and read aloud with NATO-style words.</li>
+<li>Space: 20⁶ = 64,000,000 codes. A code expires after 2 hours of inactivity; the server checks collisions.</li>
+<li>Rooms are stored on a simple matchmaking service (a serverless key-value store with a TTL; WebSocket signalling).</li>
+</ul>
+<h3>11.2 Flow</h3>
+<ol>
+<li><strong>Host</strong> taps <em>Create Room</em> → server returns a code → lobby opens with host settings (track, laps, items on/off, CPU fill, difficulty).</li>
+<li><strong>Guests</strong> enter the code → server returns the host's connection offer → peers connect (WebRTC data channels, or dedicated relay).</li>
+<li><strong>Lobby</strong> shows each player (avatar, kart, ready tick, <strong>connection status</strong>: green/amber/red bars with ping in ms, "relayed" tag).</li>
+<li>Host starts → synchronised 3-2-1 countdown (all clients start on a shared server time).</li>
+<li>Race → results → return to lobby.</li>
+</ol>
+<h3>11.3 Join, leave, drop</h3>
+<ul>
+<li><strong>Join late:</strong> blocked during a race; allowed in the lobby until 4 humans.</li>
+<li><strong>Leave:</strong> a CPU takes the kart immediately (same position, speed, item).</li>
+<li><strong>Drop (connection lost):</strong> the other players see a "reconnecting" ring; the kart is held by a CPU for 6 s; if the player returns within 30 s they take it back; otherwise the CPU keeps it.</li>
+<li><strong>Host migration:</strong> every client keeps a replica of the lobby/race state. If the host drops, the client with the lowest RTT to the others becomes host (tie-break: lowest peer id). The new host announces the migration, race state is re-sent in one snapshot, and the countdown "pauses briefly" (max 3 s) to resume.</li>
+</ul>
+<h3>11.4 Netcode model</h3>
+<ul>
+<li><strong>Own kart:</strong> client-side prediction. Movement is simulated locally and is authoritative for its own position.</li>
+<li><strong>Remote karts:</strong> state snapshots at <strong>20 Hz</strong> (position quantised to 1 cm, heading 8 bit, speed, drift state, boost flags, animation bits) and <strong>interpolated 100 ms</strong> in the past, with dead-reckoning (extrapolation) up to 250 ms.</li>
+<li><strong>Items:</strong> host-authoritative events with timestamps. Spawn events carry the host's time; the clients <strong>fast-forward</strong> the projectile by RTT/2 so it appears where it should. Hit resolution is decided on the <em>victim's</em> client (victim sees fair dodges) and validated by the host against a 120 ms rewind window; late hits are accepted only inside the window.</li>
+<li><strong>Race results:</strong> host-authoritative; checkpoints validated by sequence number.</li>
+<li><strong>Bandwidth:</strong> about 20 players × 50 bytes × 20 Hz = well under 25 KB/s for 4 humans + CPU on host.</li>
+<li><strong>CPUs:</strong> simulated by the host, streamed as normal karts.</li>
+<li><strong>Anti-cheat:</strong> speed envelope check, checkpoint order, item-spawn rate check; no stat badges to avoid targeting.</li>
+</ul>
+<h3>11.5 Connection status UI</h3>
+<p>A coloured bar icon in the lobby and in-race corner: green (&lt;60 ms), amber (60 to 140 ms), red (&gt;140 ms or loss &gt;5%), grey (reconnecting). Tapping shows RTT, loss, relayed/direct.</p>
+<hr />
+<h2>12. HUD</h2>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Placement</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Race position ("3rd / 12")</td>
+<td>top-left</td>
+<td>big numerals with a colour pop on change</td>
+</tr>
+<tr>
+<td>Lap counter ("Lap 2 / 3")</td>
+<td>top-left under position</td>
+<td>flash on new lap</td>
+</tr>
+<tr>
+<td>Item slot</td>
+<td>top-centre, offset</td>
+<td>ring shows shield state; rocket warning replaces the reticle</td>
+</tr>
+<tr>
+<td>Minimap</td>
+<td>top-right</td>
+<td>rotated track outline, coloured dots, player arrow</td>
+</tr>
+<tr>
+<td>Speed readout</td>
+<td>bottom-centre small</td>
+<td>m/s × 4</td>
+</tr>
+<tr>
+<td>Drift charge arc</td>
+<td>around the kart (3D sparks) and thin bar under the drift button</td>
+<td>colour+shape coded</td>
+</tr>
+<tr>
+<td>Race timer / lap split</td>
+<td>top-right under the minimap</td>
+<td></td>
+</tr>
+<tr>
+<td>Boost / draft indicators</td>
+<td>around the screen edge</td>
+<td>subtle</td>
+</tr>
+<tr>
+<td>Controls</td>
+<td>bottom corners</td>
+<td>semi-transparent, never over the road centre</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td>upper centre, short</td>
+<td>"Shortcut!", "Perfect start!", "Final lap!"</td>
+</tr>
+</tbody>
+</table>
+<p>The racing line (the central 40% of the screen width from the kart to the horizon) is kept free of HUD elements.</p>
+<hr />
+<h2>13. Art direction</h2>
+<ul>
+<li><strong>Style:</strong> stylised PBR, "high-end stylised console kart". Saturated but controlled: each track palette has a dominant hue, an accent hue and a neutral. No neon sludge, no uncanny realism.</li>
+<li><strong>Materials:</strong> glossy clear-coat paint with flake, matte rubber with tread normal map, brushed metal rims, cloth on characters, subsurface-looking fur.</li>
+<li><strong>Lighting:</strong> one warm key light, a cool fill, and a strong rim light on karts so they separate from the background at speed. Baked ground lightmaps per track; soft cascaded shadows only on the player and nearest rivals.</li>
+<li><strong>Silhouette rules:</strong> each character has a unique head and body silhouette (see <code>02-roster.md</code>); each kart family has its own shape language (Cruiser: friendly arcs, Dart: spears, Drifter: low wedges, Bruiser: boxes, Rocket: bottles/flames, Oddball: props).</li>
+<li><strong>Effects:</strong> boost trails (stretching ribbons), drift sparks (blue/orange/purple), dust and snow kick-up per surface, screen shake on big hits (max 6 px, 0.25 s), speed lines at boost, FOV kick +8° on boost.</li>
+<li><strong>Readability:</strong> hazards use a fixed visual language (yellow-black chevrons, pulsing telegraph decal), shortcut entries use arrows and a light-gate.</li>
+<li><strong>Characters</strong> are expressive and thumbnail-readable: eyes and brows carry emotion, 3 expression states (neutral, joy, hit).</li>
+</ul>
+<hr />
+<h2>14. Audio and sound design</h2>
+<p>Sound is the top priority of this project. The audio system is designed as an integrated, dynamic mix.</p>
+<h3>14.1 Pillars</h3>
+<ol>
+<li><strong>Everything the player does is audible and satisfying:</strong> engine, drift, boost, hop, land, bump, item.</li>
+<li><strong>Information first:</strong> the mix lets the player hear a rocket lock, a thunder arming, a shortcut gate or a rival's engine behind them.</li>
+<li><strong>Dynamic music:</strong> layered stems that react to position, speed, items, and the final lap.</li>
+<li><strong>Never harsh:</strong> a master limiter, ducking, and equal-loudness mastering (target −16 LUFS, true peak −1 dB).</li>
+</ol>
+<h3>14.2 Mixer topology</h3>
+<pre><code>Engines ───┐
+Drift ─────┤
+Boost ─────┤
+SFX ───────┼─► SFX bus ──────┐
+UI ────────┤                 │
+Ambience ──► Ambience bus ───┤
+Crowd ─────► Crowd bus ──────┼─► Master (soft-clip + limiter) ─► Output
+Music stems ► Music bus ─────┤
+Announcer ─┐                 │
+Barks ─────┴► Voice bus ─────┘   (Voice ducks Music −8 dB, Ambience −4 dB, 0.15 s attack / 0.6 s release)
+</code></pre>
+<ul>
+<li>Master: gentle soft-clipper then a lookahead limiter (threshold −1.5 dBFS, ratio 20:1, 3 ms attack, 120 ms release).</li>
+<li>Reverb sends per environment: Open (meadow, savanna), Tunnel (cave, tube), Canyon, Hall (foundry, spaceport), Metal (harbor), Ice.</li>
+<li>Ducking: voice → music/ambience; crash → engines (−6 dB, 150 ms); rocket warning → music (−5 dB).</li>
+<li>Mobile: max 32 simultaneous voices, priority by event class, with voice stealing for low-priority sounds. Spatial audio for the three nearest rivals (equal-power panning, distance attenuation, Doppler via playback rate).</li>
+</ul>
+<h3>14.3 Engines (layered, per class)</h3>
+<p>Each class has its own engine character:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Character</th>
+<th>Base fundamental (idle to redline)</th>
+<th>Layers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light</td>
+<td>Buzzy two-stroke / small electric whine</td>
+<td>55 to 210 Hz</td>
+<td>body saw, high harmonics, intake hiss, whine</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>Tuned four-cylinder</td>
+<td>40 to 160 Hz</td>
+<td>body, mid growl, intake, turbo spool</td>
+</tr>
+<tr>
+<td>Heavy</td>
+<td>Deep V8 rumble</td>
+<td>28 to 110 Hz</td>
+<td>sub, body, burble, exhaust crackle</td>
+</tr>
+</tbody>
+</table>
+<p>Each class ships <strong>six RPM layers</strong> (idle, 25%, 45%, 65%, 85%, redline) rendered as seamless loops; the game crossfades adjacent layers by RPM and bends pitch ±12% inside each. RPM follows speed with gear-like steps for flavour (a shift dip on the way up). Layers beyond the engine: turbo spool (rises with throttle, whoosh on lift), backfire pops on release, boost roar, off-road rumble and tyre noise by surface.</p>
+<h3>14.4 Drift, tyres and wind</h3>
+<ul>
+<li><strong>Drift squeal:</strong> a resonant noise loop whose pitch and gain follow slip angle and speed. Different timbres for road, snow and sand (road squeal, snow crunch, sand hiss).</li>
+<li><strong>Tier ticks:</strong> blue/orange/purple threshold tones rising in pitch, plus a spark crackle layer.</li>
+<li><strong>Wind:</strong> speed-driven broadband noise, widening with FOV kick.</li>
+</ul>
+<h3>14.5 Boosts, items and impacts</h3>
+<ul>
+<li><strong>Boost whooshes by tier</strong> (tier 1 short airy, tier 2 wider with a rising whistle, tier 3 deep with a sub hit and shimmer), start boost "punch", Turbo Pod "pop-whoosh", boost pad "zip".</li>
+<li><strong>Item pickup</strong> (sparkly arpeggio), roulette tick while the slot spins, <strong>use</strong> and <strong>hit</strong> sounds for every item (disc launch/bounce/pop, peel splat, spill glug, jolt thunder with 1.5 s arming rumble, nova jingle loop, veil whisper, rocket launch/flight loop/lock beeps/explosion).</li>
+<li><strong>Impacts:</strong> kart bump (clunk, weight-scaled), wall scrape (metal on stone), head-on crash (thud + shake whump), spin-out (cartoon whirl).</li>
+</ul>
+<h3>14.6 Announcer and barks</h3>
+<ul>
+<li><strong>Announcer:</strong> an energetic voice: "3, 2, 1, GO!", "Final lap!", "Lap two", position callouts ("You're in 3rd!", "Taking the lead!", "You're in 1st!", "Wrong way!"), "Race complete", "New record", "Shortcut!".</li>
+<li><strong>Character barks:</strong> each playable character has 10+ barks (pickup, hit, boost, overtake, being overtaken, victory, defeat, taunt, ready, start) in a distinct voice and pitch band by class (Light higher, Heavy lower).</li>
+<li>Voice lines have cooldowns (min 2.5 s between barks, no repeats back-to-back) and priority (announcer &gt; player bark &gt; rival bark).</li>
+</ul>
+<h3>14.7 Ambience and crowd</h3>
+<p>Each track has an ambience bed (loop) with stereo spots: meadow birds and breeze, harbor gulls and horns, desert wind, snow wind and cable-car creak. Crowds swell at start, finish and for overtakes, with gasps on big hits.</p>
+<h3>14.8 Dynamic music</h3>
+<p>Each track and the menu has an original score at the track's BPM (see <code>04-tracks.md</code>), delivered as <strong>six synchronised stems</strong>: <em>drums, bass, chords, lead, counter (arp/pad), fx/percussion</em>. All stems share a loop length of 64 bars worth of material in two sections (A and B).</p>
+<table>
+<thead>
+<tr>
+<th>Game state</th>
+<th>Music response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pre-race</td>
+<td>Chords + counter only, quiet</td>
+</tr>
+<tr>
+<td>Race start</td>
+<td>All stems enter on the downbeat of the GO</td>
+</tr>
+<tr>
+<td>Position 1 to 3</td>
+<td>full mix, lead + counter prominent</td>
+</tr>
+<tr>
+<td>Position 4 to 8</td>
+<td>drums+bass+chords, lead softened</td>
+</tr>
+<tr>
+<td>Position 9 to 12</td>
+<td>add urgent perc/fx and a +2 dB push to drums</td>
+</tr>
+<tr>
+<td>Boost / star</td>
+<td>filter open, lead +3 dB</td>
+</tr>
+<tr>
+<td>Hit / spin-out</td>
+<td>low-pass sweep for 0.8 s, then return</td>
+</tr>
+<tr>
+<td>Final lap</td>
+<td>tempo ramps +6% over 4 s, lead octave lift, fx stem added</td>
+</tr>
+<tr>
+<td>Finish</td>
+<td>cut to the result jingle (original), then a calm loop</td>
+</tr>
+</tbody>
+</table>
+<p>Transitions are beat-quantised (stem gains ramp on the next beat). Stems are exported as lossless 48 kHz / 24-bit masters (high-quality pack) and as AAC for the standard pack.</p>
+<h3>14.9 Audio performance and QA</h3>
+<ul>
+<li>Standard pack: AAC music (about 64 kbps per stem), PCM SFX at 32 kHz, voices at 24 kHz (core under 6 MB on first load, music loaded per track).</li>
+<li>High-quality pack: FLAC 48 kHz/24-bit stems and masters, on demand per track and per character.</li>
+<li>Test: decode all assets on load; headless AudioContext checks; loudness (EBU R128) check; clipping scan; ducking verification.</li>
+</ul>
+<hr />
+<h2>15. Live-ops, safety and monetisation (summary)</h2>
+<ul>
+<li>Seasonal cosmetic passes (free + optional paid cosmetics only), daily and weekly challenges, community ghost races.</li>
+<li>Child-safe: no chat (preset emotes only), no open voice, private code rooms.</li>
+<li>Telemetry: opt-in, anonymous, performance and funnel only.</li>
+<li>Cheating: server-validated results for ranked/daily boards.</li>
+</ul>
+<hr />
+<h2>16. Cross-references</h2>
+<ul>
+<li>Roster: <code>02-roster.md</code> · Karts and mods: <code>03-kart-and-mod-matrix.md</code> · Tracks: <code>04-tracks.md</code></li>
+<li>Vertical slice: <code>05-vertical-slice-plan.md</code> · Production, risks, performance budget: <code>06-production-risks-perf.md</code></li>
+</ul></section><section class="doc" id="02-roster"><h1>Roster: 100 Original Characters</h1>
+<p>Ten themed sets of ten. Every character has a name, a class (Light / Medium / Heavy), a one-line personality, an idle animation, a victory pose, a select-screen portrait and a <strong>distinct driving silhouette</strong> (a head/body shape hook readable at thumbnail size). All characters are original creations.</p>
+<h2>Class split</h2>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Count</th>
+<th>Gameplay role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Light</td>
+<td>33</td>
+<td>Fast acceleration, quick spin-out recovery, weak in bumps</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>34</td>
+<td>Balanced</td>
+</tr>
+<tr>
+<td>Heavy</td>
+<td>33</td>
+<td>Slow acceleration, high top speed, strong bump</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total: 100 characters, 100 unique names, 12 free starters.</strong></p>
+<h2>Free starters (12)</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Class</th>
+<th>Set</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pip Thistledown</td>
+<td>Light</td>
+<td>Meadow Folk</td>
+</tr>
+<tr>
+<td>Bramble Quill</td>
+<td>Medium</td>
+<td>Meadow Folk</td>
+</tr>
+<tr>
+<td>Marigold Hoofsworth</td>
+<td>Heavy</td>
+<td>Meadow Folk</td>
+</tr>
+<tr>
+<td>Fennel Vix</td>
+<td>Light</td>
+<td>Meadow Folk</td>
+</tr>
+<tr>
+<td>Hobb Mossback</td>
+<td>Heavy</td>
+<td>Meadow Folk</td>
+</tr>
+<tr>
+<td>Juniper Wren</td>
+<td>Light</td>
+<td>Meadow Folk</td>
+</tr>
+<tr>
+<td>Clover Dash</td>
+<td>Medium</td>
+<td>Meadow Folk</td>
+</tr>
+<tr>
+<td>Sage Willowmere</td>
+<td>Medium</td>
+<td>Meadow Folk</td>
+</tr>
+<tr>
+<td>Barnaby Bruin</td>
+<td>Heavy</td>
+<td>Meadow Folk</td>
+</tr>
+<tr>
+<td>Captain Dusk Marlowe</td>
+<td>Medium</td>
+<td>Neon Harbor</td>
+</tr>
+<tr>
+<td>Gus Gantry</td>
+<td>Heavy</td>
+<td>Neon Harbor</td>
+</tr>
+<tr>
+<td>Pearl Quayside</td>
+<td>Light</td>
+<td>Neon Harbor</td>
+</tr>
+</tbody>
+</table>
+<h2>Unlock methods</h2>
+<ul>
+<li><strong>Coins</strong> (about 60 characters): price = 500 + 100 × (set − 1) + 60 × (position in set − 1).</li>
+<li><strong>Trophies</strong>: position 5 in each set requires a gold trophy in a named cup (cups rotate).</li>
+<li><strong>Daily challenge streak</strong>: position 8 in each set unlocks after a streak of 3 + set number days.</li>
+<li>
+<p><strong>Achievements</strong>: position 10 in each set (the set "capstone") requires a set-specific achievement:</p>
+</li>
+<li>
+<p>Set 1 (Meadow Folk): Win 50 races</p>
+</li>
+<li>Set 2 (Neon Harbor): Land 500 drift boosts</li>
+<li>Set 3 (Frost Peak): Hit 100 rivals with items</li>
+<li>Set 4 (Dune Runners): Collect 5,000 coins</li>
+<li>Set 5 (Sky Circus): Use the shortcut on every Seedling and Copper track</li>
+<li>Set 6 (Deep Reef): Finish a Grand Prix without being hit</li>
+<li>Set 7 (Clockwork Guild): Win a Versus race with 4 humans</li>
+<li>Set 8 (Ember Forge): Perform 100 slingshots from a draft</li>
+<li>Set 9 (Spirit Grove): Land 25 perfect starts</li>
+<li>Set 10 (Star Cadets): Win a gold Time Trial on 5 different tracks</li>
+</ul>
+<p>Voices: each character has 10+ barks in a distinct voice (Light = higher pitch band, Heavy = lower), see the audio section of the GDD.</p>
+<h2>Set 1: Meadow Folk</h2>
+<p>Woodland scouts, bakers and tinkerers from the Buttercup valleys. Warm earth tones, soft shapes, round silhouettes.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Pip Thistledown</strong> ★</td>
+<td>Light</td>
+<td>Bubbly scout who narrates everything she does out loud</td>
+<td>hops in place, straightening her acorn cap</td>
+<td>cartwheel while petals burst from her satchel</td>
+<td>tall acorn cap with a feather tuft</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Bramble Quill</strong> ★</td>
+<td>Medium</td>
+<td>Grumpy hedgehog mechanic who secretly loves the cheering</td>
+<td>polishes his spiky helmet with a rag</td>
+<td>takes a deep bow and fans his quills like a peacock</td>
+<td>spiky fan-shaped helmet</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Marigold Hoofsworth</strong> ★</td>
+<td>Heavy</td>
+<td>Gentle giant deer who bakes and hugs every rival after the race</td>
+<td>chews a pastry, ears twitching</td>
+<td>lifts the trophy overhead on her antlers</td>
+<td>wide antler crown with ribbons</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Fennel Vix</strong> ★</td>
+<td>Light</td>
+<td>Sly fox courier who always claims she planned it</td>
+<td>flicks her tail, checks a pocket watch</td>
+<td>spins her tail like a fan and winks</td>
+<td>huge swooshing tail</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Hobb Mossback</strong> ★</td>
+<td>Heavy</td>
+<td>Slow-talking tortoise farmer, completely unshakable</td>
+<td>tucks head in and out of the shell</td>
+<td>shell spins like a top with the trophy on it</td>
+<td>domed moss-covered shell backpack</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Juniper Wren</strong> ★</td>
+<td>Light</td>
+<td>Songbird sprinter who hums the whole race</td>
+<td>taps the steering wheel in rhythm</td>
+<td>flaps up and lands on the kart nose, singing</td>
+<td>tiny wings flared at the shoulders</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Clover Dash</strong> ★</td>
+<td>Medium</td>
+<td>Over-caffeinated bunny who speed-reads the map</td>
+<td>bounces on her toes</td>
+<td>triple back-flip with a fist pump</td>
+<td>long ears streaming behind</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Otis Burrowby</strong></td>
+<td>Medium</td>
+<td>Nearsighted mole engineer with unexpected genius</td>
+<td>pushes thick goggles up his nose</td>
+<td>pops out of a molehill holding the trophy</td>
+<td>goggles and oversized digging claws</td>
+<td>Daily challenge streak: 4 days</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Sage Willowmere</strong> ★</td>
+<td>Medium</td>
+<td>Calm owl tactician who whispers race advice to himself</td>
+<td>swivels his head almost all the way round</td>
+<td>glides a slow victory loop with wings out</td>
+<td>big round facial disc and ear tufts</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Barnaby Bruin</strong> ★</td>
+<td>Heavy</td>
+<td>Honey-loving bear who befriends every rival by lap two</td>
+<td>licks honey off a paw</td>
+<td>bear-hugs the trophy and a nearby official</td>
+<td>round ears and a broad belly</td>
+<td>Free starter</td>
+</tr>
+</tbody>
+</table>
+<h2>Set 2: Neon Harbor</h2>
+<p>Dockworkers, ferry kids and night-shift legends of the lantern-lit port.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11</td>
+<td><strong>Captain Dusk Marlowe</strong> ★</td>
+<td>Medium</td>
+<td>Weathered tug pilot who calls everyone kid</td>
+<td>leans on the wheel and sips tea</td>
+<td>tips his cap as an air-horn sounds</td>
+<td>peaked captain's cap and pipe</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>Roxy Rivet</strong></td>
+<td>Light</td>
+<td>Welder punk who throws sparks when she gets mad</td>
+<td>flips her welding mask up and down</td>
+<td>torch-spark fireworks over her head</td>
+<td>welding mask and a green mohawk</td>
+<td>660 coins</td>
+</tr>
+<tr>
+<td>13</td>
+<td><strong>Gus Gantry</strong> ★</td>
+<td>Heavy</td>
+<td>Patient crane operator who plans three turns ahead</td>
+<td>swings an imaginary crane hook</td>
+<td>picks up his own kart with a cheer (hook animation)</td>
+<td>broad yellow hard hat and hi-vis vest</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>14</td>
+<td><strong>Neona Wavelength</strong></td>
+<td>Light</td>
+<td>Radio DJ who narrates her own race live</td>
+<td>adjusts oversized headphones</td>
+<td>drops an imaginary mic</td>
+<td>huge neon headphones</td>
+<td>780 coins</td>
+</tr>
+<tr>
+<td>15</td>
+<td><strong>Tobias Tidewell</strong></td>
+<td>Medium</td>
+<td>Fishmonger with an endless supply of puns</td>
+<td>tosses a fish from hand to hand</td>
+<td>catches the fish and bows</td>
+<td>rubber apron and tall boots</td>
+<td>Trophy: gold in the Copper Cup (150cc or higher)</td>
+</tr>
+<tr>
+<td>16</td>
+<td><strong>Mei Lanternfield</strong></td>
+<td>Medium</td>
+<td>Quiet lighthouse keeper who is secretly a speedster</td>
+<td>scans the horizon with a spyglass</td>
+<td>sweeps a beam of light across the crowd</td>
+<td>paper lantern on a backpack pole</td>
+<td>900 coins</td>
+</tr>
+<tr>
+<td>17</td>
+<td><strong>Bolt Braddock</strong></td>
+<td>Heavy</td>
+<td>Retired wrestler turned stevedore who is soft on the inside</td>
+<td>flexes one arm then the other</td>
+<td>pins the trophy overhead like a champion belt</td>
+<td>barrel chest and tiny helmet</td>
+<td>960 coins</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>Pearl Quayside</strong> ★</td>
+<td>Light</td>
+<td>Ferry-boat kid with a heart of gold and a fast hand</td>
+<td>juggles three coins</td>
+<td>coin shower from her oversized coat</td>
+<td>tiny frame in a huge coat</td>
+<td>Free starter</td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>Salvo Reyes</strong></td>
+<td>Heavy</td>
+<td>Cargo-ship cook who is very proud of his chili</td>
+<td>stirs a pot balanced on the kart</td>
+<td>ladles trophy chili for the camera</td>
+<td>chef hat and ladle</td>
+<td>1,080 coins</td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>Dmitri Ironwake</strong></td>
+<td>Heavy</td>
+<td>Icebreaker engineer with a dry sense of humour</td>
+<td>folds his arms and nods slowly</td>
+<td>shows a rare smile and a thumbs-up</td>
+<td>fur-trimmed hat and a thick beard</td>
+<td>Achievement: Land 500 drift boosts</td>
+</tr>
+</tbody>
+</table>
+<h2>Set 3: Frost Peak</h2>
+<p>Guides, skaters and mountain rescuers of the high white passes.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>21</td>
+<td><strong>Nanuk Snowdrift</strong></td>
+<td>Heavy</td>
+<td>Gentle polar guide who never loses his temper</td>
+<td>stretches and yawns</td>
+<td>makes a snow angel on the podium</td>
+<td>huge hooded shoulders</td>
+<td>700 coins</td>
+</tr>
+<tr>
+<td>22</td>
+<td><strong>Flurry Skye</strong></td>
+<td>Light</td>
+<td>Showoff ice skater who treats every corner as a routine</td>
+<td>spins on one foot</td>
+<td>lands a triple axel pose</td>
+<td>long trailing scarf</td>
+<td>760 coins</td>
+</tr>
+<tr>
+<td>23</td>
+<td><strong>Grumbald the Yeti</strong></td>
+<td>Heavy</td>
+<td>Shy yeti who is scared of going fast and wins anyway</td>
+<td>hides his face in both hands</td>
+<td>roars then waves bashfully</td>
+<td>shaggy fur mound with tiny eyes</td>
+<td>820 coins</td>
+</tr>
+<tr>
+<td>24</td>
+<td><strong>Aurora Vance</strong></td>
+<td>Medium</td>
+<td>Aurora-chasing photographer always framing the shot</td>
+<td>frames the scene with her fingers</td>
+<td>takes a victory selfie</td>
+<td>camera strap and bobble hat</td>
+<td>880 coins</td>
+</tr>
+<tr>
+<td>25</td>
+<td><strong>Tundra Tuck</strong></td>
+<td>Medium</td>
+<td>Sled-dog musher who talks to his kart like a team</td>
+<td>whistles for his dogs</td>
+<td>howls at the sky</td>
+<td>dog-ear hat and long mittens</td>
+<td>Trophy: gold in the Tempest Cup (150cc or higher)</td>
+</tr>
+<tr>
+<td>26</td>
+<td><strong>Sigrid Hailstone</strong></td>
+<td>Heavy</td>
+<td>Curling champion who treats racing as strategy</td>
+<td>polishes a curling stone</td>
+<td>slides the stone down the podium</td>
+<td>horned helmet and braids</td>
+<td>1,000 coins</td>
+</tr>
+<tr>
+<td>27</td>
+<td><strong>Pico Sleet</strong></td>
+<td>Light</td>
+<td>Penguin delivery kid with a very tight schedule</td>
+<td>waddles side to side</td>
+<td>belly-slide across the finish line</td>
+<td>tiny flippers and an orange scarf</td>
+<td>1,060 coins</td>
+</tr>
+<tr>
+<td>28</td>
+<td><strong>Wintra Glimmer</strong></td>
+<td>Light</td>
+<td>Frost-mage apprentice whose hiccups freeze things</td>
+<td>hiccups tiny snowflakes</td>
+<td>crowns herself with ice</td>
+<td>oversized pointy hat</td>
+<td>Daily challenge streak: 6 days</td>
+</tr>
+<tr>
+<td>29</td>
+<td><strong>Kodiak Rime</strong></td>
+<td>Medium</td>
+<td>Ski-patrol rescuer who always has a plan B</td>
+<td>checks a radio on her shoulder</td>
+<td>gives two thumbs up</td>
+<td>orange vest and goggles</td>
+<td>1,180 coins</td>
+</tr>
+<tr>
+<td>30</td>
+<td><strong>Hoarfrost Hattie</strong></td>
+<td>Medium</td>
+<td>Knitting granny with a thermos and a lead foot</td>
+<td>knits while sitting at a red light</td>
+<td>knits a cozy for the trophy</td>
+<td>silver bun and a shawl</td>
+<td>Achievement: Hit 100 rivals with items</td>
+</tr>
+</tbody>
+</table>
+<h2>Set 4: Dune Runners</h2>
+<p>Caravan navigators, scarab-folk and sun-baked traders of the Mirage Mesa.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>31</td>
+<td><strong>Zahra Sandglass</strong></td>
+<td>Medium</td>
+<td>Caravan navigator who has never once been lost</td>
+<td>checks a tiny sundial</td>
+<td>spins up a swirl of sand</td>
+<td>long flowing headscarf</td>
+<td>800 coins</td>
+</tr>
+<tr>
+<td>32</td>
+<td><strong>Rafiq Mirage</strong></td>
+<td>Light</td>
+<td>Smooth-talking trader who bargains for every position</td>
+<td>jingles a pouch of coins</td>
+<td>sells the trophy back to the crowd</td>
+<td>layered scarves and a feathered hat</td>
+<td>860 coins</td>
+</tr>
+<tr>
+<td>33</td>
+<td><strong>Scarab Sol</strong></td>
+<td>Heavy</td>
+<td>Beetle-folk bulldozer who pushes everything forward</td>
+<td>rolls a small ball with his feet</td>
+<td>spins the golden ball on one horn</td>
+<td>gleaming shell and a single horn</td>
+<td>920 coins</td>
+</tr>
+<tr>
+<td>34</td>
+<td><strong>Dune Dahlia</strong></td>
+<td>Light</td>
+<td>Sand-surfing daredevil who hates paved roads</td>
+<td>balances on one foot</td>
+<td>surfs the podium on a board</td>
+<td>goggles and a flapping cape</td>
+<td>980 coins</td>
+</tr>
+<tr>
+<td>35</td>
+<td><strong>Khepri Okoro</strong></td>
+<td>Medium</td>
+<td>Archaeologist who narrates the history of every track</td>
+<td>brushes dust off a relic</td>
+<td>holds a golden relic aloft</td>
+<td>pith helmet and a satchel</td>
+<td>Trophy: gold in the Zenith Cup (150cc or higher)</td>
+</tr>
+<tr>
+<td>36</td>
+<td><strong>Tamarind Khan</strong></td>
+<td>Heavy</td>
+<td>Spice merchant sized like a wardrobe, scent of cinnamon</td>
+<td>sniffs a pinch of spice and nods</td>
+<td>sprinkles spice like confetti</td>
+<td>wide sash and heavy shoulders</td>
+<td>1,100 coins</td>
+</tr>
+<tr>
+<td>37</td>
+<td><strong>Sirocco Jade</strong></td>
+<td>Light</td>
+<td>Wind-sprite who gets bored if she is not in front</td>
+<td>drifts in tiny circles</td>
+<td>whirlwind exit with a laugh</td>
+<td>swirling wispy tail</td>
+<td>1,160 coins</td>
+</tr>
+<tr>
+<td>38</td>
+<td><strong>Nomad Nasir</strong></td>
+<td>Medium</td>
+<td>Camel-rider turned racer, talks to his camel kart</td>
+<td>pats the kart hood</td>
+<td>tips his hat to the camel</td>
+<td>tall hat with a tassel</td>
+<td>Daily challenge streak: 7 days</td>
+</tr>
+<tr>
+<td>39</td>
+<td><strong>Cactus Carla</strong></td>
+<td>Heavy</td>
+<td>Prickly saguaro-folk who is surprisingly cuddly</td>
+<td>waters herself from a can</td>
+<td>bursts into a flower bloom</td>
+<td>green arms raised above her head</td>
+<td>1,280 coins</td>
+</tr>
+<tr>
+<td>40</td>
+<td><strong>Ember Anubi</strong></td>
+<td>Medium</td>
+<td>Jackal-eared night guide who drives better in the dark</td>
+<td>ears swivel to a distant sound</td>
+<td>howls and strikes a regal pose</td>
+<td>tall pointed ears and gold collar</td>
+<td>Achievement: Collect 5,000 coins</td>
+</tr>
+</tbody>
+</table>
+<h2>Set 5: Sky Circus</h2>
+<p>Acrobats, clowns and balloon pilots from the floating Cloudtop Carnival.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>41</td>
+<td><strong>Bunting Barnstorm</strong></td>
+<td>Light</td>
+<td>Wing-walker pilot who is never quite on the ground</td>
+<td>stretches out arms like wings</td>
+<td>wing-walks on the kart hood</td>
+<td>aviator cap with trailing scarf</td>
+<td>900 coins</td>
+</tr>
+<tr>
+<td>42</td>
+<td><strong>Madame Marzipan</strong></td>
+<td>Medium</td>
+<td>Ringmistress who announces her own overtakes</td>
+<td>twirls a baton</td>
+<td>takes a theatrical bow</td>
+<td>tall hat with a feather plume</td>
+<td>960 coins</td>
+</tr>
+<tr>
+<td>43</td>
+<td><strong>Tumble Jo</strong></td>
+<td>Light</td>
+<td>Acrobat who can do a handstand in any situation</td>
+<td>does a one-hand handstand</td>
+<td>flip into a split</td>
+<td>ribbon-streamers on wrists</td>
+<td>1,020 coins</td>
+</tr>
+<tr>
+<td>44</td>
+<td><strong>Big Top Boris</strong></td>
+<td>Heavy</td>
+<td>Strongman with a gentle soul and a tiny moustache</td>
+<td>lifts a dumbbell with a pinky</td>
+<td>lifts the kart overhead</td>
+<td>curled moustache and striped singlet</td>
+<td>1,080 coins</td>
+</tr>
+<tr>
+<td>45</td>
+<td><strong>Pierrot Fizz</strong></td>
+<td>Medium</td>
+<td>Mime who communicates only through sound effects</td>
+<td>pretends to be trapped in a box</td>
+<td>silent applause to the audience</td>
+<td>white face and ruff collar</td>
+<td>Trophy: gold in the Seedling Cup (150cc or higher)</td>
+</tr>
+<tr>
+<td>46</td>
+<td><strong>Popcorn Pete</strong></td>
+<td>Heavy</td>
+<td>Concession vendor who throws snacks during overtakes</td>
+<td>shakes a popcorn box</td>
+<td>throws popcorn everywhere</td>
+<td>giant popcorn hat</td>
+<td>1,200 coins</td>
+</tr>
+<tr>
+<td>47</td>
+<td><strong>Lulu Lollipop</strong></td>
+<td>Light</td>
+<td>Candy-floss artist who sticks to the racing line</td>
+<td>twirls candy floss</td>
+<td>candy confetti and a spin</td>
+<td>big pink swirl hair</td>
+<td>1,260 coins</td>
+</tr>
+<tr>
+<td>48</td>
+<td><strong>Kite Kasumi</strong></td>
+<td>Light</td>
+<td>Kite-flyer who is fastest on the straights</td>
+<td>checks wind direction with a wet finger</td>
+<td>launches a kite from the podium</td>
+<td>large diamond kite on her back</td>
+<td>Daily challenge streak: 8 days</td>
+</tr>
+<tr>
+<td>49</td>
+<td><strong>Zeppelin Zed</strong></td>
+<td>Heavy</td>
+<td>Blimp captain who drifts a little too wide</td>
+<td>adjusts a brass compass</td>
+<td>inflates and floats a foot off the ground</td>
+<td>round pilot cap and heavy goggles</td>
+<td>1,380 coins</td>
+</tr>
+<tr>
+<td>50</td>
+<td><strong>Juggles McGraw</strong></td>
+<td>Medium</td>
+<td>Juggler who treats items like a ball routine</td>
+<td>juggles three balls</td>
+<td>juggles the trophy</td>
+<td>three-pointed jester hat</td>
+<td>Achievement: Use the shortcut on every Seedling and Copper track</td>
+</tr>
+</tbody>
+</table>
+<h2>Set 6: Deep Reef</h2>
+<p>Divers, mer-folk and glowing creatures from the Coral Causeway.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>51</td>
+<td><strong>Coral Calloway</strong></td>
+<td>Medium</td>
+<td>Marine biologist who narrates the wildlife of every track</td>
+<td>taps a clipboard</td>
+<td>holds up a glowing jelly</td>
+<td>snorkel and fin-shaped helmet</td>
+<td>1,000 coins</td>
+</tr>
+<tr>
+<td>52</td>
+<td><strong>Finn Barracuda</strong></td>
+<td>Light</td>
+<td>Fast-talking barracuda who loves slipstreaming</td>
+<td>swishes his tail fin</td>
+<td>jumps and spins mid-air</td>
+<td>sleek dorsal fin crest</td>
+<td>1,060 coins</td>
+</tr>
+<tr>
+<td>53</td>
+<td><strong>Octavia Inkwell</strong></td>
+<td>Medium</td>
+<td>Octopus-lady who handles every control at once</td>
+<td>eight arms tapping eight buttons</td>
+<td>ink-cloud exit</td>
+<td>eight curled tentacle arms</td>
+<td>1,120 coins</td>
+</tr>
+<tr>
+<td>54</td>
+<td><strong>Brinley Bubbles</strong></td>
+<td>Light</td>
+<td>Pufferfish kid who inflates when startled</td>
+<td>puffs up and down</td>
+<td>inflates into a round ball</td>
+<td>round puffed cheeks</td>
+<td>1,180 coins</td>
+</tr>
+<tr>
+<td>55</td>
+<td><strong>Moby Quill</strong></td>
+<td>Heavy</td>
+<td>Gentle whale-folk and the largest racer on the grid</td>
+<td>blows a spout</td>
+<td>breaches the podium with a splash</td>
+<td>wide forehead and a small spout</td>
+<td>Trophy: gold in the Copper Cup (150cc or higher)</td>
+</tr>
+<tr>
+<td>56</td>
+<td><strong>Kelp Kelpie</strong></td>
+<td>Medium</td>
+<td>Sea-spirit who drifts around corners like a current</td>
+<td>sways with imaginary tide</td>
+<td>rises in a bubble column</td>
+<td>green hair that waves like kelp</td>
+<td>1,300 coins</td>
+</tr>
+<tr>
+<td>57</td>
+<td><strong>Urchin Ulla</strong></td>
+<td>Heavy</td>
+<td>Sea-urchin bruiser whose spines can poke</td>
+<td>spins slowly to show off spines</td>
+<td>curls into a spiky ball</td>
+<td>spiky dome body</td>
+<td>1,360 coins</td>
+</tr>
+<tr>
+<td>58</td>
+<td><strong>Manta Marisol</strong></td>
+<td>Light</td>
+<td>Manta ray glider who rarely touches the ground</td>
+<td>flaps her winglike arms</td>
+<td>glides over the podium</td>
+<td>wide triangular cape-wings</td>
+<td>Daily challenge streak: 9 days</td>
+</tr>
+<tr>
+<td>59</td>
+<td><strong>Shrimp Sampson</strong></td>
+<td>Light</td>
+<td>Tiny mantis shrimp with a big punch of attitude</td>
+<td>shadowboxes</td>
+<td>throws a spinning punch at the camera</td>
+<td>boxing-glove claws</td>
+<td>1,480 coins</td>
+</tr>
+<tr>
+<td>60</td>
+<td><strong>Anchor Annabel</strong></td>
+<td>Heavy</td>
+<td>Retired sailor who steers like a ship</td>
+<td>polishes a brass anchor</td>
+<td>plants the anchor in the podium</td>
+<td>big anchor strapped to her back</td>
+<td>Achievement: Finish a Grand Prix without being hit</td>
+</tr>
+</tbody>
+</table>
+<h2>Set 7: Clockwork Guild</h2>
+<p>Automata, tinkerers and brass gadgeteers of the Clockwork Quarter.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>61</td>
+<td><strong>Cogsworth Whirr</strong></td>
+<td>Medium</td>
+<td>Prim clockwork butler who is always exactly on time</td>
+<td>checks a pocket watch</td>
+<td>ticks and bows precisely</td>
+<td>top hat with gear-shaped brim</td>
+<td>1,100 coins</td>
+</tr>
+<tr>
+<td>62</td>
+<td><strong>Tick-Tock Tilly</strong></td>
+<td>Light</td>
+<td>Spring-loaded automaton who never stops bouncing</td>
+<td>bounces on a spring</td>
+<td>launches off the podium in a spiral</td>
+<td>coiled spring torso</td>
+<td>1,160 coins</td>
+</tr>
+<tr>
+<td>63</td>
+<td><strong>Gearhart Magnus</strong></td>
+<td>Heavy</td>
+<td>Steam-powered titan with a soft spot for cats</td>
+<td>exhales steam from his pipes</td>
+<td>puffs a steam cloud into a heart</td>
+<td>chimney stacks on his shoulders</td>
+<td>1,220 coins</td>
+</tr>
+<tr>
+<td>64</td>
+<td><strong>Rivet Rosalind</strong></td>
+<td>Medium</td>
+<td>Ace mechanic who repairs her kart mid-race</td>
+<td>twirls a wrench</td>
+<td>holds up a tiny repaired trophy</td>
+<td>tool belt and welding goggles</td>
+<td>1,280 coins</td>
+</tr>
+<tr>
+<td>65</td>
+<td><strong>Sprocket Sprout</strong></td>
+<td>Light</td>
+<td>Plant-powered automaton gardener</td>
+<td>waters a pot on his head</td>
+<td>flowers bloom from his pot</td>
+<td>flower pot on head</td>
+<td>Trophy: gold in the Tempest Cup (150cc or higher)</td>
+</tr>
+<tr>
+<td>66</td>
+<td><strong>Valve Valentina</strong></td>
+<td>Medium</td>
+<td>Steam-valve engineer with dramatic flair</td>
+<td>turns a valve with a hiss</td>
+<td>fires a puff of steam fireworks</td>
+<td>copper pipes on her backpack</td>
+<td>1,400 coins</td>
+</tr>
+<tr>
+<td>67</td>
+<td><strong>Brass Bartholomew</strong></td>
+<td>Heavy</td>
+<td>Heavy brass bruiser who talks like a stern grandfather</td>
+<td>lowers a monocle</td>
+<td>polishes his brass belly</td>
+<td>round brass body with a monocle</td>
+<td>1,460 coins</td>
+</tr>
+<tr>
+<td>68</td>
+<td><strong>Pendulum Pia</strong></td>
+<td>Light</td>
+<td>Clockmaker whose rhythm never wavers</td>
+<td>swings gently like a pendulum</td>
+<td>swings a watch chain with a wink</td>
+<td>oversized pendulum charm</td>
+<td>Daily challenge streak: 10 days</td>
+</tr>
+<tr>
+<td>69</td>
+<td><strong>Dynamo Dex</strong></td>
+<td>Medium</td>
+<td>Lightning-powered tinkerer with static hair</td>
+<td>static crackles in his hair</td>
+<td>stands with arc-lightning behind him</td>
+<td>spiky hair and twin sparking rods</td>
+<td>1,580 coins</td>
+</tr>
+<tr>
+<td>70</td>
+<td><strong>Lathe Lenore</strong></td>
+<td>Heavy</td>
+<td>Master woodworker robot who builds a barricade every race</td>
+<td>chisels a small figure</td>
+<td>presents a carved trophy</td>
+<td>wooden-block body with a chisel</td>
+<td>Achievement: Win a Versus race with 4 humans</td>
+</tr>
+</tbody>
+</table>
+<h2>Set 8: Ember Forge</h2>
+<p>Smiths, salamanders and volcano-dwellers working the Magma Foundry.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>71</td>
+<td><strong>Cinder Calhoun</strong></td>
+<td>Heavy</td>
+<td>Blacksmith who is calm until his hammer is lost</td>
+<td>taps his hammer on the kart</td>
+<td>hammers an anvil in rhythm</td>
+<td>leather apron and thick gloves</td>
+<td>1,200 coins</td>
+</tr>
+<tr>
+<td>72</td>
+<td><strong>Pyra Ashgrove</strong></td>
+<td>Light</td>
+<td>Fire-sprite who runs hot and fast and cools off with a laugh</td>
+<td>flickers like a candle</td>
+<td>bursts into harmless flame</td>
+<td>flame crest hair</td>
+<td>1,260 coins</td>
+</tr>
+<tr>
+<td>73</td>
+<td><strong>Magma Magnolia</strong></td>
+<td>Heavy</td>
+<td>Lava-woman with a deep sleepy voice</td>
+<td>cracks her knuckles with molten glints</td>
+<td>erupts into a glowing pose</td>
+<td>orange cracked skin patterns</td>
+<td>1,320 coins</td>
+</tr>
+<tr>
+<td>74</td>
+<td><strong>Slag Wilhelm</strong></td>
+<td>Heavy</td>
+<td>Furnace-keeper who whistles Irish tunes</td>
+<td>shovels imaginary coal</td>
+<td>spreads his arms and sings</td>
+<td>coal-shovel on his back</td>
+<td>1,380 coins</td>
+</tr>
+<tr>
+<td>75</td>
+<td><strong>Obsidian Orin</strong></td>
+<td>Heavy</td>
+<td>Silent obsidian golem who communicates by shrugs</td>
+<td>shrugs slowly</td>
+<td>polished shine pose</td>
+<td>glassy black faceted shoulders</td>
+<td>Trophy: gold in the Zenith Cup (150cc or higher)</td>
+</tr>
+<tr>
+<td>76</td>
+<td><strong>Sparkle Salamandra</strong></td>
+<td>Light</td>
+<td>Salamander racer who sprints on hot floors</td>
+<td>scurries on the spot</td>
+<td>tail-whip fire loop</td>
+<td>spiky tail with ember tip</td>
+<td>1,500 coins</td>
+</tr>
+<tr>
+<td>77</td>
+<td><strong>Vulcana Rex</strong></td>
+<td>Heavy</td>
+<td>Volcano-guardian queen who adores applause</td>
+<td>waves like royalty</td>
+<td>cinders rain as a crown</td>
+<td>crown-like lava spikes</td>
+<td>1,560 coins</td>
+</tr>
+<tr>
+<td>78</td>
+<td><strong>Anvil Annika</strong></td>
+<td>Medium</td>
+<td>Apprentice smith who tests every upgrade herself</td>
+<td>hammers a small bolt</td>
+<td>holds up a forged medal</td>
+<td>big hammer slung on shoulder</td>
+<td>Daily challenge streak: 11 days</td>
+</tr>
+<tr>
+<td>79</td>
+<td><strong>Brazier Boone</strong></td>
+<td>Light</td>
+<td>Torch-bearer who is always the first to arrive</td>
+<td>waves a torch</td>
+<td>torch relay pose</td>
+<td>torch held high</td>
+<td>1,680 coins</td>
+</tr>
+<tr>
+<td>80</td>
+<td><strong>Smelter Sunny</strong></td>
+<td>Medium</td>
+<td>Cheerful ore-smelter who goes by the nickname Sunny</td>
+<td>sorts shiny stones</td>
+<td>shiny nugget toss</td>
+<td>hard hat with a head-lamp</td>
+<td>Achievement: Perform 100 slingshots from a draft</td>
+</tr>
+</tbody>
+</table>
+<h2>Set 9: Spirit Grove</h2>
+<p>Friendly ghosts, folklore beings and forest spirits of Moonlit Orchard.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>81</td>
+<td><strong>Wisp Willowby</strong></td>
+<td>Light</td>
+<td>Friendly will-o'-the-wisp who guides lost racers</td>
+<td>floats gently</td>
+<td>glows brightly with swirling sparkles</td>
+<td>glowing orb head</td>
+<td>1,300 coins</td>
+</tr>
+<tr>
+<td>82</td>
+<td><strong>Pumpkin Patch Patsy</strong></td>
+<td>Medium</td>
+<td>Jack-o-lantern farmer with a glowing grin</td>
+<td>tilts her pumpkin head</td>
+<td>lantern flare with a laugh</td>
+<td>pumpkin head with a stem hat</td>
+<td>1,360 coins</td>
+</tr>
+<tr>
+<td>83</td>
+<td><strong>Spectre Sir Reginald</strong></td>
+<td>Medium</td>
+<td>Posh ghost butler who haunts the starting grid politely</td>
+<td>adjusts his tie</td>
+<td>fades out and reappears with the trophy</td>
+<td>floating sheet-like cloak</td>
+<td>1,420 coins</td>
+</tr>
+<tr>
+<td>84</td>
+<td><strong>Banshee Bellflower</strong></td>
+<td>Light</td>
+<td>Songbird spirit whose voice shatters glass but not racers</td>
+<td>sings softly</td>
+<td>hits a high note that sparkles</td>
+<td>long flowing hair</td>
+<td>1,480 coins</td>
+</tr>
+<tr>
+<td>85</td>
+<td><strong>Mothra Moonbeam</strong></td>
+<td>Light</td>
+<td>Moth sprite attracted to every light on the track</td>
+<td>flutters her wings</td>
+<td>dusts silver scales</td>
+<td>large patterned wings</td>
+<td>Trophy: gold in the Seedling Cup (150cc or higher)</td>
+</tr>
+<tr>
+<td>86</td>
+<td><strong>Hollow Hank</strong></td>
+<td>Heavy</td>
+<td>Giant scarecrow who is more afraid of crows than karts</td>
+<td>slumps on his pole</td>
+<td>flaps his arms and crows scatter</td>
+<td>straw hat and patched coat</td>
+<td>1,600 coins</td>
+</tr>
+<tr>
+<td>87</td>
+<td><strong>Gourd Granpa</strong></td>
+<td>Heavy</td>
+<td>Old pumpkin sage who talks in riddles</td>
+<td>strokes a pumpkin beard</td>
+<td>rolls triumphantly</td>
+<td>huge pumpkin with beard</td>
+<td>1,660 coins</td>
+</tr>
+<tr>
+<td>88</td>
+<td><strong>Poltergeist Polly</strong></td>
+<td>Medium</td>
+<td>Prankster ghost who rearranges the podium</td>
+<td>tosses a tiny object</td>
+<td>rearranges the podium</td>
+<td>ragged ghost tail and bow</td>
+<td>Daily challenge streak: 12 days</td>
+</tr>
+<tr>
+<td>89</td>
+<td><strong>Thistle Thorne</strong></td>
+<td>Medium</td>
+<td>Forest spirit with vines who grows plants when happy</td>
+<td>vines sway</td>
+<td>flowers sprout all around</td>
+<td>thorny crown of vines</td>
+<td>1,780 coins</td>
+</tr>
+<tr>
+<td>90</td>
+<td><strong>Lantern Lenny</strong></td>
+<td>Light</td>
+<td>Little lantern spirit who takes the night shift seriously</td>
+<td>swings gently</td>
+<td>flame flares</td>
+<td>lantern for a head</td>
+<td>Achievement: Land 25 perfect starts</td>
+</tr>
+</tbody>
+</table>
+<h2>Set 10: Star Cadets</h2>
+<p>Rookie pilots, aliens and robots of the Starlight Spaceport academy.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Class</th>
+<th>Personality</th>
+<th>Idle</th>
+<th>Victory pose</th>
+<th>Silhouette hook</th>
+<th>Unlock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>91</td>
+<td><strong>Nova Starling</strong></td>
+<td>Light</td>
+<td>Hotshot academy cadet who wants first place at any cost</td>
+<td>checks her wrist computer</td>
+<td>salutes with a rocket flare</td>
+<td>visor helmet with a star decal</td>
+<td>1,400 coins</td>
+</tr>
+<tr>
+<td>92</td>
+<td><strong>Commander Quasar</strong></td>
+<td>Heavy</td>
+<td>Veteran captain who barks orders at his kart</td>
+<td>folds arms and nods</td>
+<td>holds a flag with stars</td>
+<td>tall command cap and cape</td>
+<td>1,460 coins</td>
+</tr>
+<tr>
+<td>93</td>
+<td><strong>Zorp Blip</strong></td>
+<td>Medium</td>
+<td>Tiny alien pilot who speaks only in bleeps</td>
+<td>bobs antennae</td>
+<td>beam-up pose with sparkles</td>
+<td>three tiny antennae</td>
+<td>1,520 coins</td>
+</tr>
+<tr>
+<td>94</td>
+<td><strong>Luna Lovelace</strong></td>
+<td>Medium</td>
+<td>Moon-base coder who debugs her kart mid-corner</td>
+<td>types on a floating screen</td>
+<td>code sparkles and a bow</td>
+<td>visor with scrolling code</td>
+<td>1,580 coins</td>
+</tr>
+<tr>
+<td>95</td>
+<td><strong>Orbit Otto</strong></td>
+<td>Heavy</td>
+<td>Satellite mechanic who is never quite stationary</td>
+<td>spins slowly in place</td>
+<td>orbits the podium once</td>
+<td>satellite dish on his back</td>
+<td>Trophy: gold in the Copper Cup (150cc or higher)</td>
+</tr>
+<tr>
+<td>96</td>
+<td><strong>Cosmo Chen</strong></td>
+<td>Light</td>
+<td>Intergalactic courier who has to deliver on time</td>
+<td>taps his wrist</td>
+<td>spins a delivered parcel</td>
+<td>jetpack and small helmet</td>
+<td>1,700 coins</td>
+</tr>
+<tr>
+<td>97</td>
+<td><strong>Pulsar Pippa</strong></td>
+<td>Light</td>
+<td>Star-kid who glows brighter when she is winning</td>
+<td>twinkles quietly</td>
+<td>bursts into starlight</td>
+<td>star-shaped hair and glowing eyes</td>
+<td>1,760 coins</td>
+</tr>
+<tr>
+<td>98</td>
+<td><strong>Gravity Gloria</strong></td>
+<td>Heavy</td>
+<td>Gravity-wrangler who changes weight at will</td>
+<td>floats half an inch off the ground</td>
+<td>floats the trophy overhead</td>
+<td>massive shoulder pads and floating rings</td>
+<td>Daily challenge streak: 13 days</td>
+</tr>
+<tr>
+<td>99</td>
+<td><strong>Meteor Mack</strong></td>
+<td>Heavy</td>
+<td>Rock-skin alien who loves crashing in dramatic style</td>
+<td>bumps fists together</td>
+<td>crashes through the podium in a cartoon way</td>
+<td>cratered round head</td>
+<td>1,880 coins</td>
+</tr>
+<tr>
+<td>100</td>
+<td><strong>Eclipse Elara</strong></td>
+<td>Medium</td>
+<td>Mysterious pilot of two moons who drives only at night</td>
+<td>twirls two small orbs</td>
+<td>shows both orbs together</td>
+<td>crescent-shaped helmet crest</td>
+<td>Achievement: Win a gold Time Trial on 5 different tracks</td>
+</tr>
+</tbody>
+</table>
+<p>★ = free starter.</p></section><section class="doc" id="03-kart-and-mod-matrix"><h1>Kart and Modification Matrix</h1>
+<p><strong>42 kart bodies</strong> in 6 families of 7, plus separate wheel sets (18 styles × 5 sizes × 18 colours × 3 finishes), 12 spoilers, 10 exhausts, 8 bumpers, 24 decals and 32 paint colours × 5 finishes with 8 two-tone layouts. Every kart can be modified. Every combination is legal.</p>
+<h2>Stat model</h2>
+<p>Stats are 1 to 10: <strong>S</strong> top speed, <strong>A</strong> acceleration, <strong>H</strong> handling, <strong>G</strong> drift grip, <strong>W</strong> weight. <strong>Rule: every body has S + A + H + G = 22</strong> (no body is strictly better). Weight is free (1 to 10) and trades bump strength against acceleration feel.</p>
+<p>Final stat = body + character class modifier + wheel + wheel size + spoiler + exhaust + bumper. The sum of mods on each stat is capped at ±1.5. Paint, decals and rim colour never change stats.</p>
+<table>
+<thead>
+<tr>
+<th>Stat</th>
+<th>Formula</th>
+<th>Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top speed (S)</td>
+<td>34 + 1.2·S m/s</td>
+<td>35.2 to 46.0 m/s</td>
+</tr>
+<tr>
+<td>Acceleration (A)</td>
+<td>t90 = 6.4 − 0.38·A s</td>
+<td>6.0 s to 2.6 s</td>
+</tr>
+<tr>
+<td>Handling (H)</td>
+<td>yaw cap scaled (0.72 + 0.03·H)</td>
+<td>tighter turns</td>
+</tr>
+<tr>
+<td>Grip (G)</td>
+<td>lat. accel 18 + 1.6·G m/s²</td>
+<td>19.6 to 34 m/s²</td>
+</tr>
+<tr>
+<td>Weight (W)</td>
+<td>mass 0.7 + 0.12·W</td>
+<td>0.82 to 1.9</td>
+</tr>
+</tbody>
+</table>
+<h2>Kart bodies</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Body</th>
+<th>Family</th>
+<th>S</th>
+<th>A</th>
+<th>H</th>
+<th>G</th>
+<th>W</th>
+<th>Sum(S+A+H+G)</th>
+<th>Top speed m/s (Medium class)</th>
+<th>0 to 90% s</th>
+<th>Price (coins)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Corsa Standard</strong></td>
+<td>Cruiser</td>
+<td>6</td>
+<td>5</td>
+<td>6</td>
+<td>5</td>
+<td>5</td>
+<td>22</td>
+<td>41.2</td>
+<td>4.50</td>
+<td>Free</td>
+<td>The all-rounder every driver learns on: a red open-wheel with a friendly nose</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Wayfarer</strong></td>
+<td>Cruiser</td>
+<td>5</td>
+<td>6</td>
+<td>5</td>
+<td>6</td>
+<td>5</td>
+<td>22</td>
+<td>40.0</td>
+<td>4.12</td>
+<td>300</td>
+<td>Roadster with a small windscreen and a luggage rack</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Trailblazer</strong></td>
+<td>Cruiser</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>7</td>
+<td>6</td>
+<td>22</td>
+<td>40.0</td>
+<td>4.50</td>
+<td>450</td>
+<td>Raised suspension and a roll hoop, confident on dirt</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Cobblestone</strong></td>
+<td>Cruiser</td>
+<td>6</td>
+<td>4</td>
+<td>6</td>
+<td>6</td>
+<td>6</td>
+<td>22</td>
+<td>41.2</td>
+<td>4.88</td>
+<td>500</td>
+<td>Stout tourer with chunky fenders</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Daybreak</strong></td>
+<td>Cruiser</td>
+<td>6</td>
+<td>6</td>
+<td>5</td>
+<td>5</td>
+<td>4</td>
+<td>22</td>
+<td>41.2</td>
+<td>4.12</td>
+<td>550</td>
+<td>Sunrise-yellow coupe with a long hood</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Marlin GT</strong></td>
+<td>Cruiser</td>
+<td>7</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>22</td>
+<td>42.4</td>
+<td>4.50</td>
+<td>700</td>
+<td>Fish-shaped grand tourer with a gill vent</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Hatchling</strong></td>
+<td>Cruiser</td>
+<td>4</td>
+<td>7</td>
+<td>6</td>
+<td>5</td>
+<td>3</td>
+<td>22</td>
+<td>38.8</td>
+<td>3.74</td>
+<td>350</td>
+<td>Egg-round little hatchback that leaps off the line</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Needle</strong></td>
+<td>Dart</td>
+<td>9</td>
+<td>3</td>
+<td>5</td>
+<td>5</td>
+<td>3</td>
+<td>22</td>
+<td>44.8</td>
+<td>5.26</td>
+<td>600</td>
+<td>Ultra-narrow dart that wants a long straight</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Javelin</strong></td>
+<td>Dart</td>
+<td>8</td>
+<td>4</td>
+<td>5</td>
+<td>5</td>
+<td>4</td>
+<td>22</td>
+<td>43.6</td>
+<td>4.88</td>
+<td>700</td>
+<td>Spear-nosed racer with a single tail fin</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Peregrine</strong></td>
+<td>Dart</td>
+<td>8</td>
+<td>3</td>
+<td>6</td>
+<td>5</td>
+<td>2</td>
+<td>22</td>
+<td>43.6</td>
+<td>5.26</td>
+<td>900</td>
+<td>Falcon-winged lightweight with swept canopies</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>Comet Tail</strong></td>
+<td>Dart</td>
+<td>9</td>
+<td>4</td>
+<td>4</td>
+<td>5</td>
+<td>4</td>
+<td>22</td>
+<td>44.8</td>
+<td>4.88</td>
+<td>1,100</td>
+<td>Long-tailed streamliner that leaves a bright wake</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>Silverfin</strong></td>
+<td>Dart</td>
+<td>7</td>
+<td>4</td>
+<td>6</td>
+<td>5</td>
+<td>4</td>
+<td>22</td>
+<td>42.4</td>
+<td>4.88</td>
+<td>800</td>
+<td>Silver sports car with a shark-fin roof</td>
+</tr>
+<tr>
+<td>13</td>
+<td><strong>Vandal</strong></td>
+<td>Dart</td>
+<td>8</td>
+<td>5</td>
+<td>3</td>
+<td>6</td>
+<td>5</td>
+<td>22</td>
+<td>43.6</td>
+<td>4.50</td>
+<td>950</td>
+<td>Rough street-racer with spray-paint trim</td>
+</tr>
+<tr>
+<td>14</td>
+<td><strong>Rapier</strong></td>
+<td>Dart</td>
+<td>7</td>
+<td>3</td>
+<td>7</td>
+<td>5</td>
+<td>2</td>
+<td>22</td>
+<td>42.4</td>
+<td>5.26</td>
+<td>1,000</td>
+<td>Needle-nosed fencer that carves tidy lines</td>
+</tr>
+<tr>
+<td>15</td>
+<td><strong>Slidewinder</strong></td>
+<td>Drifter</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+<td>4</td>
+<td>22</td>
+<td>38.8</td>
+<td>4.50</td>
+<td>350</td>
+<td>Low serpent body with a spiral exhaust</td>
+</tr>
+<tr>
+<td>16</td>
+<td><strong>Pirouette</strong></td>
+<td>Drifter</td>
+<td>3</td>
+<td>5</td>
+<td>8</td>
+<td>6</td>
+<td>2</td>
+<td>22</td>
+<td>37.6</td>
+<td>4.50</td>
+<td>900</td>
+<td>Ballerina-shaped lightweight, precise on tight turns</td>
+</tr>
+<tr>
+<td>17</td>
+<td><strong>Skiff</strong></td>
+<td>Drifter</td>
+<td>4</td>
+<td>4</td>
+<td>7</td>
+<td>7</td>
+<td>3</td>
+<td>22</td>
+<td>38.8</td>
+<td>4.88</td>
+<td>650</td>
+<td>Boat-hull kart that glides sideways</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>Whirligig</strong></td>
+<td>Drifter</td>
+<td>3</td>
+<td>6</td>
+<td>7</td>
+<td>6</td>
+<td>3</td>
+<td>22</td>
+<td>37.6</td>
+<td>4.12</td>
+<td>800</td>
+<td>Spinning-top body with a rotating roof fan</td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>Tango</strong></td>
+<td>Drifter</td>
+<td>5</td>
+<td>4</td>
+<td>6</td>
+<td>7</td>
+<td>4</td>
+<td>22</td>
+<td>40.0</td>
+<td>4.88</td>
+<td>700</td>
+<td>Two-tone dancer with a flared tail</td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>Chicane</strong></td>
+<td>Drifter</td>
+<td>4</td>
+<td>5</td>
+<td>5</td>
+<td>8</td>
+<td>5</td>
+<td>22</td>
+<td>38.8</td>
+<td>4.50</td>
+<td>1,000</td>
+<td>Rally-bred car with huge side skirts</td>
+</tr>
+<tr>
+<td>21</td>
+<td><strong>Cornerstone</strong></td>
+<td>Drifter</td>
+<td>5</td>
+<td>3</td>
+<td>7</td>
+<td>7</td>
+<td>4</td>
+<td>22</td>
+<td>40.0</td>
+<td>5.26</td>
+<td>1,200</td>
+<td>Wedge-shaped tight-corner specialist</td>
+</tr>
+<tr>
+<td>22</td>
+<td><strong>Ironclad</strong></td>
+<td>Bruiser</td>
+<td>7</td>
+<td>2</td>
+<td>4</td>
+<td>9</td>
+<td>10</td>
+<td>22</td>
+<td>42.4</td>
+<td>5.64</td>
+<td>1,000</td>
+<td>Armour-plated brick on tracks, nothing moves it</td>
+</tr>
+<tr>
+<td>23</td>
+<td><strong>Bulwark</strong></td>
+<td>Bruiser</td>
+<td>6</td>
+<td>3</td>
+<td>5</td>
+<td>8</td>
+<td>9</td>
+<td>22</td>
+<td>41.2</td>
+<td>5.26</td>
+<td>1,100</td>
+<td>Shield-nosed tank with side bumpers</td>
+</tr>
+<tr>
+<td>24</td>
+<td><strong>Mammoth</strong></td>
+<td>Bruiser</td>
+<td>8</td>
+<td>2</td>
+<td>3</td>
+<td>9</td>
+<td>10</td>
+<td>22</td>
+<td>43.6</td>
+<td>5.64</td>
+<td>1,500</td>
+<td>Tusked front bumper, enormous rear tyres</td>
+</tr>
+<tr>
+<td>25</td>
+<td><strong>Rhino Cab</strong></td>
+<td>Bruiser</td>
+<td>7</td>
+<td>3</td>
+<td>4</td>
+<td>8</td>
+<td>9</td>
+<td>22</td>
+<td>42.4</td>
+<td>5.26</td>
+<td>1,300</td>
+<td>Horned taxi cab that clears the road</td>
+</tr>
+<tr>
+<td>26</td>
+<td><strong>Dozer</strong></td>
+<td>Bruiser</td>
+<td>5</td>
+<td>4</td>
+<td>4</td>
+<td>9</td>
+<td>8</td>
+<td>22</td>
+<td>40.0</td>
+<td>4.88</td>
+<td>900</td>
+<td>Yellow bulldozer blade, slow to start but unstoppable</td>
+</tr>
+<tr>
+<td>27</td>
+<td><strong>Brickhouse</strong></td>
+<td>Bruiser</td>
+<td>6</td>
+<td>4</td>
+<td>4</td>
+<td>8</td>
+<td>9</td>
+<td>22</td>
+<td>41.2</td>
+<td>4.88</td>
+<td>1,000</td>
+<td>Boxy brick kart with a chimney exhaust</td>
+</tr>
+<tr>
+<td>28</td>
+<td><strong>Gantry Hauler</strong></td>
+<td>Bruiser</td>
+<td>7</td>
+<td>2</td>
+<td>5</td>
+<td>8</td>
+<td>10</td>
+<td>22</td>
+<td>42.4</td>
+<td>5.64</td>
+<td>1,400</td>
+<td>Cargo hauler with a flatbed and crane arm</td>
+</tr>
+<tr>
+<td>29</td>
+<td><strong>Pogo</strong></td>
+<td>Rocket</td>
+<td>3</td>
+<td>9</td>
+<td>5</td>
+<td>5</td>
+<td>2</td>
+<td>22</td>
+<td>37.6</td>
+<td>2.98</td>
+<td>Free</td>
+<td>Spring-loaded pogo kart that explodes off the line</td>
+</tr>
+<tr>
+<td>30</td>
+<td><strong>Sparkplug</strong></td>
+<td>Rocket</td>
+<td>4</td>
+<td>8</td>
+<td>5</td>
+<td>5</td>
+<td>3</td>
+<td>22</td>
+<td>38.8</td>
+<td>3.36</td>
+<td>400</td>
+<td>Compact hot-rod with exposed engine</td>
+</tr>
+<tr>
+<td>31</td>
+<td><strong>Kickstart</strong></td>
+<td>Rocket</td>
+<td>4</td>
+<td>8</td>
+<td>4</td>
+<td>6</td>
+<td>4</td>
+<td>22</td>
+<td>38.8</td>
+<td>3.36</td>
+<td>600</td>
+<td>Motorcycle-engine kart with visible chain drive</td>
+</tr>
+<tr>
+<td>32</td>
+<td><strong>Bottle Rocket</strong></td>
+<td>Rocket</td>
+<td>5</td>
+<td>9</td>
+<td>3</td>
+<td>5</td>
+<td>3</td>
+<td>22</td>
+<td>40.0</td>
+<td>2.98</td>
+<td>1,000</td>
+<td>Bottle-shaped body with a flame nozzle</td>
+</tr>
+<tr>
+<td>33</td>
+<td><strong>Ignition</strong></td>
+<td>Rocket</td>
+<td>5</td>
+<td>7</td>
+<td>5</td>
+<td>5</td>
+<td>4</td>
+<td>22</td>
+<td>40.0</td>
+<td>3.74</td>
+<td>700</td>
+<td>Muscle car with twin tailpipes</td>
+</tr>
+<tr>
+<td>34</td>
+<td><strong>Hotshot</strong></td>
+<td>Rocket</td>
+<td>4</td>
+<td>7</td>
+<td>6</td>
+<td>5</td>
+<td>3</td>
+<td>22</td>
+<td>38.8</td>
+<td>3.74</td>
+<td>800</td>
+<td>Flame-decal short-wheelbase racer</td>
+</tr>
+<tr>
+<td>35</td>
+<td><strong>Lift-off</strong></td>
+<td>Rocket</td>
+<td>3</td>
+<td>8</td>
+<td>6</td>
+<td>5</td>
+<td>2</td>
+<td>22</td>
+<td>37.6</td>
+<td>3.36</td>
+<td>1,100</td>
+<td>Capsule body with a tiny rocket booster</td>
+</tr>
+<tr>
+<td>36</td>
+<td><strong>Tubby Tub</strong></td>
+<td>Oddball</td>
+<td>5</td>
+<td>5</td>
+<td>3</td>
+<td>9</td>
+<td>7</td>
+<td>22</td>
+<td>40.0</td>
+<td>4.50</td>
+<td>800</td>
+<td>Bathtub on four wheels with a rubber duck</td>
+</tr>
+<tr>
+<td>37</td>
+<td><strong>Pumpkin Coach</strong></td>
+<td>Oddball</td>
+<td>6</td>
+<td>4</td>
+<td>6</td>
+<td>6</td>
+<td>6</td>
+<td>22</td>
+<td>41.2</td>
+<td>4.88</td>
+<td>1,000</td>
+<td>Carved pumpkin carriage with lantern lights</td>
+</tr>
+<tr>
+<td>38</td>
+<td><strong>Teacup Twister</strong></td>
+<td>Oddball</td>
+<td>3</td>
+<td>6</td>
+<td>9</td>
+<td>4</td>
+<td>2</td>
+<td>22</td>
+<td>37.6</td>
+<td>4.12</td>
+<td>900</td>
+<td>Giant spinning teacup that turns on a dime</td>
+</tr>
+<tr>
+<td>39</td>
+<td><strong>Mail Run</strong></td>
+<td>Oddball</td>
+<td>6</td>
+<td>6</td>
+<td>4</td>
+<td>6</td>
+<td>5</td>
+<td>22</td>
+<td>41.2</td>
+<td>4.12</td>
+<td>600</td>
+<td>Rural mailbox on wheels with a flag that pops up on boosts</td>
+</tr>
+<tr>
+<td>40</td>
+<td><strong>Sneaker Sled</strong></td>
+<td>Oddball</td>
+<td>4</td>
+<td>7</td>
+<td>7</td>
+<td>4</td>
+<td>3</td>
+<td>22</td>
+<td>38.8</td>
+<td>3.74</td>
+<td>750</td>
+<td>Oversized sneaker with a laced-up cockpit</td>
+</tr>
+<tr>
+<td>41</td>
+<td><strong>Cheese Wedge</strong></td>
+<td>Oddball</td>
+<td>8</td>
+<td>5</td>
+<td>4</td>
+<td>5</td>
+<td>4</td>
+<td>22</td>
+<td>43.6</td>
+<td>4.50</td>
+<td>1,200</td>
+<td>Triangular cheese wedge with holes and a mouse mascot</td>
+</tr>
+<tr>
+<td>42</td>
+<td><strong>Hover Pancake</strong></td>
+<td>Oddball</td>
+<td>5</td>
+<td>3</td>
+<td>8</td>
+<td>6</td>
+<td>1</td>
+<td>22</td>
+<td>40.0</td>
+<td>5.26</td>
+<td>1,500</td>
+<td>Floating stack of pancakes on small hover pads</td>
+</tr>
+</tbody>
+</table>
+<h3>Family traits</h3>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Identity</th>
+<th>Typical strength</th>
+<th>Typical weakness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cruiser</td>
+<td>Friendly all-rounders</td>
+<td>balanced</td>
+<td>no standout</td>
+</tr>
+<tr>
+<td>Dart</td>
+<td>Spear-nosed speedsters</td>
+<td>top speed</td>
+<td>slow acceleration</td>
+</tr>
+<tr>
+<td>Drifter</td>
+<td>Low wedges and boats</td>
+<td>handling + grip</td>
+<td>low top speed</td>
+</tr>
+<tr>
+<td>Bruiser</td>
+<td>Armoured bricks</td>
+<td>weight, top speed</td>
+<td>slow acceleration, poor handling</td>
+</tr>
+<tr>
+<td>Rocket</td>
+<td>Bottles, flames, springs</td>
+<td>acceleration</td>
+<td>handling</td>
+</tr>
+<tr>
+<td>Oddball</td>
+<td>Props and fun shapes</td>
+<td>unique trade-offs</td>
+<td>uneven</td>
+</tr>
+</tbody>
+</table>
+<p>Free starter bodies: Corsa Standard, Pogo.</p>
+<h2>Wheels</h2>
+<p><strong>18 rim styles.</strong> Deltas below are for the 14" size; apply the size table on top.</p>
+<table>
+<thead>
+<tr>
+<th>Style</th>
+<th>Tire compound</th>
+<th>S</th>
+<th>A</th>
+<th>H</th>
+<th>G</th>
+<th>W</th>
+<th>Off-road</th>
+<th>Description</th>
+<th>Price</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Six-Spoke Standard</strong></td>
+<td>Street</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>Classic six-spoke alloy</td>
+<td>Free</td>
+</tr>
+<tr>
+<td><strong>Turbine Fan</strong></td>
+<td>Street</td>
+<td>+0.3</td>
+<td>-0.2</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>Fan-blade rim, tuned for top speed</td>
+<td>250</td>
+</tr>
+<tr>
+<td><strong>Mesh Classic</strong></td>
+<td>Street</td>
+<td>+0</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>-0.1</td>
+<td>-0.2</td>
+<td>+0</td>
+<td>Lightweight mesh rim</td>
+<td>250</td>
+</tr>
+<tr>
+<td><strong>Dish Deep</strong></td>
+<td>Racing</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>-0.1</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>Deep-dish chrome look</td>
+<td>350</td>
+</tr>
+<tr>
+<td><strong>Starburst</strong></td>
+<td>Street</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>Ten-spoke star rim</td>
+<td>300</td>
+</tr>
+<tr>
+<td><strong>Slick Racing</strong></td>
+<td>Slick</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.5</td>
+<td>+0</td>
+<td>-0.5</td>
+<td>Slick compound, loves tarmac, hates dirt</td>
+<td>500</td>
+</tr>
+<tr>
+<td><strong>Trail Grip</strong></td>
+<td>Trail</td>
+<td>-0.2</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0.2</td>
+<td>+0.6</td>
+<td>Knobbly trail tyres for shortcuts</td>
+<td>450</td>
+</tr>
+<tr>
+<td><strong>Mudder</strong></td>
+<td>Mud</td>
+<td>-0.3</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.2</td>
+<td>+0.4</td>
+<td>+1</td>
+<td>Deep-lug mud tyres, best off-road</td>
+<td>600</td>
+</tr>
+<tr>
+<td><strong>Balloon Soft</strong></td>
+<td>Balloon</td>
+<td>-0.3</td>
+<td>+0.1</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>+0.2</td>
+<td>+0.3</td>
+<td>Soft balloon tyres that absorb bumps</td>
+<td>400</td>
+</tr>
+<tr>
+<td><strong>Featherweight</strong></td>
+<td>Carbon</td>
+<td>+0.1</td>
+<td>+0.4</td>
+<td>+0</td>
+<td>-0.2</td>
+<td>-0.5</td>
+<td>-0.2</td>
+<td>Carbon rims, ultra light</td>
+<td>700</td>
+</tr>
+<tr>
+<td><strong>Anvil Steel</strong></td>
+<td>Street</td>
+<td>+0</td>
+<td>-0.3</td>
+<td>+0</td>
+<td>+0.2</td>
+<td>+0.5</td>
+<td>+0.1</td>
+<td>Heavy steel rims, planted</td>
+<td>400</td>
+</tr>
+<tr>
+<td><strong>Rally Grip</strong></td>
+<td>Trail</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0.3</td>
+<td>+0</td>
+<td>+0.4</td>
+<td>Rally compound all-rounder</td>
+<td>550</td>
+</tr>
+<tr>
+<td><strong>Ice Studs</strong></td>
+<td>Studded</td>
+<td>-0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.3</td>
+<td>+0.1</td>
+<td>+0.2</td>
+<td>Studded for slippery ice sections</td>
+<td>500</td>
+</tr>
+<tr>
+<td><strong>Hover Pad</strong></td>
+<td>Hover</td>
+<td>-0.2</td>
+<td>+0.2</td>
+<td>+0.3</td>
+<td>-0.2</td>
+<td>-0.6</td>
+<td>+0.5</td>
+<td>Short hover pads, light but loose</td>
+<td>900</td>
+</tr>
+<tr>
+<td><strong>Flywheel</strong></td>
+<td>Racing</td>
+<td>+0.3</td>
+<td>-0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.3</td>
+<td>+0</td>
+<td>Flywheel-balanced racing rim</td>
+<td>650</td>
+</tr>
+<tr>
+<td><strong>Spinner Disc</strong></td>
+<td>Racing</td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>Disc cover with a spinner</td>
+<td>500</td>
+</tr>
+<tr>
+<td><strong>Candy Cane</strong></td>
+<td>Street</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.2</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>Striped twisted spoke</td>
+<td>350</td>
+</tr>
+<tr>
+<td><strong>Gearwheel</strong></td>
+<td>Street</td>
+<td>+0</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>Cog-shaped rim, clanks on corners</td>
+<td>450</td>
+</tr>
+</tbody>
+</table>
+<h3>Wheel sizes (all styles)</h3>
+<table>
+<thead>
+<tr>
+<th>Size</th>
+<th>S</th>
+<th>A</th>
+<th>H</th>
+<th>G</th>
+<th>W</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12"</td>
+<td>-0.4</td>
+<td>+0.4</td>
+<td>+0.2</td>
+<td>+0.1</td>
+<td>-0.2</td>
+</tr>
+<tr>
+<td>13"</td>
+<td>-0.2</td>
+<td>+0.2</td>
+<td>+0.1</td>
+<td>+0.05</td>
+<td>-0.1</td>
+</tr>
+<tr>
+<td>14"</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+</tr>
+<tr>
+<td>15"</td>
+<td>+0.2</td>
+<td>-0.2</td>
+<td>-0.1</td>
+<td>-0.05</td>
+<td>+0.1</td>
+</tr>
+<tr>
+<td>16"</td>
+<td>+0.4</td>
+<td>-0.4</td>
+<td>-0.2</td>
+<td>-0.1</td>
+<td>+0.2</td>
+</tr>
+</tbody>
+</table>
+<p>Small wheels accelerate faster and turn tighter; large wheels have a higher top speed. Wheels are swappable on any kart. "Off-road" modifies the off-road top-speed multiplier by that fraction of the penalty recovered (+1.0 recovers 25 points of the 45% slow-down on grass).</p>
+<h3>Rim colours and finishes (cosmetic)</h3>
+<p>Colours: Chrome, Gunmetal, Gold, Bronze, Signal Red, Cherry, Sunset Orange, Lemon, Lime, Mint, Teal, Sky Blue, Cobalt, Violet, Hot Pink, Pearl White, Jet Black, Rainbow Anodized.</p>
+<p>Finishes: Polished, Satin, Anodized.</p>
+<h2>Spoilers</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>S</th>
+<th>A</th>
+<th>H</th>
+<th>G</th>
+<th>W</th>
+<th>Description</th>
+<th>Price</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>None</strong></td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>No wing</td>
+<td>Free</td>
+</tr>
+<tr>
+<td><strong>Low Lip</strong></td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>Small ducktail lip</td>
+<td>100</td>
+</tr>
+<tr>
+<td><strong>Duck Tail</strong></td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>Classic ducktail</td>
+<td>150</td>
+</tr>
+<tr>
+<td><strong>GT Wing</strong></td>
+<td>+0.2</td>
+<td>-0.1</td>
+<td>+0</td>
+<td>+0.3</td>
+<td>+0.1</td>
+<td>Large wing, more grip at speed</td>
+<td>300</td>
+</tr>
+<tr>
+<td><strong>Dual Plane</strong></td>
+<td>+0.3</td>
+<td>-0.2</td>
+<td>+0</td>
+<td>+0.3</td>
+<td>+0.2</td>
+<td>Double-element wing for fast tracks</td>
+<td>450</td>
+</tr>
+<tr>
+<td><strong>Swan Neck</strong></td>
+<td>+0.2</td>
+<td>+0</td>
+<td>-0.1</td>
+<td>+0.4</td>
+<td>+0.1</td>
+<td>Swan-neck mount, strong downforce</td>
+<td>500</td>
+</tr>
+<tr>
+<td><strong>Barn Door</strong></td>
+<td>-0.1</td>
+<td>-0.3</td>
+<td>+0.1</td>
+<td>+0.6</td>
+<td>+0.3</td>
+<td>Huge barn-door wing, great grip but slow</td>
+<td>450</td>
+</tr>
+<tr>
+<td><strong>Shark Fin</strong></td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0.3</td>
+<td>+0</td>
+<td>+0</td>
+<td>Vertical fin for crisp handling</td>
+<td>350</td>
+</tr>
+<tr>
+<td><strong>Roof Scoop</strong></td>
+<td>+0</td>
+<td>+0.3</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>Intake scoop, helps accel</td>
+<td>350</td>
+</tr>
+<tr>
+<td><strong>Twin Tail</strong></td>
+<td>+0.2</td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>Twin-tail rudders</td>
+<td>500</td>
+</tr>
+<tr>
+<td><strong>Pop-up Flap</strong></td>
+<td>+0.3</td>
+<td>-0.3</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>Air-brake flap used on long straights</td>
+<td>400</td>
+</tr>
+<tr>
+<td><strong>Feather Wing</strong></td>
+<td>+0.1</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>-0.1</td>
+<td>-0.3</td>
+<td>Carbon feather-light wing</td>
+<td>600</td>
+</tr>
+</tbody>
+</table>
+<h2>Exhausts</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>S</th>
+<th>A</th>
+<th>H</th>
+<th>G</th>
+<th>W</th>
+<th>Description</th>
+<th>Price</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Stock Pipe</strong></td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>Standard single tailpipe</td>
+<td>Free</td>
+</tr>
+<tr>
+<td><strong>Twin Chrome</strong></td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>Twin chrome pipes</td>
+<td>150</td>
+</tr>
+<tr>
+<td><strong>Side Pipes</strong></td>
+<td>+0</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>Side-exit pipes</td>
+<td>200</td>
+</tr>
+<tr>
+<td><strong>Megaphone</strong></td>
+<td>+0.2</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>Loud megaphone exhaust</td>
+<td>250</td>
+</tr>
+<tr>
+<td><strong>Upswept</strong></td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>Upswept pipe, tiny gain in clearance</td>
+<td>250</td>
+</tr>
+<tr>
+<td><strong>Flame Thrower</strong></td>
+<td>+0</td>
+<td>+0.3</td>
+<td>+0</td>
+<td>-0.1</td>
+<td>+0.1</td>
+<td>Shoots flames on boost</td>
+<td>400</td>
+</tr>
+<tr>
+<td><strong>Quad Stack</strong></td>
+<td>+0.3</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>-0.1</td>
+<td>+0.2</td>
+<td>Four-barrel stack</td>
+<td>500</td>
+</tr>
+<tr>
+<td><strong>Turbo Whistle</strong></td>
+<td>+0.1</td>
+<td>+0.3</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>Whistling turbo exhaust</td>
+<td>550</td>
+</tr>
+<tr>
+<td><strong>Bubbler</strong></td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>Blows bubbles on boost</td>
+<td>400</td>
+</tr>
+<tr>
+<td><strong>Rocket Nozzle</strong></td>
+<td>+0.4</td>
+<td>+0.3</td>
+<td>-0.1</td>
+<td>-0.1</td>
+<td>+0.2</td>
+<td>Single rocket nozzle, high power but demanding</td>
+<td>700</td>
+</tr>
+</tbody>
+</table>
+<h2>Bumpers</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>S</th>
+<th>A</th>
+<th>H</th>
+<th>G</th>
+<th>W</th>
+<th>Description</th>
+<th>Price</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Stock Bumper</strong></td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>Standard bumper</td>
+<td>Free</td>
+</tr>
+<tr>
+<td><strong>Rubber Pusher</strong></td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0.2</td>
+<td>Soft rubber bumper that shrugs off bumps</td>
+<td>200</td>
+</tr>
+<tr>
+<td><strong>Splitter</strong></td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>-0.1</td>
+<td>Aero splitter</td>
+<td>300</td>
+</tr>
+<tr>
+<td><strong>Cow Catcher</strong></td>
+<td>-0.1</td>
+<td>-0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.4</td>
+<td>Heavy cow-catcher grille</td>
+<td>350</td>
+</tr>
+<tr>
+<td><strong>Spike Guard</strong></td>
+<td>+0</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0.3</td>
+<td>Decorative spikes, increases push-through</td>
+<td>400</td>
+</tr>
+<tr>
+<td><strong>Tiny Bumper</strong></td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>+0.1</td>
+<td>-0.1</td>
+<td>-0.3</td>
+<td>Minimal bumper for lightness</td>
+<td>450</td>
+</tr>
+<tr>
+<td><strong>Rubber Duck Horn</strong></td>
+<td>+0</td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>Squeaky horn bumper (cosmetic horn sound)</td>
+<td>250</td>
+</tr>
+<tr>
+<td><strong>Twin Prongs</strong></td>
+<td>+0.1</td>
+<td>+0</td>
+<td>+0.2</td>
+<td>+0</td>
+<td>+0.1</td>
+<td>Forked prongs for light contact</td>
+<td>500</td>
+</tr>
+</tbody>
+</table>
+<h2>Paint, decals and finishes (cosmetic only, no stats)</h2>
+<p><strong>Paint colours (32):</strong> Cherry Red, Sunset Orange, Marigold, Lemon Zest, Lime Pop, Meadow Green, Mint Julep, Teal Wave, Sky Blue, Cobalt, Indigo Night, Violet Haze, Orchid, Hot Pink, Bubblegum, Coral, Chocolate, Sandstone, Pearl White, Ice Silver, Gunmetal, Jet Black, Midnight Blue, Forest, Rust, Peach, Aqua, Lavender, Burgundy, Olive, Turquoise, Gold Leaf.</p>
+<p><strong>Finishes (5):</strong> Gloss, Matte, Metallic, Pearl, Candy (Gloss free; others 300 coins each).</p>
+<p><strong>Two-tone layouts (8):</strong> Hood Stripe, Split Down, Roof Cap, Fade Front-Back, Racing Number Panel, Bib, Lower Skirt, Diagonal.</p>
+<p><strong>Decals (24):</strong> Racing Stripes, Twin Stripes, Checker Flag, Lightning Bolt, Flame Licks, Polka Dots, Star Field, Camo Splash, Zigzag, Wave Crest, Honeycomb, Number 7, Number 42, Number 99, Sun Burst, Skull &amp; Wrenches, Paw Prints, Leaf Pattern, Snowflakes, Circuit Lines, Candy Swirl, Tiger Stripes, Argyle, Galaxy Swirl.</p>
+<p>Prices: paint colour 50 coins, finish 300, two-tone 200, decal 80.</p>
+<h2>Which slot affects which stat</h2>
+<table>
+<thead>
+<tr>
+<th>Slot</th>
+<th>S</th>
+<th>A</th>
+<th>H</th>
+<th>G</th>
+<th>W</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Body</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>Sets the base; sum of S+A+H+G fixed at 22</td>
+</tr>
+<tr>
+<td>Character class</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>Light / Medium / Heavy modifiers</td>
+</tr>
+<tr>
+<td>Wheel style</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>Plus tire compound off-road behaviour</td>
+</tr>
+<tr>
+<td>Wheel size</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>12" to 16"</td>
+</tr>
+<tr>
+<td>Spoiler</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td></td>
+</tr>
+<tr>
+<td>Exhaust</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td></td>
+</tr>
+<tr>
+<td>Bumper</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>Best for weight</td>
+</tr>
+<tr>
+<td>Paint / decal / rim colour</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Cosmetic only</td>
+</tr>
+</tbody>
+</table>
+<h2>Mod extremes (to check the cap)</h2>
+<table>
+<thead>
+<tr>
+<th>Stat</th>
+<th>Best wheel</th>
+<th>Best spoiler</th>
+<th>Best exhaust</th>
+<th>Best bumper</th>
+<th>Total mod</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top speed</td>
+<td>Turbine Fan</td>
+<td>Dual Plane</td>
+<td>Rocket Nozzle</td>
+<td>Splitter</td>
+<td>+1.50 (capped at ±1.5)</td>
+</tr>
+<tr>
+<td>Acceleration</td>
+<td>Featherweight</td>
+<td>Roof Scoop</td>
+<td>Flame Thrower</td>
+<td>Tiny Bumper</td>
+<td>+1.50 (capped at ±1.5)</td>
+</tr>
+<tr>
+<td>Handling</td>
+<td>Hover Pad</td>
+<td>Shark Fin</td>
+<td>Upswept</td>
+<td>Twin Prongs</td>
+<td>+1.10 (capped at ±1.5)</td>
+</tr>
+<tr>
+<td>Grip</td>
+<td>Slick Racing</td>
+<td>Barn Door</td>
+<td>Bubbler</td>
+<td>Rubber Pusher</td>
+<td>+1.40 (capped at ±1.5)</td>
+</tr>
+<tr>
+<td>Weight</td>
+<td>Anvil Steel</td>
+<td>Barn Door</td>
+<td>Quad Stack</td>
+<td>Cow Catcher</td>
+<td>+1.50 (capped at ±1.5)</td>
+</tr>
+</tbody>
+</table></section><section class="doc" id="04-tracks"><h1>Tracks: 20 Original Tracks</h1>
+<p>Four cups of four tracks plus four bonus tracks. Every track has: a distinct theme, a clear racing line, <strong>at least one risky shortcut</strong>, a hazard, a landmark you can recognise at a glance, item rows that do not spawn unfairly on the first corner (the first row is never within 120 m of the grid and never inside a corner), and a <strong>mirror and reverse</strong> variant.</p>
+<p>Lap times are for a Medium-class kart on 150cc with an average-skill driver (length ÷ average speed). Tracks marked <em>as built</em> have been measured from the playable web slice's actual track spline.</p>
+<h2>Overview</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Track</th>
+<th>Cup</th>
+<th>Theme</th>
+<th>Length</th>
+<th>Lap time</th>
+<th>3 laps</th>
+<th>Music</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Buttercup Meadows</strong></td>
+<td>Seedling Cup</td>
+<td>Sunny meadow valley with windmills, sunflower fields and a covered bridge</td>
+<td>1,640 m</td>
+<td>0:51</td>
+<td>2:34</td>
+<td>122 BPM C major</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Lantern Harbor</strong></td>
+<td>Seedling Cup</td>
+<td>Night port with paper lanterns, cranes and moored ships</td>
+<td>1,980 m</td>
+<td>1:00</td>
+<td>3:00</td>
+<td>126 BPM A minor</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Mirage Mesa</strong></td>
+<td>Seedling Cup</td>
+<td>Desert canyon with sandstone arches and a dry riverbed</td>
+<td>2,240 m</td>
+<td>1:04</td>
+<td>3:12</td>
+<td>118 BPM D dorian</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Frostbite Pass</strong></td>
+<td>Seedling Cup</td>
+<td>Snowy mountain pass with an ice cave and a frozen waterfall</td>
+<td>2,060 m</td>
+<td>1:01</td>
+<td>3:02</td>
+<td>110 BPM E minor</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Clockwork Quarter</strong></td>
+<td>Copper Cup</td>
+<td>Steampunk city with giant gears and brass pipes</td>
+<td>1,320 m</td>
+<td>0:43</td>
+<td>2:08</td>
+<td>132 BPM G minor</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Coral Causeway</strong></td>
+<td>Copper Cup</td>
+<td>Underwater glass tunnels over a coral reef</td>
+<td>2,520 m</td>
+<td>1:14</td>
+<td>3:42</td>
+<td>116 BPM F lydian</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Jade Terrace</strong></td>
+<td>Copper Cup</td>
+<td>Terraced mountain gardens with stone lanterns and a pagoda</td>
+<td>2,780 m</td>
+<td>1:19</td>
+<td>3:58</td>
+<td>104 BPM D pentatonic</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Moonlit Orchard</strong></td>
+<td>Copper Cup</td>
+<td>Cute spooky orchard with friendly ghosts and lanterns</td>
+<td>1,900 m</td>
+<td>0:58</td>
+<td>2:53</td>
+<td>128 BPM B minor</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Magma Foundry</strong></td>
+<td>Tempest Cup</td>
+<td>Volcano forge with lava rivers and anvils</td>
+<td>2,150 m</td>
+<td>1:03</td>
+<td>3:10</td>
+<td>138 BPM C# phrygian</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Cloudtop Carnival</strong></td>
+<td>Tempest Cup</td>
+<td>Sky fairground on clouds with ferris wheel and roller-coaster</td>
+<td>2,360 m</td>
+<td>1:09</td>
+<td>3:28</td>
+<td>134 BPM F major</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>Stormwatch Cliffs</strong></td>
+<td>Tempest Cup</td>
+<td>Coastal cliffs with a lighthouse and an incoming storm</td>
+<td>3,100 m</td>
+<td>1:24</td>
+<td>4:11</td>
+<td>112 BPM A minor</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>Glowcap Caverns</strong></td>
+<td>Tempest Cup</td>
+<td>Crystal caves with bioluminescent mushrooms</td>
+<td>1,780 m</td>
+<td>0:56</td>
+<td>2:47</td>
+<td>124 BPM E dorian</td>
+</tr>
+<tr>
+<td>13</td>
+<td><strong>Starlight Spaceport</strong></td>
+<td>Zenith Cup</td>
+<td>Launch complex with gantries, fuel tanks and rockets</td>
+<td>2,640 m</td>
+<td>1:13</td>
+<td>3:40</td>
+<td>142 BPM F# minor</td>
+</tr>
+<tr>
+<td>14</td>
+<td><strong>Neon Metro Loop</strong></td>
+<td>Zenith Cup</td>
+<td>Night city with holograms, a tram and skyscrapers</td>
+<td>2,900 m</td>
+<td>1:21</td>
+<td>4:02</td>
+<td>140 BPM G minor</td>
+</tr>
+<tr>
+<td>15</td>
+<td><strong>Overgrowth Ruins</strong></td>
+<td>Zenith Cup</td>
+<td>Jungle temple with vines, waterfalls and a stone face</td>
+<td>2,430 m</td>
+<td>1:09</td>
+<td>3:28</td>
+<td>120 BPM C phrygian</td>
+</tr>
+<tr>
+<td>16</td>
+<td><strong>Zenith Ring</strong></td>
+<td>Zenith Cup</td>
+<td>Anti-gravity ring in the sky around a ringed planet</td>
+<td>3,400 m</td>
+<td>1:30</td>
+<td>4:28</td>
+<td>150 BPM A minor</td>
+</tr>
+<tr>
+<td>17</td>
+<td><strong>Rustbelt Rally</strong></td>
+<td>Bonus</td>
+<td>Industrial scrapyard with crushed-car mountains</td>
+<td>1,090 m</td>
+<td>0:34</td>
+<td>1:42</td>
+<td>130 BPM B minor</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>Sugarplum Speedway</strong></td>
+<td>Bonus</td>
+<td>Candy land with lollipop trees and chocolate rivers</td>
+<td>1,560 m</td>
+<td>0:49</td>
+<td>2:26</td>
+<td>136 BPM D major</td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>Polar Lights Circuit</strong></td>
+<td>Bonus</td>
+<td>Ice rink under the aurora with a snowman crowd</td>
+<td>1,250 m</td>
+<td>0:40</td>
+<td>2:01</td>
+<td>114 BPM F# dorian</td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>Thunderhead Savanna</strong></td>
+<td>Bonus</td>
+<td>Safari plains with herds, acacia trees and a dust storm</td>
+<td>3,300 m</td>
+<td>1:29</td>
+<td>4:28</td>
+<td>108 BPM G mixolydian</td>
+</tr>
+</tbody>
+</table>
+<h2>Cups</h2>
+<ul>
+<li><strong>Seedling Cup</strong>: Buttercup Meadows, Lantern Harbor, Mirage Mesa, Frostbite Pass</li>
+<li><strong>Copper Cup</strong>: Clockwork Quarter, Coral Causeway, Jade Terrace, Moonlit Orchard</li>
+<li><strong>Tempest Cup</strong>: Magma Foundry, Cloudtop Carnival, Stormwatch Cliffs, Glowcap Caverns</li>
+<li><strong>Zenith Cup</strong>: Starlight Spaceport, Neon Metro Loop, Overgrowth Ruins, Zenith Ring</li>
+<li><strong>Bonus</strong>: Rustbelt Rally, Sugarplum Speedway, Polar Lights Circuit, Thunderhead Savanna</li>
+</ul>
+<p>Shortest track: Rustbelt Rally (1,090 m). Longest: Zenith Ring (3,400 m).</p>
+<h2>Design rules for every track</h2>
+<ol>
+<li><strong>Racing line:</strong> the line is readable from the road colour/texture and bright edge markings; no blind apexes in the first three seconds after the start.</li>
+<li><strong>Shortcut:</strong> every track has a risky shortcut with a visible entry (arrow + gate or different ground). It saves 1.5 to 3.5 s with a boost and costs time without one.</li>
+<li><strong>Hazard:</strong> telegraphed 1 to 2 s before it can hurt; every hazard has a visual language (pulse decal, sound cue).</li>
+<li><strong>Item rows:</strong> the first row is at least 120 m after the grid and not in a corner; rows are placed after a corner exit, before shortcuts, and never inside a hazard. Rows are 4 to 6 orbs wide.</li>
+<li><strong>Variants:</strong> <em>Mirror</em> flips left/right (and the signage). <em>Reverse</em> runs the track backwards; start line, rows, hazards and the shortcut entry are re-authored.</li>
+<li><strong>Anti-gravity / banked sections</strong> appear only on Zenith Ring and Neon Metro Loop and stay readable with strong glow-line borders.</li>
+</ol>
+<h2>1. Buttercup Meadows</h2>
+<ul>
+<li><strong>Cup:</strong> Seedling Cup</li>
+<li><strong>Theme:</strong> Sunny meadow valley with windmills, sunflower fields and a covered bridge</li>
+<li><strong>Length:</strong> 1,640 m · <strong>Lap time:</strong> 0:51 · <strong>3 laps:</strong> 2:34</li>
+<li><strong>Signature shortcut:</strong> Hay-bale gap through the sunflower field behind the windmill; rough ground, a boost pad at the entry saves about 2.5 s</li>
+<li><strong>Hazard:</strong> Sheep herd crosses the hairpin; a bell rings 2 s before they step out</li>
+<li><strong>Landmark:</strong> Giant windmill whose blades sweep over the finish straight</li>
+<li><strong>Item-box notes:</strong> First item row sits 260 m after the grid and spans the full road width on the long first straight; second row is after the covered bridge</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse swaps the hay-bale gap entry to the left-hand side and moves the sheep crossing to the bridge exit</li>
+<li><strong>Music:</strong> 122 BPM, C major</li>
+<li><strong>Ambience:</strong> Birdsong, wind, distant cowbells, light crowd on the grandstand</li>
+</ul>
+<h2>2. Lantern Harbor</h2>
+<ul>
+<li><strong>Cup:</strong> Seedling Cup</li>
+<li><strong>Theme:</strong> Night port with paper lanterns, cranes and moored ships</li>
+<li><strong>Length:</strong> 1,980 m · <strong>Lap time:</strong> 1:00 · <strong>3 laps:</strong> 3:00</li>
+<li><strong>Signature shortcut:</strong> Slip through the container row; container doors open and close on a 6 s cycle, a closed door costs a wall bump</li>
+<li><strong>Hazard:</strong> Crane loads swing over the dockside straight, shown by a ground shadow 1.2 s early</li>
+<li><strong>Landmark:</strong> Lighthouse tower with a rotating beam that lights the track</li>
+<li><strong>Item-box notes:</strong> Item rows sit on the wide pier after turn 2 and before the container row so a shortcut hopeful can arrive with an item</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse flips the container cycle phase so the doors are closed when you arrive on lap 1</li>
+<li><strong>Music:</strong> 126 BPM, A minor</li>
+<li><strong>Ambience:</strong> Gulls, ship horns, water lapping, crowd cheer from pier</li>
+</ul>
+<h2>3. Mirage Mesa</h2>
+<ul>
+<li><strong>Cup:</strong> Seedling Cup</li>
+<li><strong>Theme:</strong> Desert canyon with sandstone arches and a dry riverbed</li>
+<li><strong>Length:</strong> 2,240 m · <strong>Lap time:</strong> 1:04 · <strong>3 laps:</strong> 3:12</li>
+<li><strong>Signature shortcut:</strong> Jump the dry riverbed through the twin arch over a sand ramp; needs a mini-turbo to hold speed on the sand</li>
+<li><strong>Hazard:</strong> Boulders roll from the canyon wall in the narrows, each telegraphed by a dust puff</li>
+<li><strong>Landmark:</strong> Twin Arch rock formation</li>
+<li><strong>Item-box notes:</strong> Item rows after the first arch and at the end of the canyon; none within 120 m of the narrows entry</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse moves the boulder gap to the other canyon wall and replaces the sand ramp with a cliff-edge ramp</li>
+<li><strong>Music:</strong> 118 BPM, D dorian</li>
+<li><strong>Ambience:</strong> Desert wind, distant hawk cries, rolling dust, low crowd</li>
+</ul>
+<h2>4. Frostbite Pass</h2>
+<ul>
+<li><strong>Cup:</strong> Seedling Cup</li>
+<li><strong>Theme:</strong> Snowy mountain pass with an ice cave and a frozen waterfall</li>
+<li><strong>Length:</strong> 2,060 m · <strong>Lap time:</strong> 1:01 · <strong>3 laps:</strong> 3:02</li>
+<li><strong>Signature shortcut:</strong> Ice-cave tunnel through the mountain; slippery surface unless you hold a drift line</li>
+<li><strong>Hazard:</strong> Icicles drop in the cave with a shadow telegraph; ice patches on the outside bend</li>
+<li><strong>Landmark:</strong> Frozen waterfall next to a cable car line</li>
+<li><strong>Item-box notes:</strong> Item rows before the cave and on the downhill straight; no rows inside the cave</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse sends you through the cave uphill with ice patches placed on the new entry</li>
+<li><strong>Music:</strong> 110 BPM, E minor</li>
+<li><strong>Ambience:</strong> Howling wind, creaking cable car, snow crunch</li>
+</ul>
+<h2>5. Clockwork Quarter</h2>
+<ul>
+<li><strong>Cup:</strong> Copper Cup</li>
+<li><strong>Theme:</strong> Steampunk city with giant gears and brass pipes</li>
+<li><strong>Length:</strong> 1,320 m · <strong>Lap time:</strong> 0:43 · <strong>3 laps:</strong> 2:08</li>
+<li><strong>Signature shortcut:</strong> Slip through the gear tower; timed gate opens every 8 s</li>
+<li><strong>Hazard:</strong> Rotating cog-bars and steam vents at the central square</li>
+<li><strong>Landmark:</strong> Giant clock tower that chimes on the hour (music syncs)</li>
+<li><strong>Item-box notes:</strong> Compact track: two item rows only, after the second corner and before the square</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse swaps the gear tower gate to the exit and adds a steam vent at the new entry</li>
+<li><strong>Music:</strong> 132 BPM, G minor</li>
+<li><strong>Ambience:</strong> Ticking, steam hiss, distant factory whistles</li>
+</ul>
+<h2>6. Coral Causeway</h2>
+<ul>
+<li><strong>Cup:</strong> Copper Cup</li>
+<li><strong>Theme:</strong> Underwater glass tunnels over a coral reef</li>
+<li><strong>Length:</strong> 2,520 m · <strong>Lap time:</strong> 1:14 · <strong>3 laps:</strong> 3:42</li>
+<li><strong>Signature shortcut:</strong> Kelp-forest cut-through with current streams that boost your speed</li>
+<li><strong>Hazard:</strong> Pufferfish mines drift across the road, they inflate when you approach</li>
+<li><strong>Landmark:</strong> A giant whale gliding overhead</li>
+<li><strong>Item-box notes:</strong> Rows sit before each glass tunnel exit; one row inside the kelp shortcut for risk-reward</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse flips the current direction in the kelp shortcut so it becomes a slow gap</li>
+<li><strong>Music:</strong> 116 BPM, F lydian</li>
+<li><strong>Ambience:</strong> Muffled water, bubbles, distant whale song</li>
+</ul>
+<h2>7. Jade Terrace</h2>
+<ul>
+<li><strong>Cup:</strong> Copper Cup</li>
+<li><strong>Theme:</strong> Terraced mountain gardens with stone lanterns and a pagoda</li>
+<li><strong>Length:</strong> 2,780 m · <strong>Lap time:</strong> 1:19 · <strong>3 laps:</strong> 3:58</li>
+<li><strong>Signature shortcut:</strong> Bamboo bridge between terraces; narrow, no walls</li>
+<li><strong>Hazard:</strong> Swinging log gate at the temple steps</li>
+<li><strong>Landmark:</strong> Five-storey pagoda</li>
+<li><strong>Item-box notes:</strong> Item rows on terraces 1 and 3; none on the bridge</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse shifts the log gate timing and replaces the bridge entrance with a ramp</li>
+<li><strong>Music:</strong> 104 BPM, D pentatonic</li>
+<li><strong>Ambience:</strong> Wind chimes, bamboo creak, temple bell</li>
+</ul>
+<h2>8. Moonlit Orchard</h2>
+<ul>
+<li><strong>Cup:</strong> Copper Cup</li>
+<li><strong>Theme:</strong> Cute spooky orchard with friendly ghosts and lanterns</li>
+<li><strong>Length:</strong> 1,900 m · <strong>Lap time:</strong> 0:58 · <strong>3 laps:</strong> 2:53</li>
+<li><strong>Signature shortcut:</strong> Run through the hollow giant tree; slow bark floor, but it saves a hairpin</li>
+<li><strong>Hazard:</strong> Mischievous scarecrows lean into the road after a hidden cue</li>
+<li><strong>Landmark:</strong> Giant gnarled tree glowing with lanterns</li>
+<li><strong>Item-box notes:</strong> Item rows after the orchard hairpin and before the hollow tree</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse puts the scarecrows on the opposite verge</li>
+<li><strong>Music:</strong> 128 BPM, B minor</li>
+<li><strong>Ambience:</strong> Crickets, owls, creaking branches, ghostly giggles</li>
+</ul>
+<h2>9. Magma Foundry</h2>
+<ul>
+<li><strong>Cup:</strong> Tempest Cup</li>
+<li><strong>Theme:</strong> Volcano forge with lava rivers and anvils</li>
+<li><strong>Length:</strong> 2,150 m · <strong>Lap time:</strong> 1:03 · <strong>3 laps:</strong> 3:10</li>
+<li><strong>Signature shortcut:</strong> Cross the cooled lava crust; it is slow rough ground but cuts a long bend</li>
+<li><strong>Hazard:</strong> Lava geysers burst with a glowing telegraph; forge hammers swing over the road</li>
+<li><strong>Landmark:</strong> Colossal anvil statue</li>
+<li><strong>Item-box notes:</strong> Rows before the forge hall and after the lava bridge</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse moves the geysers to the exit side</li>
+<li><strong>Music:</strong> 138 BPM, C# phrygian</li>
+<li><strong>Ambience:</strong> Rumbling, forge clangs, bubbling lava</li>
+</ul>
+<h2>10. Cloudtop Carnival</h2>
+<ul>
+<li><strong>Cup:</strong> Tempest Cup</li>
+<li><strong>Theme:</strong> Sky fairground on clouds with ferris wheel and roller-coaster</li>
+<li><strong>Length:</strong> 2,360 m · <strong>Lap time:</strong> 1:09 · <strong>3 laps:</strong> 3:28</li>
+<li><strong>Signature shortcut:</strong> Ride the roller-coaster rail section, boost pad at the entrance</li>
+<li><strong>Hazard:</strong> Bumper-car clusters shuffle across the road</li>
+<li><strong>Landmark:</strong> Giant ferris wheel with spinning gondolas</li>
+<li><strong>Item-box notes:</strong> Rows after the carousel and before the rail shortcut</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse flips the rail direction so it climbs instead of drops</li>
+<li><strong>Music:</strong> 134 BPM, F major</li>
+<li><strong>Ambience:</strong> Fair music loops, laughing crowd, clinking rides</li>
+</ul>
+<h2>11. Stormwatch Cliffs</h2>
+<ul>
+<li><strong>Cup:</strong> Tempest Cup</li>
+<li><strong>Theme:</strong> Coastal cliffs with a lighthouse and an incoming storm</li>
+<li><strong>Length:</strong> 3,100 m · <strong>Lap time:</strong> 1:24 · <strong>3 laps:</strong> 4:11</li>
+<li><strong>Signature shortcut:</strong> Dive into the sea cave beneath the arch; waves surge on a 10 s cycle</li>
+<li><strong>Hazard:</strong> Lightning strikes on exposed bends, telegraphed by a ring of light</li>
+<li><strong>Landmark:</strong> Tall lighthouse sending beams into the storm</li>
+<li><strong>Item-box notes:</strong> Rows at the cliff top and after the coastal bridge</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse changes the wave cycle and puts the lightning ring on the opposite bend</li>
+<li><strong>Music:</strong> 112 BPM, A minor</li>
+<li><strong>Ambience:</strong> Crashing waves, thunder, gull cries</li>
+</ul>
+<h2>12. Glowcap Caverns</h2>
+<ul>
+<li><strong>Cup:</strong> Tempest Cup</li>
+<li><strong>Theme:</strong> Crystal caves with bioluminescent mushrooms</li>
+<li><strong>Length:</strong> 1,780 m · <strong>Lap time:</strong> 0:56 · <strong>3 laps:</strong> 2:47</li>
+<li><strong>Signature shortcut:</strong> Cross the crystal bridge over the chasm; narrow, no walls</li>
+<li><strong>Hazard:</strong> Stalactites drop with a shadow warning</li>
+<li><strong>Landmark:</strong> Crystal Cathedral, a huge glowing cavern</li>
+<li><strong>Item-box notes:</strong> Rows before the cathedral and after the chasm</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse puts the stalactite drops on the exit stretch</li>
+<li><strong>Music:</strong> 124 BPM, E dorian</li>
+<li><strong>Ambience:</strong> Dripping, echoing hum, crystal chimes</li>
+</ul>
+<h2>13. Starlight Spaceport</h2>
+<ul>
+<li><strong>Cup:</strong> Zenith Cup</li>
+<li><strong>Theme:</strong> Launch complex with gantries, fuel tanks and rockets</li>
+<li><strong>Length:</strong> 2,640 m · <strong>Lap time:</strong> 1:13 · <strong>3 laps:</strong> 3:40</li>
+<li><strong>Signature shortcut:</strong> Cut through the launch gantry; gate opens briefly</li>
+<li><strong>Hazard:</strong> Rocket exhaust blasts across the road on a timer</li>
+<li><strong>Landmark:</strong> A rocket that launches during lap 3</li>
+<li><strong>Item-box notes:</strong> Rows after the tank farm and before the gantry</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse swaps the exhaust timing and moves the launch cutscene to lap 2</li>
+<li><strong>Music:</strong> 142 BPM, F# minor</li>
+<li><strong>Ambience:</strong> Countdown PA announcements, humming engines, distant crowd</li>
+</ul>
+<h2>14. Neon Metro Loop</h2>
+<ul>
+<li><strong>Cup:</strong> Zenith Cup</li>
+<li><strong>Theme:</strong> Night city with holograms, a tram and skyscrapers</li>
+<li><strong>Length:</strong> 2,900 m · <strong>Lap time:</strong> 1:21 · <strong>3 laps:</strong> 4:02</li>
+<li><strong>Signature shortcut:</strong> Run through the rail yard under the tram</li>
+<li><strong>Hazard:</strong> Trams cross the road, indicated by flashing lights and a bell</li>
+<li><strong>Landmark:</strong> Skyscraper with a holographic dragon</li>
+<li><strong>Item-box notes:</strong> Rows on the boulevard and after the rail yard</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse makes the tram cross on the other side</li>
+<li><strong>Music:</strong> 140 BPM, G minor</li>
+<li><strong>Ambience:</strong> City hum, tram bells, distant sirens, holographic chime</li>
+</ul>
+<h2>15. Overgrowth Ruins</h2>
+<ul>
+<li><strong>Cup:</strong> Zenith Cup</li>
+<li><strong>Theme:</strong> Jungle temple with vines, waterfalls and a stone face</li>
+<li><strong>Length:</strong> 2,430 m · <strong>Lap time:</strong> 1:09 · <strong>3 laps:</strong> 3:28</li>
+<li><strong>Signature shortcut:</strong> Dash through the collapsed temple hall; rubble slows you</li>
+<li><strong>Hazard:</strong> Rolling stone drum that rolls down the stairs on a timer</li>
+<li><strong>Landmark:</strong> Giant stone face carved in the cliff</li>
+<li><strong>Item-box notes:</strong> Rows before the temple, none inside the hall</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse sends the rolling stone up the stair instead</li>
+<li><strong>Music:</strong> 120 BPM, C phrygian</li>
+<li><strong>Ambience:</strong> Jungle birds, waterfall, drums</li>
+</ul>
+<h2>16. Zenith Ring</h2>
+<ul>
+<li><strong>Cup:</strong> Zenith Cup</li>
+<li><strong>Theme:</strong> Anti-gravity ring in the sky around a ringed planet</li>
+<li><strong>Length:</strong> 3,400 m · <strong>Lap time:</strong> 1:30 · <strong>3 laps:</strong> 4:28</li>
+<li><strong>Signature shortcut:</strong> Take the gravity-flip loop in the inner ring; requires boost to climb</li>
+<li><strong>Hazard:</strong> Asteroid pulses along the outer ring</li>
+<li><strong>Landmark:</strong> A ringed planet</li>
+<li><strong>Item-box notes:</strong> Rows on each ring segment, none on the climb</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse flips the gravity direction so the climb is a drop</li>
+<li><strong>Music:</strong> 150 BPM, A minor</li>
+<li><strong>Ambience:</strong> Deep space hum, energy swell, distant announcer</li>
+</ul>
+<h2>17. Rustbelt Rally</h2>
+<ul>
+<li><strong>Cup:</strong> Bonus</li>
+<li><strong>Theme:</strong> Industrial scrapyard with crushed-car mountains</li>
+<li><strong>Length:</strong> 1,090 m · <strong>Lap time:</strong> 0:34 · <strong>3 laps:</strong> 1:42</li>
+<li><strong>Signature shortcut:</strong> Climb the scrap ramp over the car pile</li>
+<li><strong>Hazard:</strong> Magnet crane lifts cars across the road</li>
+<li><strong>Landmark:</strong> Mountain of crushed cars</li>
+<li><strong>Item-box notes:</strong> Item rows after the crusher</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse swaps the ramp direction</li>
+<li><strong>Music:</strong> 130 BPM, B minor</li>
+<li><strong>Ambience:</strong> Clanking, grinding, distant welding</li>
+</ul>
+<h2>18. Sugarplum Speedway</h2>
+<ul>
+<li><strong>Cup:</strong> Bonus</li>
+<li><strong>Theme:</strong> Candy land with lollipop trees and chocolate rivers</li>
+<li><strong>Length:</strong> 1,560 m · <strong>Lap time:</strong> 0:49 · <strong>3 laps:</strong> 2:26</li>
+<li><strong>Signature shortcut:</strong> Slide down the chocolate slope between candy canes</li>
+<li><strong>Hazard:</strong> Gumdrop bumper clusters pop out of the sugar</li>
+<li><strong>Landmark:</strong> Giant lollipop tree</li>
+<li><strong>Item-box notes:</strong> Item rows on the sugar plaza</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse flips the chocolate slope into a climb</li>
+<li><strong>Music:</strong> 136 BPM, D major</li>
+<li><strong>Ambience:</strong> Cheerful chimes, popping candy, crowd</li>
+</ul>
+<h2>19. Polar Lights Circuit</h2>
+<ul>
+<li><strong>Cup:</strong> Bonus</li>
+<li><strong>Theme:</strong> Ice rink under the aurora with a snowman crowd</li>
+<li><strong>Length:</strong> 1,250 m · <strong>Lap time:</strong> 0:40 · <strong>3 laps:</strong> 2:01</li>
+<li><strong>Signature shortcut:</strong> Cut across the frozen pond infield</li>
+<li><strong>Hazard:</strong> Ice patches in the corners</li>
+<li><strong>Landmark:</strong> Aurora ribbons over a giant snowman</li>
+<li><strong>Item-box notes:</strong> Item rows on the straight</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse moves the frozen pond entry</li>
+<li><strong>Music:</strong> 114 BPM, F# dorian</li>
+<li><strong>Ambience:</strong> Soft wind, ice creaks, distant skates</li>
+</ul>
+<h2>20. Thunderhead Savanna</h2>
+<ul>
+<li><strong>Cup:</strong> Bonus</li>
+<li><strong>Theme:</strong> Safari plains with herds, acacia trees and a dust storm</li>
+<li><strong>Length:</strong> 3,300 m · <strong>Lap time:</strong> 1:29 · <strong>3 laps:</strong> 4:28</li>
+<li><strong>Signature shortcut:</strong> Cross the dry waterhole</li>
+<li><strong>Hazard:</strong> Herd of wildebeest crosses the road, signalled by dust</li>
+<li><strong>Landmark:</strong> Giant baobab tree</li>
+<li><strong>Item-box notes:</strong> Rows on the plains stretch and after the waterhole</li>
+<li><strong>Mirrored / reverse variant:</strong> Mirror flips the layout; Reverse moves the herd crossing and changes the waterhole entry</li>
+<li><strong>Music:</strong> 108 BPM, G mixolydian</li>
+<li><strong>Ambience:</strong> Wind in grass, distant animals, drums</li>
+</ul></section><section class="doc" id="05-vertical-slice-plan"><h1>Vertical Slice Plan</h1>
+<p><em>Goal: a slice that already feels like the $10M game, not a prototype. The slice is the quality yardstick: if something is not at this bar in the slice, it is not ready to scale to 100 characters and 20 tracks.</em></p>
+<h2>1. Scope</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Slice content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Characters</td>
+<td><strong>8 playable</strong>: Pip Thistledown (L), Fennel Vix (L), Juniper Wren (L), Bramble Quill (M), Clover Dash (M), Captain Dusk Marlowe (M), Marigold Hoofsworth (H), Gus Gantry (H). Four more free starters appear as CPU rivals (Pearl Quayside, Sage Willowmere, Hobb Mossback, Barnaby Bruin) to fill the 12-kart grid.</td>
+</tr>
+<tr>
+<td>Karts</td>
+<td><strong>6 bodies</strong>: Corsa Standard (Cruiser), Needle (Dart), Slidewinder (Drifter), Ironclad (Bruiser), Pogo (Rocket), Pumpkin Coach (Oddball)</td>
+</tr>
+<tr>
+<td>Garage</td>
+<td>Full: 18 wheel styles × 5 sizes × colours, 12 spoilers, 10 exhausts, 8 bumpers, 32 paint colours × 5 finishes, 24 decals, live stat bars, 3D preview, save/load</td>
+</tr>
+<tr>
+<td>Tracks</td>
+<td><strong>4</strong>: Buttercup Meadows, Lantern Harbor, Mirage Mesa, Frostbite Pass (a Seedling Cup subset: meadow, harbor night, desert, snow), each with a shortcut and a hazard, 3 laps default</td>
+</tr>
+<tr>
+<td>Multiplayer</td>
+<td>4-player code lobbies (6-character code), host settings (track, laps, items, CPU fill), connection status</td>
+</tr>
+<tr>
+<td>Items</td>
+<td>All 8 items with the exact behaviours in the GDD</td>
+</tr>
+<tr>
+<td>Drift boost</td>
+<td>Three tiers + start boost</td>
+</tr>
+<tr>
+<td>Audio</td>
+<td>Full dynamic score per track and menu, layered engines per class, announcer, barks, ambience, crowd, mixer</td>
+</tr>
+<tr>
+<td>Platforms</td>
+<td>iOS Safari, Android Chrome (web), desktop browsers; gamepad</td>
+</tr>
+</tbody>
+</table>
+<h2>2. Quality-bar checklist (all must be true to call the slice "done")</h2>
+<p><strong>Feel</strong>
+- [ ] Steering feels responsive at 60 fps; touch slider is accurate to 1° of heading.
+- [ ] Drift entry is satisfying: hop, slide, sparks, tier changes are obvious without looking at a bar.
+- [ ] Boost feels fast: FOV kick, trail, speed lines, whoosh, camera shake.
+- [ ] Every item is understandable in 2 seconds, with a clear counter.
+- [ ] CPUs drive plausibly, take shortcuts at higher skill, and never feel scripted.</p>
+<p><strong>Visual</strong>
+- [ ] Every track is recognisable from a single screenshot (landmark visible).
+- [ ] Rim light separates karts from the background at any time of day.
+- [ ] No placeholder boxes: every object belongs to a theme.
+- [ ] Characters readable at thumbnail size.</p>
+<p><strong>Audio (top priority)</strong>
+- [ ] Engine pitch follows speed in real time with per-class tone.
+- [ ] Drift squeal, tier ticks, boosts by tier, hop, land, bumps, scrape, crash all present.
+- [ ] Every item has pickup, use, and hit sounds.
+- [ ] Dynamic music: stems react to position and final lap.
+- [ ] Announcer: countdown, final lap, position callouts. Barks have cooldowns.
+- [ ] Mixer: ducking works; no clipping; peak below −1 dBFS.</p>
+<p><strong>Technical</strong>
+- [ ] 0 console errors; 60 s soak on every track with no stalls.
+- [ ] First load under 8 s on a good phone; per-track streaming.
+- [ ] 4-player lobby works end-to-end (code, join, ready, start).
+- [ ] Save/load: coins, unlocks, garage builds persist.</p>
+<h2>3. Engine and backend recommendation (production)</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Recommendation</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Engine</td>
+<td><strong>Unity 6 LTS, URP, C#</strong> (alternative: Unreal 5.5 mobile renderer if the team is Unreal-heavy)</td>
+<td>Best mobile tooling, Addressables for streaming 100 characters × 20 tracks, big hiring pool, mature profiler (Frame Debugger, Memory Profiler), Burst/Jobs for kart physics and AI</td>
+</tr>
+<tr>
+<td>Physics</td>
+<td>Custom kinematic arcade kart controller (no wheel colliders), fixed 60 Hz, Burst-compiled; use Unity Physics only for static queries</td>
+<td>Determinism-lite and cost</td>
+</tr>
+<tr>
+<td>Netcode</td>
+<td>Custom UDP via Unity Transport; host-authoritative items, client prediction for own kart; optional dedicated headless Linux servers</td>
+<td>Fine-grained control over lag-tolerant items</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td><strong>Nakama</strong> (open source, on a managed cluster) for accounts, rooms, matchmaker, leaderboards, cloud saves; or PlayFab if the studio prefers a managed service</td>
+<td>Rooms with short codes, leaderboards, storage</td>
+</tr>
+<tr>
+<td>Server hosting</td>
+<td>Edgegap / Hathora / AWS GameLift for dedicated relays; Cloudflare for static content</td>
+<td>Low cost at low concurrency</td>
+</tr>
+<tr>
+<td>Content delivery</td>
+<td>Addressables on CDN, per-track and per-character bundles</td>
+<td>Meets the &lt;8 s load budget</td>
+</tr>
+<tr>
+<td>Audio</td>
+<td><strong>FMOD Studio</strong> (adaptive layers, snapshots, ducking)</td>
+<td>The dynamic score and RPM-driven engines need parameter-driven mixing</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td>Opt-in anonymous (Unity Analytics or self-hosted PostHog)</td>
+<td>Funnel and performance</td>
+</tr>
+</tbody>
+</table>
+<p><strong>This repository's browser slice</strong> uses three.js, WebAudio and WebRTC (with a free signalling relay) so the design can be played now on any phone.</p>
+<h2>4. Milestones for the slice (8 weeks, team of ~25)</h2>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Milestone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Kart controller prototype, camera, test track, touch + gamepad input</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Drift, boost tiers, start boost, off-road, bump rules</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Track pipeline (spline → mesh → AI line → minimap) + Track 1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Items (8), item boxes, HUD, CPU racers with rubber-banding</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Garage (stats, preview, saves), characters (8), Tracks 2 to 4</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Audio vertical slice: engine layers, drift, boost, music stems, announcer, mixer</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Netcode: codes, lobbies, prediction, items over network, host migration</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Polish, perf pass (30/60 fps), quality-bar sign-off, playtest</td>
+</tr>
+</tbody>
+</table>
+<h2>5. Slice KPIs</h2>
+<ul>
+<li>60 fps on iPhone 13+ and Pixel 8 class, 30 fps on iPhone XR / Pixel 5 class.</li>
+<li>Race start to first interaction: under 10 s.</li>
+<li>90% of playtesters can explain all 8 items after one race.</li>
+<li>Net: 4 humans, 150 ms RTT, no teleporting karts.</li>
+</ul></section><section class="doc" id="06-production-risks-perf"><h1>Production Order, Risks, Performance Budget</h1>
+<h2>1. Production order (full game, 24 months, ~85 people, $10M)</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Months</th>
+<th>Output</th>
+<th>Gate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pre-production</td>
+<td>0 to 4</td>
+<td>Pillars, kart controller prototype, art pipeline, audio pipeline, netcode spike</td>
+<td>Playable greybox kart on one track; "fun in 60 seconds"</td>
+</tr>
+<tr>
+<td>Vertical slice</td>
+<td>4 to 8</td>
+<td>The slice (8 characters, 6 karts, 4 tracks, 4-player lobbies, items, drift, garage, full audio slice)</td>
+<td>Quality-bar checklist all green; investors/internal greenlight</td>
+</tr>
+<tr>
+<td>Systems production</td>
+<td>8 to 14</td>
+<td>Roster pipeline (templated rig, 10 sets), kart modular system (40+ bodies, parts), track pipeline (20 tracks), CPU AI, progression, cloud saves, daily challenge, time trial ghosts</td>
+<td>8 tracks + 40 characters complete</td>
+</tr>
+<tr>
+<td>Content production</td>
+<td>14 to 20</td>
+<td>Remaining 12 tracks, 60 characters, remaining bodies and parts, music (21 pieces), VO</td>
+<td>All tracks playable; content lock</td>
+</tr>
+<tr>
+<td>Hardening</td>
+<td>20 to 24</td>
+<td>Balance, perf, QA, localisation (14 languages), certification (Apple, Google), live-ops tooling</td>
+<td>Release candidate</td>
+</tr>
+<tr>
+<td>Post-launch</td>
+<td>24+</td>
+<td>Battle mode, seasons, extra tracks</td>
+<td>Live</td>
+</tr>
+</tbody>
+</table>
+<h3>Ordering rules</h3>
+<ol>
+<li>Prove the feel before scaling content.</li>
+<li>Build the tools (track spline pipeline, character template rig, kart modular assembly) before the content.</li>
+<li>Audio runs in parallel from day one: engine and mixer prototypes go in with the kart controller.</li>
+<li>Netcode spike in pre-production: the architecture must be proven with 4 humans + 8 CPUs before any track is final.</li>
+<li>Streaming and memory budgets are enforced from the first track.</li>
+</ol>
+<h3>Team (peak)</h3>
+<p>Design 8, Engineering 22, Art (characters 10, karts 8, environment 14, VFX 4, UI 5), Animation 6, Audio 6 (sound designers 3, composers 2, implementer 1), QA 10, Production 4, Online/backend 5, Live-ops 3.</p>
+<h2>2. Risk list</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Kart handling not fun / not readable</td>
+<td>M</td>
+<td>H</td>
+<td>Prototype first, weekly blind playtests, tuneable physics JSON, assist options</td>
+<td>Design</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Netcode: items feel unfair at 150 ms</td>
+<td>H</td>
+<td>H</td>
+<td>Victim-authoritative hits, fast-forward projectile, 120 ms rewind validation, early 4-human tests</td>
+<td>Online</td>
+</tr>
+<tr>
+<td>3</td>
+<td>100 characters × animations scope</td>
+<td>H</td>
+<td>H</td>
+<td>Templated rig; shared animation set with per-character poses (idle/victory); 10 art sets of 10; outsourcing plan</td>
+<td>Art</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Memory on mid-range phones</td>
+<td>H</td>
+<td>H</td>
+<td>Addressables streaming; one track + 12 racers resident; texture budgets; ASTC</td>
+<td>Tech art</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Load time over 8 s</td>
+<td>M</td>
+<td>H</td>
+<td>Core under 40 MB; async loading; splash-to-menu under 4 s</td>
+<td>Engineering</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Audio: too many voices, clipping, harshness</td>
+<td>M</td>
+<td>H</td>
+<td>Voice limits, priority, master limiter, loudness QA</td>
+<td>Audio</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Rubber-banding perceived as unfair</td>
+<td>M</td>
+<td>M</td>
+<td>Light bands; item balancing; telemetry</td>
+<td>Design</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Bluetooth gamepad variance</td>
+<td>M</td>
+<td>M</td>
+<td>SDL-style mapping DB, test matrix</td>
+<td>QA</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Thermal throttling on long sessions</td>
+<td>M</td>
+<td>M</td>
+<td>Adaptive quality, 30 fps fallback, particle caps</td>
+<td>Engineering</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Platform review (child safety, loot boxes)</td>
+<td>L</td>
+<td>H</td>
+<td>No loot boxes; cosmetic-only; child-safe design</td>
+<td>Production</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Backend cost spikes</td>
+<td>L</td>
+<td>M</td>
+<td>Serverless TTL rooms; P2P by default; relay only when needed</td>
+<td>Online</td>
+</tr>
+<tr>
+<td>12</td>
+<td>IP safety (no resemblance to existing characters)</td>
+<td>M</td>
+<td>H</td>
+<td>Original design, legal clearance review of all 100 names and silhouettes</td>
+<td>Legal</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Scope creep: Battle mode</td>
+<td>M</td>
+<td>M</td>
+<td>Optional, post-launch</td>
+<td>Production</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Content balance (100 characters)</td>
+<td>M</td>
+<td>M</td>
+<td>Class modifiers only (no unique stats); stat budget invariant</td>
+<td>Design</td>
+</tr>
+</tbody>
+</table>
+<h2>3. Performance budget</h2>
+<h3>3.1 Targets by tier</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Devices</th>
+<th>Frame rate</th>
+<th>Resolution scale</th>
+<th>Shadows</th>
+<th>Racers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>High</td>
+<td>iPhone 14+, Pixel 8+, Galaxy S23+</td>
+<td>60 fps</td>
+<td>100% (up to 1170p)</td>
+<td>Player + nearest 3</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Mid</td>
+<td>iPhone XR to 12, Pixel 5 to 7</td>
+<td>30 fps stable (60 on menus)</td>
+<td>75%</td>
+<td>Player only</td>
+<td>12 (reduced FX on far karts)</td>
+</tr>
+<tr>
+<td>Low</td>
+<td>older</td>
+<td>30 fps</td>
+<td>60%</td>
+<td>Blob shadows</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<h3>3.2 Per-frame budget (60 fps = 16.6 ms)</h3>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>Budget</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Game logic + physics + AI</td>
+<td>3.0 ms</td>
+</tr>
+<tr>
+<td>Render CPU (draw submission)</td>
+<td>4.0 ms</td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>12.0 ms</td>
+</tr>
+<tr>
+<td>Audio mixing</td>
+<td>1.0 ms</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>0.5 ms</td>
+</tr>
+<tr>
+<td>Headroom</td>
+<td>2.0 ms</td>
+</tr>
+</tbody>
+</table>
+<h3>3.3 Rendering budget</h3>
+<ul>
+<li>Draw calls ≤ 250 (≤ 150 on Mid). Triangles ≤ 350k visible (kart 12k LOD0, 6k LOD1, 2.5k LOD2).</li>
+<li>Materials: ≤ 40 unique per scene, shared atlases; GPU instancing for scenery.</li>
+<li>Particles ≤ 600 live; overdraw capped.</li>
+<li>Textures: ASTC 6×6 on mobile; kart 1024², character 512² + 1024² face; track atlases 2048².</li>
+</ul>
+<h3>3.4 Memory budget (on device)</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Budget</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total app memory (high)</td>
+<td>≤ 1.8 GB; (mid) ≤ 1.1 GB</td>
+</tr>
+<tr>
+<td>Track resident</td>
+<td>≤ 220 MB</td>
+</tr>
+<tr>
+<td>12 racers (kart + character)</td>
+<td>≤ 160 MB</td>
+</tr>
+<tr>
+<td>Audio resident</td>
+<td>≤ 90 MB (music streamed from disk)</td>
+</tr>
+<tr>
+<td>UI + fonts</td>
+<td>≤ 40 MB</td>
+</tr>
+</tbody>
+</table>
+<h3>3.5 Download and load</h3>
+<ul>
+<li>Initial app download ≤ 250 MB (stores allow more; keep low for conversion).</li>
+<li>Core boot ≤ 4 s on a good phone; menu to race ≤ 8 s for a cached track.</li>
+<li>Asset streaming: one Addressable bundle per track (≈ 60 MB), per character (≈ 8 MB), per kart body (≈ 4 MB), per music set (≈ 14 MB).</li>
+<li>Cache eviction: keep the last 3 tracks and 24 characters.</li>
+</ul>
+<h3>3.6 Network budget</h3>
+<ul>
+<li>≤ 25 KB/s per client; ≤ 60 KB/s for the host with 4 humans + 8 CPUs.</li>
+<li>20 Hz snapshots, 60 Hz simulation; 100 ms interpolation buffer.</li>
+</ul>
+<h3>3.7 Battery and thermals</h3>
+<ul>
+<li>30 min of play ≤ 18% battery on a mid phone; adaptive resolution scaling when thermal state is "serious".</li>
+</ul>
+<h3>3.8 Web slice budget (what this repo's build enforces)</h3>
+<ul>
+<li>Core bundle (JS + essential audio) ≤ 6 MB gzipped; first interactive under 8 s on a good phone on a typical 4G connection.</li>
+<li>Adaptive pixel ratio (1.0 to 0.6) from frame time; 60 fps target, 30 fps fallback with the fixed 60 Hz simulation.</li>
+</ul></section></body></html>

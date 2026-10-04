@@ -1,0 +1,1 @@
+{"name":"sparkdrift-gp","version":"1.0.0","private":true,"type":"module","scripts":{"build":"node build.mjs"},"license":"MIT","dependencies":{"esbuild":"^0.28.2","peerjs":"^1.5.5","three":"^0.186.1"},"devDependencies":{"puppeteer-core":"^25.12.0"}}

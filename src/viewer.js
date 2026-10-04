@@ -1,0 +1,21 @@
+import * as THREE from 'three';
+import DATA from './gamedata.json';
+import { buildKart, defaultBuild, buildWheel, MODEL_G } from './models.js';
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); renderer.setSize(1200, 900); document.body.appendChild(renderer.domElement);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x9ad0ff);
+const pm = new THREE.PMREMGenerator(renderer); const envScene = new THREE.Scene(); envScene.background = new THREE.Color(0xbfe0ff);
+const sun = new THREE.Mesh(new THREE.SphereGeometry(5, 8, 8), new THREE.MeshBasicMaterial({ color: 0xfff2c0 })); sun.position.set(20, 30, 10); envScene.add(sun);
+scene.environment = pm.fromScene(envScene, 0.04).texture;
+scene.add(new THREE.HemisphereLight(0xcfe8ff, 0x6b8a4a, 1.0)); const dl = new THREE.DirectionalLight(0xfff2d8, 2.2); dl.position.set(5, 10, 4); scene.add(dl);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0x5c6670 })); ground.rotation.x = -Math.PI / 2; scene.add(ground);
+const cam = new THREE.PerspectiveCamera(40, 1200 / 900, 0.1, 100);
+window.show = (cfgs) => { // cfgs: [{build, char}] laid out in a grid
+  while (scene.children.length > 4) scene.remove(scene.children[scene.children.length - 1]);
+  const n = cfgs.length, cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols);
+  cfgs.forEach((c, i) => { const k = buildKart(c.build, c.char); const x = (i % cols - (cols - 1) / 2) * 4.2, z = (Math.floor(i / cols) - (rows - 1) / 2) * 4.6; k.root.position.set(x, 0, z); k.root.rotation.y = c.rot ?? 0.7; scene.add(k.root); });
+  cam.position.set(0, 4.2 + rows * 3.2, 7 + rows * 5.2 + cols * 2); cam.lookAt(0, 0.4, 0); renderer.render(scene, cam);
+  return renderer.info.render.calls;
+};
+window.showWheels = () => { while (scene.children.length > 4) scene.remove(scene.children[scene.children.length - 1]); DATA.wheels.forEach((w, i) => { const g = buildWheel(w.name, 2, 0xe8edf2, 0.36); g.position.set((i % 6 - 2.5) * 1.3, 0.5 + 1.3 * (2 - Math.floor(i / 6)), 0); g.rotation.y = -0.9; scene.add(g); }); cam.position.set(0, 1.8, 9); cam.lookAt(0, 1.7, 0); renderer.render(scene, cam); };
+window.DATA = DATA; window.ready = true;
