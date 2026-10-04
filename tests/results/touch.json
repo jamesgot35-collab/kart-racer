@@ -42,9 +42,9 @@
    "look": false,
    "gas": false,
    "kartSteer": 0,
-   "spd": 3.4771844874178552,
+   "spd": 6.924547651035735,
    "drifting": false,
-   "t": 0.11666666666666665
+   "t": 0.21666666666666665
   },
   {
    "name": "gas held",
@@ -58,9 +58,9 @@
    "look": false,
    "gas": true,
    "kartSteer": 0,
-   "spd": 19.823781088239194,
+   "spd": 22.23713351457173,
    "drifting": false,
-   "t": 0.6166666666666669
+   "t": 0.7000000000000005
   },
   {
    "name": "steer right + gas",
@@ -73,10 +73,10 @@
    "itemUp": false,
    "look": false,
    "gas": true,
-   "kartSteer": 0.952062824143528,
-   "spd": 26.83050351014157,
+   "kartSteer": 0.9219413287401803,
+   "spd": 32.73482495181138,
    "drifting": false,
-   "t": 0.9833333333333347
+   "t": 1.1333333333333342
   },
   {
    "name": "steer left + gas",
@@ -89,10 +89,10 @@
    "itemUp": false,
    "look": false,
    "gas": true,
-   "kartSteer": -0.965419805975648,
-   "spd": 30.375017168261046,
+   "kartSteer": -0.8317235164587671,
+   "spd": 33.15605304289846,
    "drifting": false,
-   "t": 1.4166666666666665
+   "t": 1.4333333333333331
   },
   {
    "name": "drift + steer + gas",
@@ -105,10 +105,10 @@
    "itemUp": false,
    "look": false,
    "gas": true,
-   "kartSteer": -0.9998541058674597,
-   "spd": 23.179933184770466,
+   "kartSteer": -0.9996133052130466,
+   "spd": 22.65034353996594,
    "drifting": false,
-   "t": 1.866666666666665
+   "t": 1.9333333333333313
   },
   {
    "name": "+ item",
@@ -121,10 +121,10 @@
    "itemUp": false,
    "look": false,
    "gas": true,
-   "kartSteer": -0.9999974594109671,
-   "spd": 22.326333333333334,
+   "kartSteer": -0.9999945006705242,
+   "spd": 22.159054139025724,
    "drifting": true,
-   "t": 2.199999999999997
+   "t": 2.28333333333333
   },
   {
    "name": "released steer/drift/item (gas still held)",
@@ -137,10 +137,10 @@
    "itemUp": false,
    "look": false,
    "gas": true,
-   "kartSteer": -0.24227786769343285,
-   "spd": 22.330000000000002,
+   "kartSteer": -0.24227780805919422,
+   "spd": 22.27130593983057,
    "drifting": false,
-   "t": 2.549999999999996
+   "t": 2.6166666666666623
   },
   {
    "name": "brake",
@@ -153,10 +153,10 @@
    "itemUp": false,
    "look": false,
    "gas": false,
-   "kartSteer": -0.0034455230949770694,
-   "spd": 19.330000000000002,
+   "kartSteer": -0.011614113891054148,
+   "spd": 18.830000000000002,
    "drifting": false,
-   "t": 2.8999999999999946
+   "t": 2.8666666666666614
   },
   {
    "name": "all released",
@@ -169,10 +169,10 @@
    "itemUp": false,
    "look": false,
    "gas": false,
-   "kartSteer": -0.0000734694736601473,
-   "spd": 17.15815256594056,
+   "kartSteer": -0.0008347739075573522,
+   "spd": 16.321226211122312,
    "drifting": false,
-   "t": 3.21666666666666
+   "t": 3.0833333333333273
   }
  ],
  "errors": []

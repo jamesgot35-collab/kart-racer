@@ -1,5 +1,5 @@
 {
- "date": "Sun Oct 04 2026 07:28:12 GMT-0400 (Eastern Daylight Time)",
+ "date": "Sun Oct 04 2026 07:34:34 GMT-0400 (Eastern Daylight Time)",
  "transport": "PeerJS cloud (0.peerjs.com) + real WebRTC data channels via @roamhq/wrtc",
  "pass": true,
  "res": [
@@ -11,12 +11,12 @@
   {
    "name": "host opens room on PeerJS cloud",
    "ok": true,
-   "extra": "4C7YJD "
+   "extra": "XEJTJN "
   },
   {
    "name": "code is 6 valid chars",
    "ok": true,
-   "extra": "4C7YJD"
+   "extra": "XEJTJN"
   },
   {
    "name": "client connects by code (WebRTC data channel open)",
@@ -71,7 +71,7 @@
   {
    "name": "go broadcast after all loaded",
    "ok": true,
-   "extra": "1107 ms"
+   "extra": "1103 ms"
   },
   {
    "name": "client kart snapshots reach host (20 Hz)",

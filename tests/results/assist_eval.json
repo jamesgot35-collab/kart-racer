@@ -2,149 +2,149 @@
  "out": {
   "meadow": {
    "off": {
-    "walls": 5,
-    "prog": 2211,
+    "walls": 4,
+    "prog": 2214,
     "assistFrames": 0
    },
    "low": {
-    "walls": 1,
-    "prog": 2171,
-    "assistFrames": 2392
+    "walls": 5,
+    "prog": 2141,
+    "assistFrames": 2190
    },
    "high": {
-    "walls": 3,
-    "prog": 2246,
-    "assistFrames": 2278
+    "walls": 4,
+    "prog": 2148,
+    "assistFrames": 2197
    }
   },
   "harbor": {
    "off": {
-    "walls": 5,
-    "prog": 2196,
+    "walls": 2,
+    "prog": 2131,
     "assistFrames": 0
    },
    "low": {
     "walls": 1,
-    "prog": 2236,
-    "assistFrames": 2532
+    "prog": 2232,
+    "assistFrames": 2473
    },
    "high": {
     "walls": 1,
-    "prog": 2248,
-    "assistFrames": 2355
+    "prog": 2159,
+    "assistFrames": 2291
    }
   },
   "mesa": {
    "off": {
     "walls": 5,
-    "prog": 2277,
+    "prog": 2263,
     "assistFrames": 0
    },
    "low": {
-    "walls": 2,
-    "prog": 2285,
-    "assistFrames": 2464
+    "walls": 1,
+    "prog": 2271,
+    "assistFrames": 2446
    },
    "high": {
     "walls": 2,
-    "prog": 2308,
-    "assistFrames": 2226
+    "prog": 2316,
+    "assistFrames": 2207
    }
   },
   "frost": {
    "off": {
-    "walls": 3,
-    "prog": 2312,
+    "walls": 5,
+    "prog": 2207,
     "assistFrames": 0
    },
    "low": {
-    "walls": 2,
-    "prog": 2353,
-    "assistFrames": 2324
+    "walls": 1,
+    "prog": 2267,
+    "assistFrames": 2260
    },
    "high": {
     "walls": 1,
-    "prog": 2318,
-    "assistFrames": 2320
+    "prog": 2236,
+    "assistFrames": 2147
    }
   },
   "dusk": {
    "off": {
-    "walls": 2,
-    "prog": 2261,
+    "walls": 5,
+    "prog": 1941,
     "assistFrames": 0
    },
    "low": {
-    "walls": 3,
-    "prog": 2244,
-    "assistFrames": 2238
+    "walls": 1,
+    "prog": 2253,
+    "assistFrames": 2073
    },
    "high": {
-    "walls": 2,
-    "prog": 2300,
-    "assistFrames": 1949
+    "walls": 3,
+    "prog": 2308,
+    "assistFrames": 2103
    }
   },
   "neon": {
    "off": {
-    "walls": 4,
-    "prog": 2232,
+    "walls": 5,
+    "prog": 2360,
     "assistFrames": 0
    },
    "low": {
-    "walls": 5,
-    "prog": 2248,
-    "assistFrames": 1922
+    "walls": 8,
+    "prog": 2087,
+    "assistFrames": 2142
    },
    "high": {
-    "walls": 2,
-    "prog": 2220,
-    "assistFrames": 2183
+    "walls": 1,
+    "prog": 2399,
+    "assistFrames": 2000
    }
   },
   "ember": {
    "off": {
-    "walls": 4,
-    "prog": 2372,
+    "walls": 3,
+    "prog": 2203,
     "assistFrames": 0
    },
    "low": {
     "walls": 1,
-    "prog": 2396,
-    "assistFrames": 2382
+    "prog": 2398,
+    "assistFrames": 2367
    },
    "high": {
-    "walls": 1,
-    "prog": 2402,
-    "assistFrames": 2261
+    "walls": 3,
+    "prog": 2331,
+    "assistFrames": 1803
    }
   },
   "aurora": {
    "off": {
-    "walls": 5,
-    "prog": 2315,
+    "walls": 4,
+    "prog": 2206,
     "assistFrames": 0
    },
    "low": {
     "walls": 3,
-    "prog": 2275,
-    "assistFrames": 2504
+    "prog": 2242,
+    "assistFrames": 2554
    },
    "high": {
     "walls": 2,
-    "prog": 2279,
-    "assistFrames": 2442
+    "prog": 2326,
+    "assistFrames": 2263
    }
   }
  },
  "tot": {
   "off": 33,
-  "low": 18,
-  "high": 14
+  "low": 21,
+  "high": 17
  },
  "prog": {
-  "off": 18176,
-  "low": 18208,
-  "high": 18321
+  "off": 17525,
+  "low": 17891,
+  "high": 18223
  }
 }

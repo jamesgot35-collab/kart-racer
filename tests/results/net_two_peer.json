@@ -1,20 +1,20 @@
 {
  "steps": [
-  "host {\"s\":\"open\",\"c\":\"HCPN4P\",\"e\":\"\"}",
+  "host {\"s\":\"open\",\"c\":\"TEAK4Y\",\"e\":\"\"}",
   "client {\"s\":\"open\",\"e\":\"\"}",
-  "members A [[0,\"Pip Thistledown\",true],[1,\"Pip Thistledown\",true]] members B [[0,\"Pip Thistledown\",true],[1,\"Pip Thistledown\",true]] rtt 4",
+  "members A [[0,\"Pip Thistledown\",true],[1,\"Pip Thistledown\",true]] members B [[0,\"Pip Thistledown\",true],[1,\"Pip Thistledown\",true]] rtt 4.299999997019768",
   "both racing",
-  "A race t 5.2 B race t 6.1",
-  "kart1 (client) pos A-view vs B-truth dist(m) 2.31 | kart0 (host) pos B-view vs A-truth dist(m) 3.01",
-  "traffic A {\"sent\":1548,\"recv\":1634,\"rtt\":0} B {\"sent\":1586,\"recv\":1597,\"rtt\":5.200000002980232}",
-  "kart roles A: [[0,\"Pip Thistledown\",\"local\",-3.1,26.9,37.2],[1,\"Pip Thistledown\",\"remote\",-15.8,59.1,20.9]]",
-  "kart roles B: [[0,\"Pip Thistledown\",\"remote\",-2.9,29.9,37],[1,\"Pip Thistledown\",\"local\",-16,56.8,21.1]]",
+  "A race t 6.1 B race t 5.4",
+  "kart1 (client) pos A-view vs B-truth dist(m) 2.21 | kart0 (host) pos B-view vs A-truth dist(m) 1.20",
+  "traffic A {\"sent\":1564,\"recv\":1631,\"rtt\":0} B {\"sent\":1583,\"recv\":1613,\"rtt\":9.700000002980232}",
+  "kart roles A: [[0,\"Pip Thistledown\",\"local\",-5.9,-9.9,38.9],[1,\"Pip Thistledown\",\"remote\",-16.2,72.7,20.2]]",
+  "kart roles B: [[0,\"Pip Thistledown\",\"remote\",-5.8,-8.7,38.9],[1,\"Pip Thistledown\",\"local\",-16.4,70.5,20.4]]",
   "after B drops, kart1 on A: {\"remote\":false,\"auth\":true,\"cpu\":true,\"hasAI\":true}",
   "RESULT PASS"
  ],
  "a": {
-  "t": 5.166666666666654,
-  "fps": 6.666666666666666,
+  "t": 6.083333333333317,
+  "fps": 6.856359273225986,
   "karts": [
    [
     4,
@@ -100,28 +100,28 @@
     0,
     "Pip Thistledown",
     "local",
-    -3.1,
-    26.9,
-    37.2
+    -5.9,
+    -9.9,
+    38.9
    ],
    [
     1,
     "Pip Thistledown",
     "remote",
-    -15.8,
-    59.1,
-    20.9
+    -16.2,
+    72.7,
+    20.2
    ]
   ],
   "net": {
-   "sent": 1548,
-   "recv": 1634,
+   "sent": 1564,
+   "recv": 1631,
    "rtt": 0
   }
  },
  "b": {
-  "t": 6.099999999999984,
-  "fps": 5.807200929152083,
+  "t": 5.399999999999986,
+  "fps": 7.500468779298664,
   "karts": [
    [
     4,
@@ -207,23 +207,23 @@
     0,
     "Pip Thistledown",
     "remote",
-    -2.9,
-    29.9,
-    37
+    -5.8,
+    -8.7,
+    38.9
    ],
    [
     1,
     "Pip Thistledown",
     "local",
-    -16,
-    56.8,
-    21.1
+    -16.4,
+    70.5,
+    20.4
    ]
   ],
   "net": {
-   "sent": 1586,
-   "recv": 1597,
-   "rtt": 5.200000002980232
+   "sent": 1583,
+   "recv": 1613,
+   "rtt": 9.700000002980232
   }
  },
  "errors": {

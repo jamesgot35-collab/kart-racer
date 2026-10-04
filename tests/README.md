@@ -27,3 +27,5 @@ Headless Chrome here uses SwiftShader (software GL, ~5-9 fps), so these are corr
 | `skid_test.mjs` | Skid marks are generated during an AI race and render on the road (close-up screenshot) | `shots/skidmarks_closeup.png` |
 | `speedfx_check.mjs` | Speed-lines overlay shows when boosting (Standard) and is hidden on the Performance tier | `results/speedfx_check.txt`, `shots/speedfx_*.png` |
 | `kart_sheet.mjs` | Contact sheet of all 12 kart bodies | `shots/kart_sheet.png` |
+| `cup2_shots.mjs` | Grid + race screenshots of the 4 Starlight Cup tracks, both orientations; fails on console errors | `shots/*_cup2_*.png` |
+| `live_smoke.mjs [url w h track tag]` | Loads the PUBLISHED site, starts a race, screenshots, reports errors | `results/live_smoke_<tag>.json` |
