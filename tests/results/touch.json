@@ -1,0 +1,179 @@
+{
+ "checks": [
+  {
+   "n": "gas registers",
+   "ok": true
+  },
+  {
+   "n": "steer right ~ +1",
+   "ok": true
+  },
+  {
+   "n": "steer left ~ -1",
+   "ok": true
+  },
+  {
+   "n": "multi-touch: drift+steer+gas simultaneously",
+   "ok": true
+  },
+  {
+   "n": "steer returns to 0 on release",
+   "ok": true
+  },
+  {
+   "n": "brake registers",
+   "ok": true
+  },
+  {
+   "n": "kart actually moves on gas",
+   "ok": true
+  }
+ ],
+ "samples": [
+  {
+   "name": "idle",
+   "steer": 0,
+   "throttle": 1,
+   "brake": 0,
+   "drift": false,
+   "driftPressed": false,
+   "itemDown": false,
+   "itemUp": false,
+   "look": false,
+   "gas": false,
+   "kartSteer": 0,
+   "spd": 3.4771844874178552,
+   "drifting": false,
+   "t": 0.11666666666666665
+  },
+  {
+   "name": "gas held",
+   "steer": 0,
+   "throttle": 1,
+   "brake": 0,
+   "drift": false,
+   "driftPressed": false,
+   "itemDown": false,
+   "itemUp": false,
+   "look": false,
+   "gas": true,
+   "kartSteer": 0,
+   "spd": 19.823781088239194,
+   "drifting": false,
+   "t": 0.6166666666666669
+  },
+  {
+   "name": "steer right + gas",
+   "steer": 1,
+   "throttle": 1,
+   "brake": 0,
+   "drift": false,
+   "driftPressed": false,
+   "itemDown": false,
+   "itemUp": false,
+   "look": false,
+   "gas": true,
+   "kartSteer": 0.952062824143528,
+   "spd": 26.83050351014157,
+   "drifting": false,
+   "t": 0.9833333333333347
+  },
+  {
+   "name": "steer left + gas",
+   "steer": -1,
+   "throttle": 1,
+   "brake": 0,
+   "drift": false,
+   "driftPressed": false,
+   "itemDown": false,
+   "itemUp": false,
+   "look": false,
+   "gas": true,
+   "kartSteer": -0.965419805975648,
+   "spd": 30.375017168261046,
+   "drifting": false,
+   "t": 1.4166666666666665
+  },
+  {
+   "name": "drift + steer + gas",
+   "steer": -1,
+   "throttle": 1,
+   "brake": 0,
+   "drift": true,
+   "driftPressed": false,
+   "itemDown": false,
+   "itemUp": false,
+   "look": false,
+   "gas": true,
+   "kartSteer": -0.9998541058674597,
+   "spd": 23.179933184770466,
+   "drifting": false,
+   "t": 1.866666666666665
+  },
+  {
+   "name": "+ item",
+   "steer": -1,
+   "throttle": 1,
+   "brake": 0,
+   "drift": true,
+   "driftPressed": false,
+   "itemDown": false,
+   "itemUp": false,
+   "look": false,
+   "gas": true,
+   "kartSteer": -0.9999974594109671,
+   "spd": 22.326333333333334,
+   "drifting": true,
+   "t": 2.199999999999997
+  },
+  {
+   "name": "released steer/drift/item (gas still held)",
+   "steer": 0,
+   "throttle": 1,
+   "brake": 0,
+   "drift": false,
+   "driftPressed": false,
+   "itemDown": false,
+   "itemUp": false,
+   "look": false,
+   "gas": true,
+   "kartSteer": -0.24227786769343285,
+   "spd": 22.330000000000002,
+   "drifting": false,
+   "t": 2.549999999999996
+  },
+  {
+   "name": "brake",
+   "steer": 0,
+   "throttle": 0,
+   "brake": 1,
+   "drift": false,
+   "driftPressed": false,
+   "itemDown": false,
+   "itemUp": false,
+   "look": false,
+   "gas": false,
+   "kartSteer": -0.0034455230949770694,
+   "spd": 19.330000000000002,
+   "drifting": false,
+   "t": 2.8999999999999946
+  },
+  {
+   "name": "all released",
+   "steer": 0,
+   "throttle": 1,
+   "brake": 0,
+   "drift": false,
+   "driftPressed": false,
+   "itemDown": false,
+   "itemUp": false,
+   "look": false,
+   "gas": false,
+   "kartSteer": -0.0000734694736601473,
+   "spd": 17.15815256594056,
+   "drifting": false,
+   "t": 3.21666666666666
+  }
+ ],
+ "errors": []
+}

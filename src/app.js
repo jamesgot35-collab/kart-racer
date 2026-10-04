@@ -247,7 +247,7 @@ function showResults(res) {
   if (app.mode === 'gp' && app.cup) { const cup = app.cup; for (const r of res) cup.pts[r.name] = (cup.pts[r.name] || 0) + PTS[r.place - 1]; cup.idx++; const st = Object.entries(cup.pts).sort((a, b) => b[1] - a[1]); const lastRace = cup.idx >= 4; nextLabel = lastRace ? 'Finish cup' : 'Next race'; cupHtml = `<div class="panel" style="padding:10px"><b>Cup standings (${cup.idx}/4)</b><table class="res">${st.slice(0, 6).map(([n, p], i) => `<tr class="${n === s.sel.char ? 'me' : ''}"><td>${i + 1}</td><td>${n}</td><td>${p} pts</td></tr>`).join('')}</table></div>`; if (lastRace) { const rank = st.findIndex(x => x[0] === s.sel.char) + 1; const trophy = rank === 1 ? 'Gold' : rank === 2 ? 'Silver' : rank === 3 ? 'Bronze' : 'None'; cupHtml += `<div class="panel" style="padding:10px"><b>Seedling Cup result: ${ORD(rank)} — ${trophy} trophy</b></div>`; if (rank <= 3) { s.coins += [300, 200, 120][rank - 1]; } } }
   persist(); audio.ready && audio.setMusicState('results');
   setTimeout(() => {
-    const d = screenEl(); d.style.background = 'linear-gradient(rgba(5,10,24,.35),rgba(5,10,24,.85))'; d.innerHTML = `<div class="topbar"><h2>${place === 1 ? '🏆 Victory!' : 'Race complete'} — ${ORD(place)}</h2>${coinsBadge()}</div>
+    $('#touch').classList.add('hidden'); $('#hud').classList.add('hidden'); input.active = false; const d = screenEl(); d.style.background = 'linear-gradient(rgba(5,10,24,.35),rgba(5,10,24,.85))'; d.innerHTML = `<div class="topbar"><h2>${place === 1 ? '🏆 Victory!' : 'Race complete'} — ${ORD(place)}</h2>${coinsBadge()}</div>
     <div class="grow row wrap scroll" style="align-items:flex-start;gap:10px"><div class="panel grow" style="padding:10px;min-width:260px"><table class="res">${res.slice(0, 12).map(r => `<tr class="${r.local ? 'me' : ''}"><td>${r.place}</td><td>${r.disp}</td><td class="n">${r.time ? SAVE.fmtTime(r.time) : '—'}</td></tr>`).join('')}</table></div>
     <div class="col" style="min-width:230px;flex:1"><div class="panel" style="padding:12px"><div class="row sp"><b>Coins earned</b><span class="coins">${ICONS.coin}+${reward}</span></div><div style="font-size:12px;color:var(--mut);margin-top:6px">${me.coins} collected · placing bonus ${solo ? 0 : BON[place - 1]} · finish +20${newBest ? '<br><b style="color:var(--y)">New personal best!</b>' : ''}</div></div>${cupHtml}</div></div>
     <div class="row wrap"><button class="btn ghost" id="mn">Menu</button><div class="grow"></div><button class="btn" id="nx">${nextLabel}</button></div>`;
@@ -265,7 +265,7 @@ function frame(now) {
     input.poll(race.state === 'racing' && input.autoOn); race.update(dt); updateGhost(race); recordGhost(race, dt); if (frameCount % 2 === 0 || !app.frameSkip) updateHud(race, dt);
     if (app.frameSkip && frameCount % 2) { adapt(dt); return; }
     renderer.render(scene, camera);
-  } else if (!race) { if (['menu', 'garage', 'title', 'setup', 'settings', 'lobby', 'boot', 'results'].includes(app.screen)) showroom.render(dt, innerWidth, innerHeight, app.screen === 'garage' ? 0 : app.screen === 'menu' ? 0.9 : 0); }
+  } else if (!race) { if (['menu', 'garage', 'title', 'setup', 'settings', 'lobby', 'boot', 'results'].includes(app.screen)) showroom.render(dt, innerWidth, innerHeight, app.screen === 'garage' ? (innerWidth > innerHeight ? -1.0 : 'garage') : app.screen === 'menu' ? 0.9 : 0); }
   else renderer.render(scene, camera);
   adapt(dt);
 }

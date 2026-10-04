@@ -93,3 +93,6 @@ table.res{width:100%;border-collapse:collapse;font-size:14px}table.res td,table.
 /* layout for landscape vs portrait menus */
 @media (orientation:landscape) and (max-height:520px){.logo{font-size:44px!important}h2{font-size:18px}.btn{padding:10px 16px;font-size:14px}.pcard{width:78px}#hud .pos{font-size:42px}#hud .mini{width:100px;height:100px}#hud .coin{top:116px}#touch .tc-slider{height:64px;bottom:calc(var(--safe-b) + 16px)}#touch .tc-drift{width:88px;height:88px;bottom:calc(var(--safe-b) + 20px)}#touch .tc-item{bottom:calc(var(--safe-b) + 112px);width:68px;height:68px}#touch .tc-gas{bottom:calc(var(--safe-b) + 14px)}#touch .tc-brake{bottom:calc(var(--safe-b) + 80px)}#hud .lap{top:56px}#hud .time{top:84px}}
 @media (orientation:portrait){#hud .mini{width:104px;height:104px}#hud .coin{top:122px}#touch .tc-slider{width:calc(100vw - 230px);min-width:150px}#hud .slot{width:68px;height:68px}}
+
+/* garage: landscape puts the panel on the right so the 3D kart is visible on the left */
+@media (orientation:landscape){ #gpanel{ position:absolute; right:calc(var(--safe-r,0px) + 10px); top:62px; bottom:10px; width:min(60vw,600px); max-height:none !important; overflow:auto } #gpanel #gbody{ max-height:none !important } }
