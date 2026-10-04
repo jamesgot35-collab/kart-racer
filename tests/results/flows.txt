@@ -1,1 +1,2 @@
 quick results after 219s wall {"rows":12,"title":"Race complete — 11th","coins":624,"races":1,"ghosts":0,"cup":null,"track":"meadow","nx":"Race again"}
+timetrial results after 97s wall {"rows":1,"title":"🏆 Victory! — 1st","coins":658,"races":2,"ghosts":2,"cup":null,"track":"meadow","nx":"Race again"}
