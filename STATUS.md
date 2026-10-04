@@ -2,7 +2,7 @@
 
 **Phase 1 (design docs): complete** (Oct 4, ~03:45 ET). `docs/00` to `docs/06` plus a combined HTML/PDF (`docs/Sparkdrift-GP-Design-Package.*`). `tools/verify_docs.py` confirms exactly 100 unique roster names (12 free starters, 33/34/33 class split), 42 kart bodies (all S+A+H+G = 22), exactly 20 tracks (4 cups of 4 + 4 bonus). Output: `docs/verify-report.txt`.
 
-**Phase 2 (playable game): READY** (v1.2.3 + PWA manifest; final pass 08:55 ET, see READY below)
+**Phase 2 (playable game): READY** (v1.2.3 + PWA manifest; final pass 08:45 ET, see READY below)
 
 > Note: two agents edited this tree during the polish pass (one on gameplay feel/steering/speed FX/kart bodies, one on CPU difficulty, touch layout, cup-2 audio + HDR skies, voices). Final pass below was run on the merged tree.
 
@@ -18,7 +18,7 @@
 - [07:35 ET] **Add-to-Home-Screen:** `manifest.webmanifest` + 192/512 icons (fullscreen, landscape) so the game can run chrome-free from the phone home screen (no service worker on purpose: avoids stale-cache bugs after updates).
 
 ## READY
-**Final pass 08:55 ET (current build = git `main`, v1.2.3 + PWA manifest).**
+**Final pass 08:45 ET (current build = git `main`, v1.2.3 + PWA manifest).**
 - **Live URL:** https://jamesgot35-collab.github.io/kart-racer/ (GitHub Pages, repo `jamesgot35-collab/kart-racer`). Live `app.js` md5 == local build (3fd26e58...). Live smoke on the published site, 0 console errors in both orientations: landscape 844x390 / Buttercup Meadows and portrait 390x844 / Aurora Pass (tests/results/live_smoke_landscape.json, live_smoke_portrait.json; shots/live_*.png).
 - **What it is:** original three.js mobile kart racer "Sparkdrift GP": **8 tracks in 2 cups** (Seedling Cup: Buttercup Meadows, Lantern Harbor, Mirage Mesa, Frostbite Pass; Starlight Cup: Firefly Hollow, Neon Docks, Ember Canyon, Aurora Pass), **24 playable racers**, **12 kart bodies** (all hand-built, distinct silhouettes), 9 items, 3-tier drift/boost, slipstream, hazards + shortcuts on every track, CPU rivals with rubber-banding + difficulty setting + item mercy window, garage (kart/wheels/wing/exhaust/bumper/paint, class filter), Grand Prix (pick either cup), quick race, time trial with ghost, daily challenge over all 8 tracks (leaderboard is LOCAL to the device), online room-code lobby (up to 4 humans + CPU fill to 12), touch / keyboard / gamepad / tilt controls, Add-to-Home-Screen manifest.
 - **Phone-feel work:** Performance / Standard / High graphics tiers (auto-default Performance on devices with <=4 GB or <=4 cores: DPR cap 1.0, no MSAA, 40% particles, 50% prop density, no speed-lines overlay, fewer skid marks; Performance draws 99 calls / 205k tris vs 161 / 378k on Standard); touch size S/M/L + left-handed layout (all >=44 px, on-screen, non-overlapping in 3 viewports x 3 sizes); steering assist Off/Low/High (default Low on touch; sloppy-thumb wall hits 33 -> 18 -> 14); tyre skid marks; speed lines; speed/boost FOV + shake; all unplayed on real hardware (see caveats).
