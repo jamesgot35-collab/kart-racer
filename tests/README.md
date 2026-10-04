@@ -22,3 +22,5 @@ Headless Chrome here uses SwiftShader (software GL, ~5-9 fps), so these are corr
 | `live_smoke.mjs` | Loads the published GitHub Pages URL, starts a race, 0 errors + timings | `results/live_smoke.json` |
 | `ice_probe.mjs` | Diagnostic: shows this box's headless Chrome cannot gather WebRTC ICE candidates (why browser<->browser WebRTC is untested here) | - |
 | `../tools/size_audit.py` | Exact bytes of every published file in all four repos | `results/size_audit.json` |
+| `assist_eval.mjs` | Steering assist: a deliberately sloppy simulated thumb drives 100 s on 8 tracks with assist off/low/high; wall hits must drop without losing progress | `results/assist_eval.txt/json` |
+| `settings_check.mjs` | Settings screen renders the Steering assist control and persists the choice | - |

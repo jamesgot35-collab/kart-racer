@@ -50,6 +50,16 @@ export class Race {
   sfx(name, k, o = {}) { const A = this.audio; if (!A || !A.ready) return; if (!k || k === this.localKart) A.play(name, { ...o }); else A.at(name, k.sim.x, k.sim.z, o); }
   sfxPos(name, x, z, o = {}) { const A = this.audio; if (A && A.ready) A.at(name, x, z, o); }
   say(key, o) { const A = this.audio; if (A && A.ready) A.announce(key, o); }
+  // Steering assist (default on for touch): nudges the kart back toward the road when it is heading into a wall / the grass near the track edge.
+  assistSteer(k, steerIn) {
+    const mode = this.opts.assist; if (!mode || mode === 'off') return steerIn; const s = k.sim; if (this.state !== 'racing' || s.drift.on || s.spinT > 0 || s.onSc || s.s < 8 || !s.grounded) return steerIn;
+    const tr = this.track, hw = tr.halfW; const lat = s.lat, a = Math.abs(lat); const start = 0.75 * hw; if (a < start) return steerIn;
+    const t = tr.at(s.lastS, 0, this._asTmp || (this._asTmp = {})); let rel = s.th - t.heading; while (rel > Math.PI) rel -= 2 * Math.PI; while (rel < -Math.PI) rel += 2 * Math.PI;
+    const out = Math.sin(rel) * Math.sign(lat); if (out <= 0.02) return steerIn; // already heading back in / parallel
+    const excess = clamp((a - start) / Math.max(1, tr.limit - start), 0, 1); const outward = clamp(out / 0.22, 0, 1); const strength = mode === 'high' ? 0.7 : 0.4;
+    const corr = Math.sign(lat) * strength * Math.pow(excess, 0.7) * outward; this.assistOn = (this.assistOn || 0) + 1;
+    return clamp(steerIn + corr, -1, 1);
+  }
   bark(k, key, o) { if (k === this.localKart && this.audio && this.audio.ready) this.audio.bark(k.name, key, o); else if (k && k.auth !== undefined && this.audio && this.audio.ready && Math.hypot(k.sim.x - this.localKart.sim.x, k.sim.z - this.localKart.sim.z) < 30) this.audio.bark(k.name, key, { ...o, cooldown: 14, vol: 0.5, pan: 0 }); }
   // ------------------------------------------------------------------ control
   start() { this.state = 'grid'; this.stateT = 0; this.cam.introT = 0; if (this.audio && this.audio.ready) { this.say('get_ready', { force: true }); } }
@@ -80,7 +90,7 @@ export class Race {
   getInput(k) {
     if (k.ai && !k.auto) return k.ai.input(STEP);
     if (k.auto && k.ai) return k.ai.input(STEP);
-    if (k === this.localKart) { const i = this.input; const inp = { steer: i.steer, throttle: i.throttle, brake: i.brake, drift: i.drift, driftPressed: i.driftPressed, look: i.look }; return inp; }
+    if (k === this.localKart) { const i = this.input; const inp = { steer: this.assistSteer(k, i.steer), throttle: i.throttle, brake: i.brake, drift: i.drift, driftPressed: i.driftPressed, look: i.look }; return inp; }
     return { steer: 0, throttle: 0, brake: 0, drift: false };
   }
   simKarts(dt) {
@@ -134,7 +144,7 @@ export class Race {
       case 'driftTier': this.sfx('drift_tick' + e.data.tier, k); if (local) { this.ui('tier', { tier: e.data.tier }); if (e.data.tier === 3) this.statsRace.maxTier = 3; } break;
       case 'driftBoost': this.sfx('boost_t' + e.data.tier, k); if (local) { this.statsRace.boosts++; this.statsRace.drifts++; this.shakeCam(0.2 + 0.12 * e.data.tier); this.bark(k, e.data.tier >= 2 ? 'boost2' : 'boost1', { cooldown: 9 }); if (e.data.tier === 3) this.say('great_drift', {}); this.ui('boost', { tier: e.data.tier }); } break;
       case 'spin': if (local) { this.shakeCam(0.6); if (A && A.ready) A.musicMuffle(1.4, 700); } this.sfx('spin_whirl', k); break;
-      case 'wallHit': this.sfx('wall_hit', k, { vol: clamp(e.data.ang * 1.1, 0.4, 1) }); if (e.data.v > 25) this.sfx('crash_big', k, { vol: 0.5 }); if (local) this.shakeCam(clamp(e.data.ang, 0.3, 0.9)); this.fx.burst(s.x, 0.8, s.z, 0xffe3a0, 6, 5); break;
+      case 'wallHit': if (local) this.wallHits = (this.wallHits || 0) + 1; this.sfx('wall_hit', k, { vol: clamp(e.data.ang * 1.1, 0.4, 1) }); if (e.data.v > 25) this.sfx('crash_big', k, { vol: 0.5 }); if (local) this.shakeCam(clamp(e.data.ang, 0.3, 0.9)); this.fx.burst(s.x, 0.8, s.z, 0xffe3a0, 6, 5); break;
       case 'scrape': this.sfx('wall_scrape', k, { min: 0.18, vol: clamp(e.data.v / 40, 0.2, 0.8) }); this.fx.spark(s.x, 0.6, s.z, 0, Math.sin(s.phi) * s.s, Math.cos(s.phi) * s.s); break;
       case 'podBoost': this.sfx('pod_use', k); break;
     }

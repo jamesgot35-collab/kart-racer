@@ -1,0 +1,150 @@
+{
+ "out": {
+  "meadow": {
+   "off": {
+    "walls": 5,
+    "prog": 2211,
+    "assistFrames": 0
+   },
+   "low": {
+    "walls": 1,
+    "prog": 2171,
+    "assistFrames": 2392
+   },
+   "high": {
+    "walls": 3,
+    "prog": 2246,
+    "assistFrames": 2278
+   }
+  },
+  "harbor": {
+   "off": {
+    "walls": 5,
+    "prog": 2196,
+    "assistFrames": 0
+   },
+   "low": {
+    "walls": 1,
+    "prog": 2236,
+    "assistFrames": 2532
+   },
+   "high": {
+    "walls": 1,
+    "prog": 2248,
+    "assistFrames": 2355
+   }
+  },
+  "mesa": {
+   "off": {
+    "walls": 5,
+    "prog": 2277,
+    "assistFrames": 0
+   },
+   "low": {
+    "walls": 2,
+    "prog": 2285,
+    "assistFrames": 2464
+   },
+   "high": {
+    "walls": 2,
+    "prog": 2308,
+    "assistFrames": 2226
+   }
+  },
+  "frost": {
+   "off": {
+    "walls": 3,
+    "prog": 2312,
+    "assistFrames": 0
+   },
+   "low": {
+    "walls": 2,
+    "prog": 2353,
+    "assistFrames": 2324
+   },
+   "high": {
+    "walls": 1,
+    "prog": 2318,
+    "assistFrames": 2320
+   }
+  },
+  "dusk": {
+   "off": {
+    "walls": 2,
+    "prog": 2261,
+    "assistFrames": 0
+   },
+   "low": {
+    "walls": 3,
+    "prog": 2244,
+    "assistFrames": 2238
+   },
+   "high": {
+    "walls": 2,
+    "prog": 2300,
+    "assistFrames": 1949
+   }
+  },
+  "neon": {
+   "off": {
+    "walls": 4,
+    "prog": 2232,
+    "assistFrames": 0
+   },
+   "low": {
+    "walls": 5,
+    "prog": 2248,
+    "assistFrames": 1922
+   },
+   "high": {
+    "walls": 2,
+    "prog": 2220,
+    "assistFrames": 2183
+   }
+  },
+  "ember": {
+   "off": {
+    "walls": 4,
+    "prog": 2372,
+    "assistFrames": 0
+   },
+   "low": {
+    "walls": 1,
+    "prog": 2396,
+    "assistFrames": 2382
+   },
+   "high": {
+    "walls": 1,
+    "prog": 2402,
+    "assistFrames": 2261
+   }
+  },
+  "aurora": {
+   "off": {
+    "walls": 5,
+    "prog": 2315,
+    "assistFrames": 0
+   },
+   "low": {
+    "walls": 3,
+    "prog": 2275,
+    "assistFrames": 2504
+   },
+   "high": {
+    "walls": 2,
+    "prog": 2279,
+    "assistFrames": 2442
+   }
+  }
+ },
+ "tot": {
+  "off": 33,
+  "low": 18,
+  "high": 14
+ },
+ "prog": {
+  "off": 18176,
+  "low": 18208,
+  "high": 18321
+ }
+}

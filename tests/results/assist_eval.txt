@@ -1,0 +1,10 @@
+meadow   off: walls 5, prog 2211m | low: walls 1, prog 2171m | high: walls 3, prog 2246m
+harbor   off: walls 5, prog 2196m | low: walls 1, prog 2236m | high: walls 1, prog 2248m
+mesa     off: walls 5, prog 2277m | low: walls 2, prog 2285m | high: walls 2, prog 2308m
+frost    off: walls 3, prog 2312m | low: walls 2, prog 2353m | high: walls 1, prog 2318m
+dusk     off: walls 2, prog 2261m | low: walls 3, prog 2244m | high: walls 2, prog 2300m
+neon     off: walls 4, prog 2232m | low: walls 5, prog 2248m | high: walls 2, prog 2220m
+ember    off: walls 4, prog 2372m | low: walls 1, prog 2396m | high: walls 1, prog 2402m
+aurora   off: walls 5, prog 2315m | low: walls 3, prog 2275m | high: walls 2, prog 2279m
+TOTAL wall hits {"off":33,"low":18,"high":14} progress {"off":18176,"low":18208,"high":18321}
+PASS
