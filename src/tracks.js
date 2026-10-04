@@ -1,7 +1,9 @@
 import { TRACK_DEFS } from './trackdefs.js';
 import { runTurtle, shiftStart } from './turtle.js';
 import { TrackCore } from './trackcore.js';
-export const TRACK_ORDER = ['meadow', 'harbor', 'mesa', 'frost'];
+export const TRACK_ORDER = ['meadow', 'harbor', 'mesa', 'frost']; // cup 1 (kept for compatibility)
+export const CUPS = [{ id: 'seed', name: 'Seedling Cup', tracks: ['meadow', 'harbor', 'mesa', 'frost'] }, { id: 'star', name: 'Starlight Cup', tracks: ['dusk', 'neon', 'ember', 'aurora'] }];
+export const ALL_TRACKS = CUPS.flatMap(c => c.tracks);
 export function trackPoints(def) {
   const r = runTurtle(def.prog, def.fix);
   return shiftStart(r.pts, def.start || 0).map(p => [p[0] * (def.scale || 1), p[1] * (def.scale || 1)]);
@@ -19,6 +21,6 @@ export function buildTrack(id, opts = {}) {
   return tc;
 }
 export function measureAll() {
-  const out = {}; for (const id of TRACK_ORDER) { const t = buildTrack(id); out[TRACK_DEFS[id].name] = { length: t.length, minSep: t.minSeparation().min, shortcut: t.sc ? { len: t.sc.length, s1: t.sc.s1, s2: t.sc.s2, saves: (t.sc.s2 - t.sc.s1) - t.sc.length } : null }; }
+  const out = {}; for (const id of ALL_TRACKS) { const t = buildTrack(id); out[TRACK_DEFS[id].name] = { length: t.length, minSep: t.minSeparation().min, shortcut: t.sc ? { len: t.sc.length, s1: t.sc.s1, s2: t.sc.s2, saves: (t.sc.s2 - t.sc.s1) - t.sc.length } : null }; }
   return out;
 }

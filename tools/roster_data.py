@@ -127,6 +127,10 @@ FREE_STARTERS = ["Pip Thistledown","Fennel Vix","Juniper Wren","Pearl Quayside",
 # The 8 playable in the vertical slice (all free starters), plus the other 4 starters as CPU-only rivals.
 SLICE_PLAYABLE = ["Pip Thistledown","Fennel Vix","Juniper Wren","Bramble Quill","Clover Dash",
                   "Captain Dusk Marlowe","Marigold Hoofsworth","Gus Gantry"]
+# Added in v1.1: 12 more playable racers from the full roster (share the 12 voice sets)
+NEW_RACERS = ['Flurry Skye', 'Nova Starling', 'Lulu Lollipop', 'Pyra Ashgrove', 'Zorp Blip', 'Cogsworth Whirr', 'Coral Calloway', 'Zahra Sandglass', 'Grumbald the Yeti', 'Nanuk Snowdrift', 'Scarab Sol', 'Big Top Boris']
+FREE_STARTERS = FREE_STARTERS + NEW_RACERS
+SLICE_PLAYABLE = SLICE_PLAYABLE + NEW_RACERS
 CUPS = ["Seedling Cup","Copper Cup","Tempest Cup","Zenith Cup"]
 
 def parse():

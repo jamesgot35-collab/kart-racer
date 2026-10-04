@@ -10,6 +10,12 @@ export const THEMES = {
   mesa: { skyTop: 0xff9b4a, skyHor: 0xffe7b0, sun: 0xfff0c0, sunDir: [0.3, 0.7, -0.4], ground: 0xe0a65a, off: 0xc98648, road: 0x8a6a52, curb1: 0xb4442c, curb2: 0xf5dfb0, wall1: 0xb4553a, wall2: 0x8f3f2a, fog: 0xffd9a0, fogD: 0.0016, hemiSky: 0xffe0b0, hemiGnd: 0xa86a3a, exposure: 1.05 },
   frost: { skyTop: 0x6aa8f0, skyHor: 0xeaf5ff, sun: 0xf4f9ff, sunDir: [0.2, 0.4, 0.7], ground: 0xeef6ff, off: 0xc9dff2, road: 0x6b7a8c, curb1: 0x2aa6d6, curb2: 0xffffff, wall1: 0xbfe6ff, wall2: 0x8cc8f0, fog: 0xe0eefb, fogD: 0.0018, hemiSky: 0xe6f3ff, hemiGnd: 0x9ab4cf, exposure: 1.0 },
 };
+
+// Starlight Cup skins: same geometry/prop generators as their base theme, new lighting + palette
+THEMES.dusk = { ...THEMES.meadow, skyTop: 0x2a1f5e, skyHor: 0xff9a62, sun: 0xff8a4a, sunDir: [-0.7, 0.14, 0.45], ground: 0x3f7a3a, off: 0x6a7a3a, road: 0x3a3d52, curb1: 0xff4a7a, curb2: 0xffe8c8, wall1: 0xd8a04a, wall2: 0xa0682a, fog: 0xc07a7a, fogD: 0.0019, hemiSky: 0xffb090, hemiGnd: 0x3a4a6a, tint: 0xc0b0d0, sunI: 0.85, hemiI: 0.9, night: 0.25 };
+THEMES.neon = { ...THEMES.harbor, skyTop: 0x050818, skyHor: 0x2a2f7a, sun: 0x8aa8ff, sunDir: [0.4, 0.5, -0.5], ground: 0x1c2a40, off: 0x2a3550, road: 0x1e2433, curb1: 0xff2ea6, curb2: 0x2ef0ff, wall1: 0xff2ea6, wall2: 0x2ef0ff, fog: 0x141a46, fogD: 0.0021, hemiSky: 0x6a7aff, hemiGnd: 0x1a2040, tint: 0x7482b4, sunI: 0.5, hemiI: 0.85, night: 1 };
+THEMES.ember = { ...THEMES.mesa, skyTop: 0x3a0f2a, skyHor: 0xff5a1f, sun: 0xff7a30, sunDir: [-0.5, 0.1, 0.4], ground: 0x8a4a2a, off: 0x6a3a22, road: 0x4a3030, curb1: 0xff5a2a, curb2: 0xffe0b0, wall1: 0xa03a22, wall2: 0x6a2418, fog: 0xc4502a, fogD: 0.0019, hemiSky: 0xff9a60, hemiGnd: 0x5a2a2a, tint: 0xd8a080, sunI: 0.8, hemiI: 0.9, night: 0.15 };
+THEMES.aurora = { ...THEMES.frost, skyTop: 0x040f2a, skyHor: 0x1a4a6a, sun: 0xcfe8ff, sunDir: [0.2, 0.35, 0.7], ground: 0xc6d8ee, off: 0x8fa8c8, road: 0x3c4860, curb1: 0x2fe0a8, curb2: 0xffffff, wall1: 0x7fe0d0, wall2: 0x4a9ac8, fog: 0x1a3a5a, fogD: 0.002, hemiSky: 0x7fd0ff, hemiGnd: 0x405a7a, tint: 0x8aa4c8, sunI: 0.6, hemiI: 0.9, night: 1, aur: 1 };
 function canvasTex(w, h, fn, repeat = true) { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); fn(g, w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; } return t; }
 function noise(g, w, h, n, a, cols) { const r = rng(7); for (let i = 0; i < n; i++) { g.fillStyle = cols[(r() * cols.length) | 0]; g.globalAlpha = a * (0.4 + r() * 0.6); const s = 1 + r() * 3; g.fillRect(r() * w, r() * h, s, s); } g.globalAlpha = 1; }
 function groundTex(th) {
@@ -113,21 +119,23 @@ const SCATTER = { // [prop, count, minOff, maxOff, scaleMin, scaleMax, yOffset]
 
 export class TrackView {
   constructor(tc, scene, renderer, opts = {}) {
-    this.tc = tc; this.scene = scene; this.group = new THREE.Group(); scene.add(this.group); this.th = THEMES[tc.theme]; this.anim = []; this.hq = !!opts.hq; this.opts = opts; this.disposables = []; this.tex = {};
+    this.tc = tc; this.scene = scene; this.group = new THREE.Group(); scene.add(this.group); this.th = THEMES[(tc.meta && tc.meta.skin) || tc.theme]; this.anim = []; this.hq = !!opts.hq; this.opts = opts; this.disposables = []; this.tex = {};
     const th = this.th; scene.background = new THREE.Color(th.fog); scene.fog = new THREE.FogExp2(th.fog, th.fogD);
     this._sky(renderer); this._lights(); this._ground(); this._road(); if (opts.hqTex) this._applyHQ(opts.hqTex); this._curbsWalls(); this._shortcut(); this._startLine(); this._props(); this._landmark(); this._boxesCoinsPads(); this._water();
   }
   add(o) { this.group.add(o); return o; }
   _sky(renderer) {
     const th = this.th; const sd = new THREE.Vector3(...th.sunDir).normalize();
-    const mat = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, uniforms: { top: { value: hex(th.skyTop) }, hor: { value: hex(th.skyHor) }, sunDir: { value: sd }, sunCol: { value: hex(th.sun) }, time: { value: 0 } },
+    const mat = new THREE.ShaderMaterial({ side: THREE.BackSide, depthWrite: false, fog: false, uniforms: { top: { value: hex(th.skyTop) }, hor: { value: hex(th.skyHor) }, sunDir: { value: sd }, sunCol: { value: hex(th.sun) }, time: { value: 0 }, night: { value: th.night || 0 }, aur: { value: th.aur || 0 } },
       vertexShader: 'varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); gl_Position.z = gl_Position.w; }',
-      fragmentShader: `varying vec3 vD; uniform vec3 top,hor,sunCol,sunDir; uniform float time;
+      fragmentShader: `varying vec3 vD; uniform vec3 top,hor,sunCol,sunDir; uniform float time,night,aur;
       float h(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
       float n(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y); }
       void main(){ vec3 d=normalize(vD); float t=clamp(d.y,0.0,1.0); vec3 c=mix(hor,top,pow(t,0.55));
         float s=max(dot(d,sunDir),0.0); c+=sunCol*(pow(s,600.0)*3.0+pow(s,12.0)*0.35);
         if(d.y>0.02){ vec2 uv=d.xz/(d.y+0.25)*2.2+vec2(time*0.01,0.0); float cl=n(uv)*0.55+n(uv*2.1)*0.3+n(uv*4.3)*0.15; cl=smoothstep(0.52,0.85,cl); c=mix(c,mix(vec3(1.0),hor,0.3),cl*0.75*smoothstep(0.02,0.25,d.y)); }
+        if(night>0.0 && d.y>0.0){ vec2 sp=d.xz/(d.y+0.35)*60.0; vec2 ci=floor(sp); float rr=h(ci); float st=step(0.985,rr)*smoothstep(0.0,0.2,d.y); float tw=0.6+0.4*sin(time*2.0+rr*40.0); c+=vec3(st*tw*night*(0.6+0.8*h(ci+7.0))); }
+        if(aur>0.0 && d.y>0.05){ float a=sin(d.x*4.0+n(vec2(d.x*3.0,time*0.05))*6.0+time*0.15)*0.5+0.5; float band=smoothstep(0.1,0.35,d.y)*(1.0-smoothstep(0.55,0.9,d.y)); vec3 ac=mix(vec3(0.1,1.0,0.6),vec3(0.5,0.3,1.0),smoothstep(0.3,0.8,d.y+a*0.2)); c+=ac*band*pow(a,2.0)*0.7*aur; }
         gl_FragColor=vec4(c,1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
@@ -137,7 +145,7 @@ export class TrackView {
     const pm = new THREE.PMREMGenerator(renderer); const es = new THREE.Scene(); const em = mat.clone(); es.add(new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), em)); this.envTex = pm.fromScene(es, 0.02).texture; this.scene.environment = this.envTex; if (this.opts.hqEnv) { this.envTex = pm.fromEquirectangular(this.opts.hqEnv).texture; this.scene.environment = this.envTex; this.hqEnvApplied = true; } pm.dispose();
   }
   _lights() {
-    const th = this.th; this.hemi = new THREE.HemisphereLight(th.hemiSky, th.hemiGnd, 1.15); this.sun = new THREE.DirectionalLight(th.sun, 2.6); const sd = new THREE.Vector3(...th.sunDir).normalize(); this.sun.position.copy(sd).multiplyScalar(100);
+    const th = this.th; this.hemi = new THREE.HemisphereLight(th.hemiSky, th.hemiGnd, 1.15 * (th.hemiI || 1)); this.sun = new THREE.DirectionalLight(th.sun, 2.6 * (th.sunI || 1)); const sd = new THREE.Vector3(...th.sunDir).normalize(); this.sun.position.copy(sd).multiplyScalar(100);
     this.rimL = new THREE.DirectionalLight(0xbfe0ff, 0.9); this.rimL.position.copy(sd).multiplyScalar(-60).add(new THREE.Vector3(0, 40, 0)); this.add(this.hemi); this.add(this.sun); this.add(this.rimL);
   }
   _ground() {
@@ -150,8 +158,8 @@ export class TrackView {
     offMat.map.repeat.set(0.6, 1); offMat.map.needsUpdate = true;
   }
   _applyHQ(h) { // swap the 512px canvas textures for 2K/4K PBR sets (albedo + normal + roughness)
-    const g = h.ground, r = h.road; if (g) { g.albedo.repeat.set(120, 120); g.normal.repeat.set(120, 120); g.rough.repeat.set(120, 120); const m = this.groundMat; m.map = g.albedo; m.normalMap = g.normal; m.normalScale = new THREE.Vector2(0.9, 0.9); m.roughnessMap = g.rough; m.roughness = 1; m.needsUpdate = true; this.tex.ground = g.albedo; }
-    if (r) { const m = this.roadMat; m.map = r.albedo; m.normalMap = r.normal; m.normalScale = new THREE.Vector2(0.8, 0.8); m.roughnessMap = r.rough; m.roughness = 1; m.needsUpdate = true; this.tex.road = r.albedo; }
+    const g = h.ground, r = h.road; if (g) { g.albedo.repeat.set(120, 120); g.normal.repeat.set(120, 120); g.rough.repeat.set(120, 120); const m = this.groundMat; m.map = g.albedo; m.normalMap = g.normal; m.normalScale = new THREE.Vector2(0.9, 0.9); m.roughnessMap = g.rough; m.roughness = 1; if (this.th.tint) m.color.set(this.th.tint); m.needsUpdate = true; this.tex.ground = g.albedo; }
+    if (r) { const m = this.roadMat; m.map = r.albedo; m.normalMap = r.normal; m.normalScale = new THREE.Vector2(0.8, 0.8); m.roughnessMap = r.rough; m.roughness = 1; if (this.th.tint) m.color.set(this.th.tint); m.needsUpdate = true; this.tex.road = r.albedo; }
     this.hqApplied = true; for (const set of [g, r]) if (set) for (const k in set) this.disposables.push(set[k]);
   }
   _road() {
@@ -192,8 +200,8 @@ export class TrackView {
     const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0.0, envMapIntensity: 0.6 }); addRim(mat, 0xffffff, 2.4, 0.18);
     const dummy = new THREE.Object3D(); const L = tc.length;
     const totalI = {}; this.propMeshes = [];
-    for (const [name, count, mn, mx, s0, s1] of defs) {
-      const geo = builders[name](); const pts = []; let tries = 0;
+    for (const [name, count0, mn, mx, s0, s1] of defs) {
+      const count = Math.max(4, Math.round(count0 * (this.opts.lod || 1))); const geo = builders[name](); const pts = []; let tries = 0;
       while (pts.length < count && tries++ < count * 30) {
         const s = R() * L; const side = R() < 0.5 ? -1 : 1; const off = tc.limit + mn + R() * (mx - mn); const a = tc.at(s, side * off, {}); const d = tc.nearestGlobal(a.x, a.z); if (d.d < tc.limit + mn - 0.5) continue;
         if (tc.sc) { const q = tc.nearestSc(a.x, a.z); if (q && q.d < tc.sc.half + 4) continue; }

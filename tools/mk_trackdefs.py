@@ -2,7 +2,7 @@
 """Writes src/trackdefs.js from tools/progs.json + src/shortcuts.json (found by tools/findshortcuts.mjs) + hand-authored content."""
 import json
 progs = json.load(open('tools/progs.json')); sc = json.load(open('src/shortcuts.json'))
-FIX = {"meadow": [0, 14], "harbor": [0, 2], "mesa": [12, 14], "frost": [2, 8]}
+FIX = {"meadow": [0, 14], "harbor": [0, 2], "mesa": [12, 14], "frost": [2, 8], "dusk": progs["dusk"]["fix"], "neon": progs["neon"]["fix"], "ember": progs["ember"]["fix"], "aurora": progs["aurora"]["fix"]}
 def shortcut(k, surf, width=11):
     c = sc[k]; E0, E1, X1, X0 = c['E0'], c['E1'], c['X1'], c['X0']
     mid = [(E1[0] + X1[0]) / 2, (E1[1] + X1[1]) / 2]
@@ -26,6 +26,22 @@ defs = {
     shortcut=shortcut("frost", "ice"),
     rows=[0.13, 0.32, 0.52, 0.72, 0.9], pads=[0.2, 0.8], coinGroups=[0.07, 0.19, 0.3, 0.42, 0.54, 0.65, 0.78, 0.89],
     hazards=[dict(type="icicle", f=0.28), dict(type="icicle", f=0.50), dict(type="icicle", f=0.86)], zones=[dict(f0=0.55, f1=0.62, surface="ice", onlyRoad=True, lat=[-4, 8])], landmark=dict(type="waterfall", f=0.6, lat=80)),
+ "dusk": dict(id="dusk", name="Firefly Hollow", cup="Starlight Cup", order=5, theme="meadow", skin="dusk", width=15, offroad=9, mapOrder=5, bpm=122, music="buttercup", amb="meadow", env="open",
+    shortcut=shortcut("dusk", "rough"),
+    rows=[0.12, 0.3, 0.5, 0.68, 0.88], pads=[0.2, 0.62, 0.8], coinGroups=[0.07, 0.19, 0.3, 0.42, 0.53, 0.64, 0.75, 0.9],
+    hazards=[dict(type="sheep", f=0.27), dict(type="sheep", f=0.72)], zones=[], landmark=dict(type="windmill", f=0.55, lat=70)),
+ "neon": dict(id="neon", name="Neon Docks", cup="Starlight Cup", order=6, theme="harbor", skin="neon", width=15, offroad=9, mapOrder=6, bpm=126, music="lantern", amb="harbor", env="metal",
+    shortcut=shortcut("neon", "rough"),
+    rows=[0.12, 0.3, 0.5, 0.68, 0.87], pads=[0.22, 0.78], coinGroups=[0.06, 0.18, 0.3, 0.42, 0.55, 0.68, 0.8, 0.92],
+    hazards=[dict(type="crane", f=0.17), dict(type="crane", f=0.62), dict(type="crane", f=0.9), dict(type="gate", at="shortcut")], zones=[], landmark=dict(type="lighthouse", f=0.8, lat=90)),
+ "ember": dict(id="ember", name="Ember Canyon", cup="Starlight Cup", order=7, theme="mesa", skin="ember", width=16, offroad=9, mapOrder=7, bpm=118, music="mirage", amb="mesa", env="canyon",
+    shortcut=shortcut("ember", "sand"),
+    rows=[0.12, 0.34, 0.52, 0.72, 0.9], pads=[0.15, 0.66], coinGroups=[0.05, 0.17, 0.28, 0.4, 0.5, 0.6, 0.72, 0.83],
+    hazards=[dict(type="boulder", f=0.3), dict(type="boulder", f=0.48), dict(type="boulder", f=0.8)], zones=[], landmark=dict(type="arch", f=0.4, lat=60)),
+ "aurora": dict(id="aurora", name="Aurora Pass", cup="Starlight Cup", order=8, theme="frost", skin="aurora", width=15, offroad=9, mapOrder=8, bpm=110, music="frost", amb="frost", env="ice",
+    shortcut=shortcut("aurora", "ice"),
+    rows=[0.13, 0.32, 0.52, 0.72, 0.9], pads=[0.2, 0.8], coinGroups=[0.07, 0.19, 0.3, 0.42, 0.54, 0.65, 0.78, 0.89],
+    hazards=[dict(type="icicle", f=0.22), dict(type="icicle", f=0.45), dict(type="icicle", f=0.68), dict(type="icicle", f=0.9)], zones=[dict(f0=0.12, f1=0.18, surface="ice", onlyRoad=True, lat=[-4, 8])], landmark=dict(type="waterfall", f=0.7, lat=80)),
 }
 for k, d in defs.items():
     p = progs[k]; d["prog"] = p["prog"]; d["fix"] = FIX[k]; d["start"] = p.get("start", 0); d["scale"] = p.get("scale", 1.0)

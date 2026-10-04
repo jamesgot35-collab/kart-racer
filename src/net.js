@@ -12,6 +12,7 @@ export const fmtCode = (c) => c.slice(0, 3) + ' ' + c.slice(3);
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 const r3 = (v) => typeof v === 'number' ? Math.round(v * 1000) / 1000 : v;
 const SIGNAL_TIMEOUT = 9000;
+function friendlyErr(t) { return ({ 'network': "Lost contact with the matchmaking server — check your internet connection.", 'server-error': 'The matchmaking server had a problem. Try again in a minute.', 'socket-error': "Couldn't open a connection to the matchmaking server (blocked network or VPN?).", 'socket-closed': 'The matchmaking connection dropped. Try again.', 'browser-incompatible': 'This browser does not support the peer-to-peer features needed for online play. Try an up-to-date Chrome, Safari or Firefox.', 'webrtc': 'The peer-to-peer link failed to start (WebRTC error).', 'ssl-unavailable': 'Secure connection to the matchmaking server failed.', 'invalid-id': 'That room code is not valid.' })[t] || ('Online connection problem (' + t + ').'); }
 
 export class Session {
   constructor(app) {
@@ -20,15 +21,15 @@ export class Session {
     this.link = { send: (t, d) => this.send(t, d) }; this.loadedSet = new Set(); this.goResolve = null; this.stats = { sent: 0, recv: 0, rtt: 0 }; this.starting = false; this.closed = false;
   }
   _change() { try { this.onChange(this); } catch (e) { console.warn(e); } }
-  _fail(msg) { this.status = 'error'; this.error = msg; this._change(); }
+  _fail(msg, kind = 'signal') { this.status = 'error'; this.error = msg; this.errKind = kind; this._change(); }
   // ------------------------------------------------------------ host
   host(profile, tries = 0) {
     this.role = 'host'; this.profile = profile; this.status = 'connecting'; this.error = ''; this.code = makeCode(); this.myPid = 0; this._change();
     this.members = [{ pid: 0, name: profile.name, build: profile.build, ready: true }];
-    let peer; try { peer = new Peer('sdgp-' + this.code, { debug: 0 }); } catch (e) { return this._fail('WebRTC unavailable: ' + e.message); }
-    this.peer = peer; const to = setTimeout(() => { if (this.status === 'connecting') this._fail('Could not reach the PeerJS signalling server (timeout).'); }, SIGNAL_TIMEOUT);
+    let peer; try { peer = new Peer('sdgp-' + this.code, { debug: 0 }); } catch (e) { return this._fail('This browser cannot do peer-to-peer connections (' + e.message + ').', 'webrtc'); }
+    this.peer = peer; const to = setTimeout(() => { if (this.status === 'connecting') this._fail("Couldn't reach the matchmaking server. Your connection may be offline, or a VPN / content blocker is in the way.", 'signal'); }, SIGNAL_TIMEOUT);
     peer.on('open', () => { clearTimeout(to); this.status = 'open'; this._change(); });
-    peer.on('error', (e) => { clearTimeout(to); if (e.type === 'unavailable-id' && tries < 5) { try { peer.destroy(); } catch (x) { } return this.host(profile, tries + 1); } if (this.status !== 'open') this._fail('Signalling error: ' + e.type); else console.warn('peer error', e.type); });
+    peer.on('error', (e) => { clearTimeout(to); if (e.type === 'unavailable-id' && tries < 5) { try { peer.destroy(); } catch (x) { } return this.host(profile, tries + 1); } if (this.status !== 'open') this._fail(friendlyErr(e.type), e.type === 'browser-incompatible' ? 'webrtc' : 'signal'); else console.warn('peer error', e.type); });
     peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) { } });
     peer.on('connection', (conn) => {
       conn.on('open', () => { if (this.members.length >= MAX_HUMANS || this.starting) { conn.send({ t: 'full' }); setTimeout(() => conn.close(), 300); return; } });
@@ -57,10 +58,10 @@ export class Session {
   // ------------------------------------------------------------ client
   join(code, profile) {
     this.role = 'client'; this.profile = profile; this.status = 'connecting'; this.error = ''; this.code = code; this._change();
-    let peer; try { peer = new Peer({ debug: 0 }); } catch (e) { return this._fail('WebRTC unavailable: ' + e.message); }
+    let peer; try { peer = new Peer({ debug: 0 }); } catch (e) { return this._fail('This browser cannot do peer-to-peer connections (' + e.message + ').', 'webrtc'); }
     this.peer = peer; let opened = false;
-    const to = setTimeout(() => { if (!opened) this._fail(this.peer && this.peer.open ? 'Room not reachable (NAT/firewall or wrong code).' : 'Could not reach the PeerJS signalling server (timeout).'); }, SIGNAL_TIMEOUT + 4000);
-    peer.on('error', (e) => { clearTimeout(to); if (e.type === 'peer-unavailable') this._fail('No room with that code. Check the code and ask the host to keep the lobby open.'); else if (!opened) this._fail('Signalling error: ' + e.type); else console.warn('peer error', e.type); });
+    const to = setTimeout(() => { if (!opened) if (this.peer && this.peer.open) this._fail("Found the matchmaking server but couldn't open a direct link to the host. This usually means a strict network (school, work, some mobile carriers) is blocking peer-to-peer, or the code is wrong.", 'nat'); else this._fail("Couldn't reach the matchmaking server. Your connection may be offline, or a VPN / content blocker is in the way.", 'signal'); }, SIGNAL_TIMEOUT + 4000);
+    peer.on('error', (e) => { clearTimeout(to); if (e.type === 'peer-unavailable') this._fail('No room with that code. Check the code, and ask the host to keep the lobby screen open.', 'noroom'); else if (!opened) this._fail(friendlyErr(e.type), e.type === 'browser-incompatible' ? 'webrtc' : 'signal'); else console.warn('peer error', e.type); });
     peer.on('open', () => {
       const conn = peer.connect('sdgp-' + code, { reliable: true, serialization: 'json' }); this.hostConn = conn;
       conn.on('open', () => { opened = true; clearTimeout(to); this.status = 'open'; conn.send({ t: 'hello', name: profile.name, build: profile.build }); this._ping(); this._change(); });
@@ -68,12 +69,12 @@ export class Session {
     });
   }
   _ping() { if (this.closed || !this.hostConn) return; if (this.hostConn.open) this.hostConn.send({ t: 'ping', ts: performance.now() }); setTimeout(() => this._ping(), 2000); }
-  _hostLost() { if (this.closed || this.status === 'lost') return; this.status = 'lost'; this.error = 'The host left the room.'; this._change(); this.app.onHostLost && this.app.onHostLost(this); }
+  _hostLost() { if (this.closed || this.status === 'lost') return; this.status = 'lost'; this.error = 'The host left the room (or lost their connection).'; this.errKind = 'lost'; this._change(); this.app.onHostLost && this.app.onHostLost(this); }
   _clientMsg(m) {
     this.stats.recv++;
     switch (m.t) {
       case 'lobby': { const first = !this.members.length; this.members = m.members; this.cfg = m.cfg; this.myPid = m.you; this._change(); if (first && this.app.ui) this.app.ui('lobby_join'); break; }
-      case 'full': this._fail('That room is full (4 players max).'); break;
+      case 'full': this._fail('That room is full (4 players max). Ask the host to start without you, or host your own room.', 'full'); break;
       case 'pong': this.stats.rtt = performance.now() - m.ts; break;
       case 'start': this._onStart(m); break;
       case 'go': if (this.goResolve) { this.goResolve(); this.goResolve = null; } break;

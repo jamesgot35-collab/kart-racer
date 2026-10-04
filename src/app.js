@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import DATA from './gamedata.json';
 import { TRACK_DEFS } from './trackdefs.js';
-import { buildTrack, TRACK_ORDER } from './tracks.js';
+import { buildTrack, TRACK_ORDER, CUPS, ALL_TRACKS } from './tracks.js';
 import { Race } from './race.js';
 import { AudioEngine } from './audio.js';
 import { Input } from './input.js';
@@ -9,7 +9,7 @@ import { Showroom } from './showroom.js';
 import { ICONS } from './icons.js';
 import { ITEM_INFO } from './items.js';
 import { finalStats, statBars } from './stats.js';
-import { defaultBuild, buildKart } from './models.js';
+import { KART_HQ, defaultBuild, buildKart } from './models.js';
 import * as SAVE from './save.js';
 import { mountGarage } from './garage.js';
 import { mountLobby } from './lobbyui.js';
@@ -17,14 +17,19 @@ import { P } from './stats.js';
 
 const $ = (s, r = document) => r.querySelector(s); const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 > 10 && n % 100 < 14) ? 0 : (n % 10 < 4 ? n % 10 : 0)]);
-export const app = { v: '1.0.0', save: SAVE.load(), screen: 'boot', race: null, quality: 1, ghost: null, cup: null, mode: 'quick', cfg: {}, hqState: { on: false, bytes: 0 } };
+export const app = { v: '1.1.0', save: SAVE.load(), screen: 'boot', race: null, quality: 1, ghost: null, cup: null, mode: 'quick', cfg: {}, hqState: { on: false, bytes: 0 } };
 window.__app = app;
 const params = new URLSearchParams(location.search);
 // ------------------------------------------------------------------ renderer
-const canvas = $('#gl'); const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', alpha: false, preserveDrawingBuffer: params.has('shot') });
+const TIER_AA = () => { const q = app.save.settings.quality; return q !== 'performance'; };
+const canvas = $('#gl'); const renderer = new THREE.WebGLRenderer({ canvas, antialias: (TIER_AA()), powerPreference: 'high-performance', alpha: false, preserveDrawingBuffer: params.has('shot') });
 renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05; const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(62, 1, 0.3, 2600);
 app.renderer = renderer; app.scene = scene; app.camera = camera;
-let pr = Math.min(window.devicePixelRatio || 1, app.save.settings.quality === 'high' ? 2.5 : 1.75); let prMax = pr; app.pr = () => pr;
+// quality tiers: performance (safe default for low-end phones) / standard / high
+(function detectTier() { const st = app.save.settings; if (!st.qualityChosen) { st.qualityChosen = true; const lowMem = navigator.deviceMemory && navigator.deviceMemory <= 4; const lowCpu = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4; if (lowMem || lowCpu) st.quality = 'performance'; try { SAVE.save(app.save); } catch (e) { } } })();
+const TIER = { performance: { prCap: 1.0, particles: 0.4, lod: 0.5, aa: false }, standard: { prCap: 1.75, particles: 1, lod: 1, aa: true }, high: { prCap: 2.5, particles: 1.2, lod: 1, aa: true } };
+app.tier = () => TIER[app.save.settings.quality] || TIER.standard;
+let pr = Math.min(window.devicePixelRatio || 1, app.tier().prCap); let prMax = pr; app.pr = () => pr;
 function resize() { const w = innerWidth, h = innerHeight; renderer.setPixelRatio(pr); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); const rot = $('#rotate'); const portrait = h > w; if (rot) rot.classList.toggle('hidden', true); }
 addEventListener('resize', resize); addEventListener('orientationchange', () => setTimeout(resize, 200)); resize();
 const showroom = new Showroom(renderer); app.showroom = showroom;
@@ -98,7 +103,7 @@ SCREENS.settings = () => {
   <div class="toggle"><span>Tilt steering (phone)<br><small style="color:var(--mut)">Overrides the slider when you tilt</small></span><div class="sw2 ${s.tilt ? 'on' : ''}" data-t="tilt"></div></div>
   <div class="toggle"><span>Screen shake</span><div class="sw2 ${s.shake ? 'on' : ''}" data-t="shake"></div></div>
   <div><div class="row sp"><b>Steering sensitivity</b><span id="v_ss">${s.steerSens.toFixed(2)}</span></div><input type="range" min="80" max="160" value="${Math.round(s.steerSens * 100)}" id="ss"></div>
-  <div><b>Graphics & audio quality</b><div class="seg" style="margin-top:6px" id="qSeg"><button data-q="standard" class="${s.quality === 'standard' ? 'on' : ''}">Standard</button><button data-q="high" class="${s.quality === 'high' ? 'on' : ''}">High</button></div>
+  <div><b>Graphics & audio quality</b><div class="seg" style="margin-top:6px" id="qSeg"><button data-q="performance" class="${s.quality === 'performance' ? 'on' : ''}">Performance</button><button data-q="standard" class="${s.quality === 'standard' ? 'on' : ''}">Standard</button><button data-q="high" class="${s.quality === 'high' ? 'on' : ''}">High</button></div>
   <div style="font-size:12px;color:var(--mut);margin-top:6px" id="hqInfo"></div><div class="row" style="margin-top:8px"><button class="btn small blue" id="hqBtn">Download high-quality pack</button><span id="hqStat" style="font-size:12px;color:var(--mut)"></span></div></div>
   <div class="toggle"><span>Unlock everything (demo)<br><small style="color:var(--mut)">Marks all parts as owned — for testing the garage</small></span><div class="sw2 ${app.save.unlockAll ? 'on' : ''}" data-t="unlockAll"></div></div>
   <div class="row wrap"><button class="btn small ghost" id="rst">Reset save</button><button class="btn small ghost" id="cred">Credits</button></div>
@@ -108,7 +113,7 @@ SCREENS.settings = () => {
   $('#ss').oninput = (e) => { s.steerSens = e.target.value / 100; $('#v_ss').textContent = s.steerSens.toFixed(2); applySettings(); persist(); };
   d.querySelectorAll('[data-t]').forEach(t => t.onclick = async () => { const k = t.dataset.t; ui('ui_toggle'); if (k === 'unlockAll') { app.save.unlockAll = !app.save.unlockAll; t.classList.toggle('on', app.save.unlockAll); } else { s[k] = !s[k]; t.classList.toggle('on', s[k]); } if (k === 'tilt') { const ok = await input.enableTilt(s.tilt); if (!ok) { s.tilt = false; t.classList.remove('on'); toast('Tilt not available'); } } applySettings(); persist(); });
   const hqRefresh = () => { $('#hqInfo').textContent = app.hqState.manifest ? `High quality uses lossless 48 kHz stems (≈${(app.hqState.manifest.totalBytes / 1048576).toFixed(0)} MB total across the 4 tracks and menu, fetched per track on demand and cached) plus 2K/4K textures. Recommended on desktop / recent iPad & iPhone Pro; it needs ~300 MB RAM during a race.` : 'High quality pack manifest not loaded.'; $('#qSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.q === s.quality)); };
-  $('#qSeg').querySelectorAll('button').forEach(b => b.onclick = async () => { ui('ui_click'); s.quality = b.dataset.q; await setQuality(s.quality); persist(); hqRefresh(); });
+  $('#qSeg').querySelectorAll('button').forEach(b => b.onclick = async () => { ui('ui_click'); const prev = s.quality; const nq = b.dataset.q; if (nq === prev) return; if ((prev === 'performance') !== (nq === 'performance')) { s.quality = nq; s.hq = nq === 'high'; persist(); toast('Applying graphics mode… reloading', '#ffd23f'); setTimeout(() => location.reload(), 700); return; } s.quality = nq; await setQuality(s.quality); persist(); hqRefresh(); });
   $('#hqBtn').onclick = async () => { ui('ui_confirm'); await prefetchHQ((f, txt) => { $('#hqStat').textContent = txt; }); };
   loadHQManifest().then(hqRefresh); hqRefresh();
   $('#rst').onclick = () => { if (confirm('Reset all progress?')) { app.save = SAVE.reset(); persist(); show('menu'); } };
@@ -116,27 +121,28 @@ SCREENS.settings = () => {
 };
 // ------------------------------------------------------------------ quality / HQ pack
 async function loadHQManifest() { if (app.hqState.manifest) return app.hqState.manifest; try { const r = await fetch('hq-manifest.json'); app.hqState.manifest = await r.json(); audio.hqBase = (p) => { const m = app.hqState.manifest; const rec = m.files[p] || m.files[p.replace('.wav', '.flac')]; return rec ? m.repos[rec.r] + p : m.repos[m.default] + p; }; } catch (e) { app.hqState.manifest = null; } return app.hqState.manifest; }
-async function setQuality(q) { const hq = q === 'high'; const changed = !!app.save.settings.hq !== hq; app.save.settings.hq = hq; if (changed && audio.ctx && audio.ctx.sampleRate !== (hq ? 48000 : 32000)) { app.save.settings.quality = q; persist(); toast('Switching audio engine… reloading', '#ffd23f'); setTimeout(() => location.reload(), 700); return; } audio.hq = hq; if (hq) await loadHQManifest(); prMax = Math.min(window.devicePixelRatio || 1, hq ? 2.5 : 1.75); pr = Math.min(pr, prMax); resize(); }
+async function setQuality(q) { const hq = q === 'high'; const changed = !!app.save.settings.hq !== hq; app.save.settings.hq = hq; if (changed && audio.ctx && audio.ctx.sampleRate !== (hq ? 48000 : 32000)) { app.save.settings.quality = q; persist(); toast('Switching audio engine… reloading', '#ffd23f'); setTimeout(() => location.reload(), 700); return; } audio.hq = hq; if (hq) await loadHQManifest(); KART_HQ.on = hq; app.save.settings.quality = q; prMax = Math.min(window.devicePixelRatio || 1, app.tier().prCap); pr = Math.min(pr, prMax); resize(); }
 async function prefetchHQ(cb) { const m = await loadHQManifest(); if (!m) { cb(0, 'HQ manifest unavailable'); return; } const keys = Object.keys(m.files).filter(k => (k.startsWith('music/') && !k.endsWith('/master.flac')) || k.startsWith('voice/announcer')); let done = 0, bytes = 0; const total = keys.reduce((a, k) => a + m.files[k].b, 0); await audio.unlock(); const q = keys.slice(); const worker = async () => { while (q.length) { const k = q.shift(); const url = audio.hqBase(k); try { const c = await caches.open('sdgp-hq-v1'); let r = await c.match(url); if (!r) { r = await fetch(url, { mode: 'cors' }); if (r.ok) await c.put(url, r.clone()); } if (r.ok) await r.arrayBuffer(); } catch (e) { } bytes += m.files[k].b; done++; cb(bytes / total, `${(bytes / 1048576).toFixed(0)} / ${(total / 1048576).toFixed(0)} MB`); } }; await Promise.all([worker(), worker(), worker(), worker()]); cb(1, 'Downloaded & cached'); }
 // ------------------------------------------------------------------ race setup
 SCREENS.setup = () => {
   const cfg = app.cfg = { track: app.cfg.track || 'meadow', laps: app.cfg.laps || 3, mirror: false, reverse: false, items: true, ...app.cfg }; const mode = app.mode; const d = screenEl();
-  const title = { gp: 'Grand Prix · Seedling Cup', quick: 'Quick race', tt: 'Time trial', daily: 'Daily challenge' }[mode];
-  if (mode === 'daily') { const day = Math.floor(Date.now() / 86400000); const h = (n) => { const x = Math.sin(day * 12.9898 + n * 78.233) * 43758.5453; return x - Math.floor(x); }; cfg.track = TRACK_ORDER[day % 4]; cfg.mirror = h(1) > 0.5; cfg.reverse = h(2) > 0.7; cfg.laps = 2; cfg.items = true; cfg.daily = day; }
-  const art = { meadow: 'linear-gradient(#5db8ff,#c9ecff 55%,#6bc24a 56%)', harbor: 'linear-gradient(#34509e,#ffb88a 55%,#2f6f8a 56%)', mesa: 'linear-gradient(#ff9b4a,#ffe7b0 55%,#e0a65a 56%)', frost: 'linear-gradient(#6aa8f0,#eaf5ff 55%,#eef6ff 56%)' };
-  const cards = TRACK_ORDER.map(id => { const def = TRACK_DEFS[id]; const best = app.save.bests[id + (cfg.mirror ? 'm' : '') + (cfg.reverse ? 'r' : '')]; return `<div class="card ${cfg.track === id ? 'on' : ''}" data-t="${id}"><div class="art" style="background:${art[id]}"></div><div class="t"><b>${def.name}</b><span>${def.cup} · ${def.theme} · ${(measured(id) / 1000).toFixed(2)} km</span><br><span>Best: ${SAVE.fmtTime(best)}</span></div></div>`; }).join('');
+  cfg.cup = cfg.cup || 'seed'; const cupDef = CUPS.find(c => c.id === cfg.cup) || CUPS[0]; const title = { gp: 'Grand Prix · ' + cupDef.name, quick: 'Quick race', tt: 'Time trial', daily: 'Daily challenge' }[mode];
+  if (mode === 'daily') { const day = Math.floor(Date.now() / 86400000); const h = (n) => { const x = Math.sin(day * 12.9898 + n * 78.233) * 43758.5453; return x - Math.floor(x); }; cfg.track = ALL_TRACKS[day % ALL_TRACKS.length]; cfg.mirror = h(1) > 0.5; cfg.reverse = h(2) > 0.7; cfg.laps = 2; cfg.items = true; cfg.daily = day; }
+  const art = { meadow: 'linear-gradient(#5db8ff,#c9ecff 55%,#6bc24a 56%)', harbor: 'linear-gradient(#34509e,#ffb88a 55%,#2f6f8a 56%)', mesa: 'linear-gradient(#ff9b4a,#ffe7b0 55%,#e0a65a 56%)', frost: 'linear-gradient(#6aa8f0,#eaf5ff 55%,#eef6ff 56%)', dusk: 'linear-gradient(#3a2a6e,#ff8a5a 55%,#3d6a35 56%)', neon: 'linear-gradient(#0a0c2e,#2a3aa0 55%,#162036 56%)', ember: 'linear-gradient(#6a1a2a,#ff6a2a 55%,#8a4a22 56%)', aurora: 'linear-gradient(#071a3a,#2fe0a8 50%,#c9dff2 56%)' };
+  const cards = ALL_TRACKS.map(id => { const def = TRACK_DEFS[id]; const best = app.save.bests[id + (cfg.mirror ? 'm' : '') + (cfg.reverse ? 'r' : '')]; return `<div class="card ${cfg.track === id ? 'on' : ''}" data-t="${id}"><div class="art" style="background:${art[id]}"></div><div class="t"><b>${def.name}</b><span>${def.cup} · ${def.theme} · ${(measured(id) / 1000).toFixed(2)} km</span><br><span>Best: ${SAVE.fmtTime(best)}</span></div></div>`; }).join('');
   d.innerHTML = `<div class="topbar"><h2>${title}</h2>${coinsBadge()}</div>
-  <div class="grow col scroll" style="gap:10px"><div class="row wrap" id="cards" style="align-items:stretch">${mode === 'gp' ? TRACK_ORDER.map((id, i) => `<div class="card on" style="min-width:140px;cursor:default"><div class="art" style="background:${art[id]};height:60px"></div><div class="t"><b>${i + 1}. ${TRACK_DEFS[id].name}</b></div></div>`).join('') : cards}</div>
+  <div class="grow col scroll" style="gap:10px"><div class="row wrap" id="cards" style="align-items:stretch">${mode === 'gp' ? `<div class="seg" id="cupSeg" style="width:100%;margin-bottom:4px">${CUPS.map(c => `<button data-cup="${c.id}" class="${cfg.cup === c.id ? 'on' : ''}">${c.name}</button>`).join('')}</div>` + cupDef.tracks.map((id, i) => `<div class="card on" style="min-width:140px;cursor:default"><div class="art" style="background:${art[id]};height:60px"></div><div class="t"><b>${i + 1}. ${TRACK_DEFS[id].name}</b></div></div>`).join('') : cards}</div>
   <div class="panel" style="padding:12px"><div class="row wrap" style="gap:14px"><div><div style="font-size:11px;color:var(--mut);font-weight:800">LAPS</div><div class="seg" id="laps">${[1, 2, 3, 4, 5].map(n => `<button data-n="${n}" class="${cfg.laps === n ? 'on' : ''}">${n}</button>`).join('')}</div></div>
   ${mode === 'tt' || mode === 'daily' ? '' : `<div class="toggle" style="gap:8px"><span>Items</span><div class="sw2 ${cfg.items ? 'on' : ''}" data-o="items"></div></div>`}
   ${mode === 'gp' || mode === 'daily' ? '' : `<div class="toggle" style="gap:8px"><span>Mirror</span><div class="sw2 ${cfg.mirror ? 'on' : ''}" data-o="mirror"></div></div><div class="toggle" style="gap:8px"><span>Reverse</span><div class="sw2 ${cfg.reverse ? 'on' : ''}" data-o="reverse"></div></div>`}</div>
   <div style="font-size:12px;color:var(--mut);margin-top:6px">${mode === 'tt' ? 'Solo run against your best ghost. No items, no rivals.' : mode === 'daily' ? 'Today\'s fixed track & setup (same for everyone on this date). Leaderboard: <b>local to this device</b> — an online board needs the backend described in the production plan.' : '12 racers: you + 11 CPU rivals with light rubber-banding.'}</div></div></div>
   <div class="row"><button class="btn ghost" id="back">Back</button><div class="grow"></div><button class="btn" id="go" style="font-size:18px;padding:14px 34px">Start</button></div>`;
+  d.querySelectorAll('[data-cup]').forEach(b => b.onclick = () => { ui('ui_click'); cfg.cup = b.dataset.cup; show('setup'); });
   d.querySelectorAll('[data-t]').forEach(c => c.onclick = () => { ui('ui_click'); cfg.track = c.dataset.t; show('setup'); });
   d.querySelectorAll('#laps button').forEach(b => b.onclick = () => { ui('ui_toggle'); cfg.laps = +b.dataset.n; d.querySelectorAll('#laps button').forEach(x => x.classList.toggle('on', x === b)); });
   d.querySelectorAll('[data-o]').forEach(t => t.onclick = () => { ui('ui_toggle'); cfg[t.dataset.o] = !cfg[t.dataset.o]; show('setup'); });
   $('#back').onclick = () => { ui('ui_back'); show('menu'); };
-  $('#go').onclick = () => { ui('ui_confirm'); if (mode === 'gp') { app.cup = { idx: 0, pts: {}, results: [] }; cfg.track = TRACK_ORDER[0]; cfg.mirror = cfg.reverse = false; } startRace(); };
+  $('#go').onclick = () => { ui('ui_confirm'); if (mode === 'gp') { app.cup = { idx: 0, pts: {}, results: [], id: cupDef.id, name: cupDef.name, tracks: cupDef.tracks }; cfg.track = cupDef.tracks[0]; cfg.mirror = cfg.reverse = false; } startRace(); };
 };
 const _meas = {}; function measured(id) { if (!_meas[id]) _meas[id] = buildTrack(id).length; return _meas[id]; }
 const CPU_NAMES = DATA.characters.filter(c => c.free).map(c => c.name);
@@ -159,8 +165,8 @@ async function startRace(opts = {}) {
   const net = opts.net || null; if (net) players = net.players;
   const chars = players.map(p => ({ id: CHAR_VOICE[p.name], local: !!p.local })).filter((v, i, a) => a.findIndex(x => x.id === v.id) === i);
   const tA = performance.now(); await prepareAudioFor(track, chars, (f, t) => setLoading(true, def.name, 0.1 + f * 0.8, 'Loading ' + t)); app.timing = { audioPrepMs: Math.round(performance.now() - tA), decodedBuffers: audio.stats.decoded };
-  const q = app.quality; let hqTex = null, hqEnv = null; if (s.settings.hq) { try { await loadHQManifest(); audio.hqManifest = app.hqState.manifest; setLoading(true, def.name, 0.88, 'Loading high-quality textures'); hqTex = await loadHQTrackTextures(track, renderer, audio, (f) => setLoading(true, def.name, 0.88 + f * 0.08, 'Loading high-quality textures')); hqEnv = await loadHQEnv(track, audio); } catch (e) { console.warn('HQ textures unavailable', e); toast('HQ textures unavailable — using standard', '#ffd23f'); } } await new Promise(r => setTimeout(r, 10));
-  const race = new Race({ scene, renderer, camera, audio, trackId: track, laps: cfg.laps, mirror: cfg.mirror, reverse: cfg.reverse, itemsOn: solo ? false : cfg.items, players, quality: q, hq: s.settings.hq, ui: onRaceUi, netId: net ? net.myId : 'L', rnd: net ? net.rnd : Math.random, introSec: 2.6, hqTex, hqEnv });
+  KART_HQ.on = !!s.settings.hq; const q = app.tier().particles; let hqTex = null, hqEnv = null; if (s.settings.hq) { try { await loadHQManifest(); audio.hqManifest = app.hqState.manifest; setLoading(true, def.name, 0.88, 'Loading high-quality textures'); hqTex = await loadHQTrackTextures(TRACK_DEFS[track].theme, renderer, audio, (f) => setLoading(true, def.name, 0.88 + f * 0.08, 'Loading high-quality textures')); hqEnv = await (TRACK_DEFS[track].skin ? null : loadHQEnv(track, audio)); } catch (e) { console.warn('HQ textures unavailable', e); toast('HQ textures unavailable — using standard', '#ffd23f'); } } await new Promise(r => setTimeout(r, 10));
+  const race = new Race({ scene, renderer, camera, audio, trackId: track, laps: cfg.laps, mirror: cfg.mirror, reverse: cfg.reverse, itemsOn: solo ? false : cfg.items, players, quality: q, hq: s.settings.hq, ui: onRaceUi, netId: net ? net.myId : 'L', rnd: net ? net.rnd : Math.random, introSec: 2.6, hqTex, hqEnv, lod: app.tier().lod });
   race.net = net ? net.link : null; app.race = race; app.paused = false; if (net) { net.attach(race); setLoading(true, def.name, 0.95, 'Waiting for other racers…'); net.loaded(); await net.goP; }
   if (solo) { const key = ghostKey(); const g = s.ghosts[key]; if (g) { app.ghost = makeGhost(g, myBuild, s.sel.char); } else app.ghost = null; app.rec = { t: 0, a: [] }; }
   else app.ghost = null;
@@ -244,7 +250,7 @@ function showResults(res) {
   if (solo && me.time) { const gk = ghostKey(); const old = s.ghosts[gk]; if (!old || me.time < s.ghosts[gk + 't']) { s.ghosts[gk] = app.rec.a; s.ghosts[gk + 't'] = me.time; newBest = true; } }
   if (cfg.daily) { const dk = 'd' + cfg.daily; s.daily[dk] = s.daily[dk] && s.daily[dk] < me.time ? s.daily[dk] : me.time; }
   let cupHtml = ''; let nextLabel = app.net ? 'Back to lobby' : 'Race again';
-  if (app.mode === 'gp' && app.cup) { const cup = app.cup; for (const r of res) cup.pts[r.name] = (cup.pts[r.name] || 0) + PTS[r.place - 1]; cup.idx++; const st = Object.entries(cup.pts).sort((a, b) => b[1] - a[1]); const lastRace = cup.idx >= 4; nextLabel = lastRace ? 'Finish cup' : 'Next race'; cupHtml = `<div class="panel" style="padding:10px"><b>Cup standings (${cup.idx}/4)</b><table class="res">${st.slice(0, 6).map(([n, p], i) => `<tr class="${n === s.sel.char ? 'me' : ''}"><td>${i + 1}</td><td>${n}</td><td>${p} pts</td></tr>`).join('')}</table></div>`; if (lastRace) { const rank = st.findIndex(x => x[0] === s.sel.char) + 1; const trophy = rank === 1 ? 'Gold' : rank === 2 ? 'Silver' : rank === 3 ? 'Bronze' : 'None'; cupHtml += `<div class="panel" style="padding:10px"><b>Seedling Cup result: ${ORD(rank)} — ${trophy} trophy</b></div>`; if (rank <= 3) { s.coins += [300, 200, 120][rank - 1]; } } }
+  if (app.mode === 'gp' && app.cup) { const cup = app.cup; for (const r of res) cup.pts[r.name] = (cup.pts[r.name] || 0) + PTS[r.place - 1]; cup.idx++; const st = Object.entries(cup.pts).sort((a, b) => b[1] - a[1]); const lastRace = cup.idx >= 4; nextLabel = lastRace ? 'Finish cup' : 'Next race'; cupHtml = `<div class="panel" style="padding:10px"><b>Cup standings (${cup.idx}/4)</b><table class="res">${st.slice(0, 6).map(([n, p], i) => `<tr class="${n === s.sel.char ? 'me' : ''}"><td>${i + 1}</td><td>${n}</td><td>${p} pts</td></tr>`).join('')}</table></div>`; if (lastRace) { const rank = st.findIndex(x => x[0] === s.sel.char) + 1; const trophy = rank === 1 ? 'Gold' : rank === 2 ? 'Silver' : rank === 3 ? 'Bronze' : 'None'; cupHtml += `<div class="panel" style="padding:10px"><b>${cup.name} result: ${ORD(rank)} — ${trophy} trophy</b></div>`; if (rank <= 3) { s.coins += [300, 200, 120][rank - 1] + (cup.id === 'star' ? [100, 60, 40][rank - 1] : 0); } } }
   persist(); audio.ready && audio.setMusicState('results');
   setTimeout(() => {
     $('#touch').classList.add('hidden'); $('#hud').classList.add('hidden'); input.active = false; const d = screenEl(); d.style.background = 'linear-gradient(rgba(5,10,24,.35),rgba(5,10,24,.85))'; d.innerHTML = `<div class="topbar"><h2>${place === 1 ? '🏆 Victory!' : 'Race complete'} — ${ORD(place)}</h2>${coinsBadge()}</div>
@@ -252,7 +258,7 @@ function showResults(res) {
     <div class="col" style="min-width:230px;flex:1"><div class="panel" style="padding:12px"><div class="row sp"><b>Coins earned</b><span class="coins">${ICONS.coin}+${reward}</span></div><div style="font-size:12px;color:var(--mut);margin-top:6px">${me.coins} collected · placing bonus ${solo ? 0 : BON[place - 1]} · finish +20${newBest ? '<br><b style="color:var(--y)">New personal best!</b>' : ''}</div></div>${cupHtml}</div></div>
     <div class="row wrap"><button class="btn ghost" id="mn">Menu</button><div class="grow"></div><button class="btn" id="nx">${nextLabel}</button></div>`;
     $('#mn').onclick = async () => { ui('ui_back'); endRace(); if (app.net) { app.net.close(); app.net = null; } app.cup = null; await toMenuMusic(); show('menu'); };
-    $('#nx').onclick = async () => { ui('ui_confirm'); if (app.net) { endRace(); await toMenuMusic(); show('lobby'); return; } if (app.mode === 'gp' && app.cup) { if (app.cup.idx >= 4) { endRace(); app.cup = null; await toMenuMusic(); show('menu'); return; } app.cfg.track = TRACK_ORDER[app.cup.idx]; } startRace(); };
+    $('#nx').onclick = async () => { ui('ui_confirm'); if (app.net) { endRace(); await toMenuMusic(); show('lobby'); return; } if (app.mode === 'gp' && app.cup) { if (app.cup.idx >= 4) { endRace(); app.cup = null; await toMenuMusic(); show('menu'); return; } app.cfg.track = app.cup.tracks[app.cup.idx]; } startRace(); };
     if (audio.ready) audio.play(place <= 3 ? 'fanfare_win' : 'fanfare_mid', { bus: 'ui', vol: 0.6 });
   }, 1200);
 }
@@ -278,7 +284,7 @@ function adapt(dt) {
 requestAnimationFrame(frame);
 // ------------------------------------------------------------------ boot
 (async function boot() {
-  applySettings(); if (app.save.settings.quality === 'high') { await setQuality('high'); }
+  KART_HQ.on = !!app.save.settings.hq; applySettings(); if (app.save.settings.quality === 'high') { await setQuality('high'); }
   $('#loading').classList.add('hidden'); show('title');
   // test hooks
   if (params.has('autostart')) { setTimeout(async () => { await bootAudio(); app.mode = params.get('mode') || 'quick'; app.cfg.track = params.get('track') || 'meadow'; app.cfg.laps = +(params.get('laps') || 3); startRace(); }, 100); }

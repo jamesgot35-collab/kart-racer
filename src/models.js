@@ -31,9 +31,18 @@ export function addRim(mat, color = 0xffffff, power = 2.6, strength = 0.55) {
   };
   return mat;
 }
+export const KART_HQ = { on: false };
 const FINISH = { Gloss: { r: 0.22, m: 0.15, e: 1.0 }, Matte: { r: 0.85, m: 0.0, e: 0.4 }, Metallic: { r: 0.28, m: 0.85, e: 1.3 }, Pearl: { r: 0.3, m: 0.35, e: 1.4 }, Candy: { r: 0.14, m: 0.55, e: 1.2 } };
 export function paintMaterial(hex, finish = 'Gloss') {
-  const f = FINISH[finish] || FINISH.Gloss; const m = new THREE.MeshStandardMaterial({ color: hex, roughness: f.r, metalness: f.m, envMapIntensity: f.e });
+  const f = FINISH[finish] || FINISH.Gloss;
+  if (KART_HQ.on) { // high-quality mode: clear-coated car paint + sparkle flakes on metallic finishes (reflects the HQ HDR sky)
+    const m = new THREE.MeshPhysicalMaterial({ color: hex, roughness: f.r, metalness: f.m, envMapIntensity: f.e, clearcoat: finish === 'Matte' ? 0 : 1, clearcoatRoughness: 0.05 });
+    if (finish === 'Pearl') { m.emissive = new THREE.Color(hex).multiplyScalar(0.08); m.sheen = 0.6; m.sheenColor = new THREE.Color(0xffffff); m.sheenRoughness = 0.4; }
+    addRim(m, 0xcfe8ff, 2.4, 0.5); const flake = (finish === 'Metallic' || finish === 'Pearl' || finish === 'Candy') ? 0.09 : 0; if (flake) { const prev = m.onBeforeCompile; m.onBeforeCompile = (sh) => { prev(sh); sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+      { vec3 fp = floor(vViewPosition * 70.0); vec3 hh = fract(sin(vec3(dot(fp, vec3(127.1, 311.7, 74.7)), dot(fp, vec3(269.5, 183.3, 246.1)), dot(fp, vec3(113.5, 271.9, 124.6)))) * 43758.5453); normal = normalize(normal + (hh - 0.5) * ${flake.toFixed(3)}); }`); }; }
+    return m;
+  }
+  const m = new THREE.MeshStandardMaterial({ color: hex, roughness: f.r, metalness: f.m, envMapIntensity: f.e });
   if (finish === 'Pearl') m.emissive = new THREE.Color(hex).multiplyScalar(0.08);
   return addRim(m, 0xcfe8ff, 2.4, 0.5);
 }
@@ -279,6 +288,18 @@ const CH = {
   'Hobb Mossback': { skin: 0x6d9a52, belly: 0xd8e6a8, shirt: 0x8a5a30, hat: 'shell', ears: 'none', nose: 'small', tail: 'none', ec: 0x1a1008 },
   'Barnaby Bruin': { skin: 0x8a5a30, belly: 0xd9b27a, shirt: 0xc8332a, hat: 'none', ears: 'round', nose: 'snout', tail: 'puff', ec: 0x1a1008, honey: true },
   'Gus Gantry': { skin: 0xd9a27a, belly: 0xd9a27a, shirt: 0xff8a1a, hat: 'hardhat', ears: 'human', nose: 'big', tail: 'none', ec: 0x2a1a0c, stubble: true },
+  'Flurry Skye': { skin: 0xcfe8f6, belly: 0xffffff, shirt: 0x3aa0d8, hat: 'tuft', ears: 'small', nose: 'small', tail: 'puff', ec: 0x15324a, scarf: 0x7fe0ff },
+  'Nova Starling': { skin: 0xe8b48a, belly: 0xe8b48a, shirt: 0x2457d6, hat: 'helmet', hc: 0xf4f1ea, ears: 'human', nose: 'small', tail: 'none', ec: 0x2a1a0c },
+  'Lulu Lollipop': { skin: 0xf0c09a, belly: 0xf0c09a, shirt: 0xff6fae, hat: 'swirl', hc: 0xff7fc0, ears: 'human', nose: 'pink', tail: 'none', ec: 0x3a1a2c },
+  'Pyra Ashgrove': { skin: 0xe0603a, belly: 0xffb070, shirt: 0x3a2a2a, hat: 'flame', hc: 0xff8a1a, ears: 'pointy', nose: 'small', tail: 'small', ec: 0xffe347 },
+  'Zorp Blip': { skin: 0x7fe05a, belly: 0xcfffa0, shirt: 0x8a3ad8, hat: 'antennae', hc: 0x7fe05a, ears: 'none', nose: 'small', tail: 'none', ec: 0x111111 },
+  'Cogsworth Whirr': { skin: 0xc89a6a, belly: 0xc89a6a, shirt: 0x8a6a2a, hat: 'tophat', hc: 0x3a2a1a, ears: 'human', nose: 'big', tail: 'none', ec: 0x2a1a0c, goggles: true, stubble: true },
+  'Coral Calloway': { skin: 0x2fb8b8, belly: 0xdff7f0, shirt: 0xff6b57, hat: 'helmet', hc: 0x13a3a3, ears: 'small', nose: 'small', tail: 'small', ec: 0x0a2a2a, goggles: true },
+  'Zahra Sandglass': { skin: 0xb8794a, belly: 0xb8794a, shirt: 0xe0a030, hat: 'turban', hc: 0xd8452a, ears: 'human', nose: 'small', tail: 'none', ec: 0x2a1a0c, scarf: 0xd8452a },
+  'Grumbald the Yeti': { skin: 0xe8f0f8, belly: 0xffffff, shirt: 0x9ac0e0, hat: 'none', ears: 'round', nose: 'big', tail: 'puff', ec: 0x1a2a3a },
+  'Nanuk Snowdrift': { skin: 0xd0a080, belly: 0xd0a080, shirt: 0x2a6aa0, hat: 'hood', hc: 0x2a6aa0, ears: 'none', nose: 'small', tail: 'none', ec: 0x2a1a0c, coat: true, beard: 0xdddddd },
+  'Scarab Sol': { skin: 0x2a4a8a, belly: 0x5a7ac0, shirt: 0xe5b84a, hat: 'horn', hc: 0xe5b84a, ears: 'none', nose: 'small', tail: 'none', ec: 0xffe347 },
+  'Big Top Boris': { skin: 0xe8b48a, belly: 0xe8b48a, shirt: 0xd7263d, hat: 'tophat', hc: 0xd7263d, ears: 'human', nose: 'big', tail: 'none', ec: 0x2a1a0c, beard: 0x3a2a1a },
 };
 export function characterByName(n) { return CH[n]; }
 export function buildCharacter(name) {
@@ -326,6 +347,14 @@ export function buildCharacter(name) {
     case 'cap': H.add(G.sph, { p: [0, hy + 0.2, 0], s: [0.36, 0.2, 0.36], c: 0x14213d }); H.add(G.box, { p: [0, hy + 0.2, 0.34], s: [0.4, 0.04, 0.2], c: 0x14213d }); H.add(G.sph, { p: [0, hy, -0.2], s: [0.35, 0.3, 0.2], c: c.hair }); break;
     case 'quills': for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; const rr = 0.26; H.add(G.cone, { p: [Math.cos(a) * rr * 0.9, hy + 0.28, Math.sin(a) * rr - 0.05], r: [Math.sin(a) * 0.7, 0, -Math.cos(a) * 0.7], s: [0.045, 0.28, 0.045], c: i % 2 ? 0x5e4426 : 0x2f2416 }); } for (let i = 0; i < 5; i++) H.add(G.cone, { p: [(i - 2) * 0.1, hy + 0.34, -0.1], r: [-0.4, 0, 0], s: [0.05, 0.3, 0.05], c: 0x2f2416 }); break;
     case 'captain': H.add(G.cyl, { p: [0, hy + 0.3, 0], s: [0.3, 0.12, 0.3], c: 0xf4f1ea }); H.add(G.cyl, { p: [0, hy + 0.21, 0.02], s: [0.33, 0.03, 0.33], c: 0x14213d }); H.add(G.box, { p: [0, hy + 0.2, 0.3], s: [0.34, 0.03, 0.2], c: 0x111111 }); H.add(G.sph, { p: [0, hy + 0.27, 0.32], s: [0.05, 0.05, 0.02], c: 0xe5b84a }); break;
+    case 'antennae': for (let i = -1; i <= 1; i++) { H.add(G.cyl, { p: [i * 0.1, hy + 0.42, 0], r: [0, 0, -i * 0.25], s: [0.015, 0.2, 0.015], c: c.hc }); H.add(G.sph, { p: [i * 0.17, hy + 0.62, 0], s: [0.05, 0.05, 0.05], c: 0xffe347 }); } break;
+    case 'tophat': H.add(G.cyl, { p: [0, hy + 0.2, 0], s: [0.34, 0.03, 0.34], c: c.hc }); H.add(G.cyl, { p: [0, hy + 0.38, 0], s: [0.22, 0.34, 0.22], c: c.hc }); H.add(G.cyl, { p: [0, hy + 0.27, 0], s: [0.225, 0.07, 0.225], c: 0xe5b84a }); break;
+    case 'flame': for (let i = -2; i <= 2; i++) H.add(G.cone, { p: [i * 0.08, hy + 0.36 - Math.abs(i) * 0.03, -0.04], r: [-0.25, 0, -i * 0.22], s: [0.06, 0.3 - Math.abs(i) * 0.05, 0.04], c: i % 2 ? 0xffd23f : c.hc }); break;
+    case 'swirl': H.add(G.sph, { p: [0, hy + 0.28, 0], s: [0.3, 0.16, 0.3], c: c.hc }); H.add(G.sph, { p: [0, hy + 0.42, 0], s: [0.22, 0.14, 0.22], c: 0xffffff }); H.add(G.sph, { p: [0, hy + 0.54, 0], s: [0.14, 0.12, 0.14], c: c.hc }); H.add(G.sph, { p: [0, hy + 0.64, 0], s: [0.07, 0.07, 0.07], c: 0xffffff }); break;
+    case 'helmet': H.add(G.sph, { p: [0, hy + 0.06, -0.01], s: [0.4, 0.38, 0.4], c: c.hc }); H.add(G.sph, { p: [0, hy + 0.13, 0.2], s: [0.3, 0.08, 0.18], c: 0x1a2a4a }); H.add(G.sph, { p: [0, hy + 0.27, 0.12], s: [0.07, 0.07, 0.03], c: 0xffd23f }); break;
+    case 'hood': H.add(G.sph, { p: [0, hy + 0.08, -0.06], s: [0.42, 0.4, 0.4], c: c.hc }); H.add(G.sph, { p: [0, hy - 0.02, 0.1], s: [0.31, 0.3, 0.3], c: c.skin }); H.add(G.sph, { p: [0, hy + 0.06, 0.16], s: [0.36, 0.1, 0.3], c: 0xf4f1ea }); break;
+    case 'horn': H.add(G.cone, { p: [0, hy + 0.5, 0.08], r: [0.25, 0, 0], s: [0.1, 0.44, 0.1], c: c.hc }); H.add(G.sph, { p: [0, hy + 0.2, -0.02], s: [0.36, 0.14, 0.36], c: 0x1a2a5a }); break;
+    case 'turban': H.add(G.sph, { p: [0, hy + 0.24, 0], s: [0.36, 0.2, 0.36], c: c.hc }); H.add(G.tor, { p: [0, hy + 0.18, 0], r: [Math.PI / 2, 0, 0], s: [0.33, 0.33, 0.3], c: 0xf4e3b8 }); H.add(G.sph, { p: [0, hy + 0.4, 0.04], s: [0.08, 0.08, 0.08], c: 0x2fb8b8 }); break;
     case 'tufts': for (const s of [-1, 1]) H.add(G.cone, { p: [s * 0.2, hy + 0.34, -0.04], r: [0, 0, -s * 0.4], s: [0.07, 0.2, 0.05], c: 0x7a5a38 }); break;
     case 'antlers': for (const s of [-1, 1]) { H.add(G.cap, { p: [s * 0.16, hy + 0.5, -0.04], r: [0, 0, -s * 0.35], s: [0.03, 0.2, 0.03], c: 0xe9d9b5 }); H.add(G.cap, { p: [s * 0.27, hy + 0.58, -0.04], r: [0, 0, -s * 0.9], s: [0.025, 0.12, 0.025], c: 0xe9d9b5 }); H.add(G.cap, { p: [s * 0.2, hy + 0.45, -0.04], r: [0, 0, s * 0.8], s: [0.025, 0.09, 0.025], c: 0xe9d9b5 }); } H.add(G.box, { p: [0.0, hy + 0.3, 0.1], s: [0.5, 0.03, 0.03], c: 0xff6b9a }); break;
     case 'hardhat': H.add(G.sph, { p: [0, hy + 0.2, 0], s: [0.36, 0.24, 0.36], c: 0xffd23f }); H.add(G.box, { p: [0, hy + 0.15, 0.3], s: [0.4, 0.04, 0.2], c: 0xffd23f }); H.add(G.box, { p: [0, hy + 0.34, 0], s: [0.08, 0.05, 0.3], c: 0xe0b300 }); break;

@@ -1,4 +1,4 @@
-import { buildTrack, TRACK_ORDER, measureAll } from '../src/tracks.js';
+import { buildTrack, ALL_TRACKS as TRACK_ORDER, measureAll } from '../src/tracks.js';
 import fs from 'fs';
 const m = measureAll(); console.log(JSON.stringify(m, null, 1));
 fs.writeFileSync(new URL('../design/slice_tracks.json', import.meta.url), JSON.stringify(m, null, 1));
