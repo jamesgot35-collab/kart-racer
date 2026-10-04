@@ -9,4 +9,5 @@
 - Master bus: -14.8 LUFS integrated, true peak -1.4 dBFS, 0 clipped samples (tests/results/audio_meadow*).
 - Done tests: soak 60 s game-time x 4 tracks PASS (tests/results/soak.json); HQ mode PASS (tests/results/hq_mode_meadow.json); net_node (real PeerJS + WebRTC) PASS; net_two_peer (shim transport) PASS; music decode loop-length check; live smoke 0 errors.
 - Caveat: headless Chrome here cannot gather WebRTC ICE, so browser<->browser WebRTC is untested; Node<->Node WebRTC via the real PeerJS cloud is tested.
-- Left: screenshot set (running), real race-finish test, CREDITS done, final size audit, final report.
+- (06:00 ET) Screenshot set DONE: `shots/landscape_*.png`, `shots/portrait_*.png` (title, menu, garage, setup, settings, lobby, grid + race on all 4 tracks, pause, results; 0 console errors in both orientations, tests/results/screens.json). Garage landscape/portrait layout fixed after review. Touch test PASS (tests/results/touch.json). Real 1-lap quick race reaches results (flows test in progress for time trial + GP). Asset QA (tests/results/asset_qa.json): engine loop DC/seam fixed, 2 minor notes.
+- Left: flows.mjs final result, final size audit (tools/size_audit.py), READY section.

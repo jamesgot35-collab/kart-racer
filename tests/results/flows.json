@@ -1,0 +1,40 @@
+{
+ "steps": [
+  "quick results after 178s wall {\"rows\":12,\"title\":\"Race complete — 11th\",\"coins\":624,\"races\":1,\"ghosts\":0,\"cup\":null,\"nx\":\"Race again\"}",
+  "timetrial results after 99s wall {\"rows\":1,\"title\":\"🏆 Victory! — 1st\",\"coins\":653,\"races\":2,\"ghosts\":2,\"cup\":null,\"nx\":\"Race again\"}",
+  "grandprix results after 185s wall {\"rows\":18,\"title\":\"Race complete — 9th\",\"coins\":684,\"races\":3,\"ghosts\":2,\"cup\":1,\"nx\":\"Next race\"}",
+  "PASS quick race reaches results with 12 rows",
+  "PASS coins awarded & persisted",
+  "PASS race counted",
+  "PASS time trial saves a ghost",
+  "PASS grand prix shows cup standings & next race",
+  "PASS no console errors"
+ ],
+ "checks": [
+  {
+   "n": "quick race reaches results with 12 rows",
+   "ok": true
+  },
+  {
+   "n": "coins awarded & persisted",
+   "ok": true
+  },
+  {
+   "n": "race counted",
+   "ok": true
+  },
+  {
+   "n": "time trial saves a ghost",
+   "ok": true
+  },
+  {
+   "n": "grand prix shows cup standings & next race",
+   "ok": true
+  },
+  {
+   "n": "no console errors",
+   "ok": true
+  }
+ ],
+ "errors": []
+}

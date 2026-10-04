@@ -5,4 +5,4 @@ await pg.goto(url, { waitUntil: 'load', timeout: 60000 }); const tLoad = Date.no
 await pg.evaluate(() => document.querySelector('#goBtn').click()); await pg.waitForFunction("__app.screen==='menu'", { timeout: 60000, polling: 300 }); const tMenu = Date.now() - t0;
 await pg.screenshot({ path: '/workspace/kart-racer/shots/live_menu_landscape.png' });
 await pg.evaluate(() => { __app.mode = 'quick'; __app.cfg.track = 'meadow'; __app.startRace(); }); await pg.waitForFunction("__app.race && __app.race.state==='racing'", { timeout: 90000, polling: 300 }); const tRace = Date.now() - t0;
-const r = { url, tLoad, tTitle, tMenu, tRace, audio: await pg.evaluate(() => __audio.stats), errors: logs }; console.log(JSON.stringify(r, null, 1)); fs.writeFileSync('/workspace/kart-racer/tests/results/live_smoke.json', JSON.stringify(r, null, 1)); await b.close();
+const r = { url, tLoad, tTitle, tMenu, tRace, audio: await pg.evaluate(() => __audio.stats), timing: await pg.evaluate(() => __app.timing), errors: logs }; console.log(JSON.stringify(r, null, 1)); fs.writeFileSync('/workspace/kart-racer/tests/results/live_smoke.json', JSON.stringify(r, null, 1)); await b.close();

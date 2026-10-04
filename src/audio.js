@@ -15,7 +15,7 @@ export class AudioEngine {
     return this.ctx.state;
   }
   _build() {
-    const AC = window.AudioContext || window.webkitAudioContext; const ctx = this.ctx = new AC({ latencyHint: 'interactive', sampleRate: this.hq ? 48000 : 32000 }); const g = (v = 1) => { const n = ctx.createGain(); n.gain.value = v; return n; };
+    const AC = window.AudioContext || window.webkitAudioContext; let ctx; try { ctx = new AC({ latencyHint: 'interactive', sampleRate: this.hq ? 48000 : 32000 }); } catch (e) { ctx = new AC({ latencyHint: 'interactive' }); } this.ctx = ctx; const g = (v = 1) => { const n = ctx.createGain(); n.gain.value = v; return n; };
     // buses -> mix -> glue compressor -> limiter -> master
     this.bus = { sfx: g(1), engine: g(0.9), music: g(0.8), voice: g(1), amb: g(0.7), ui: g(0.9) }; this.duck = g(1); this.musicFilter = ctx.createBiquadFilter(); this.musicFilter.type = 'lowpass'; this.musicFilter.frequency.value = 20000; this.musicFilter.Q.value = 0.7;
     this.mix = g(0.46); this.glue = ctx.createDynamicsCompressor(); this.glue.threshold.value = -16; this.glue.knee.value = 14; this.glue.ratio.value = 2.5; this.glue.attack.value = 0.012; this.glue.release.value = 0.22;

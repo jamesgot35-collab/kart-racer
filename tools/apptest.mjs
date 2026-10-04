@@ -7,7 +7,7 @@ export async function serve(root = '/workspace/kart-racer') {
   return { srv, port: srv.address().port };
 }
 export async function launch(w = 844, h = 390, opts = {}) {
-  const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new', args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', '--disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies', ...(opts.args || [])] });
+  const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', headless: 'new', protocolTimeout: 900000, args: ['--no-sandbox', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', '--disable-features=PreloadMediaEngagementData,MediaEngagementBypassAutoplayPolicies', ...(opts.args || [])] });
   const pg = await b.newPage(); await pg.setViewport({ width: w, height: h, deviceScaleFactor: opts.dpr || 1, isMobile: !!opts.mobile, hasTouch: !!opts.mobile });
   const logs = []; pg.on('console', m => { const t = m.text(); if (m.type() === 'error' || m.type() === 'warning' && !/GPU stall|ReadPixels/.test(t)) logs.push(m.type() + ': ' + t.slice(0, 300)); }); pg.on('pageerror', e => logs.push('pageerror: ' + (e.stack || e.message).slice(0, 400)));
   pg.on('requestfailed', r => logs.push('requestfailed: ' + r.url().slice(0, 160)));

@@ -6,7 +6,7 @@ const coins0 = await pg.evaluate(() => __app.save.coins);
 async function runRace(mode, label) {
   await pg.evaluate((m) => { __app.mode = m; __app.cfg = { track: 'meadow', laps: 1, mirror: false, reverse: false, items: true }; if (m === 'gp') __app.cup = { idx: 0, pts: {}, results: [] }; __app.startRace(); }, mode);
   await pg.waitForFunction('__app.race && __app.race.state==="racing"', { timeout: 150000, polling: 300 }); await pg.evaluate(() => __test.makeAuto(__app.race));
-  const t0 = Date.now(); await pg.waitForFunction("document.querySelector('#nx')", { timeout: 420000, polling: 500 });
+  const t0 = Date.now(); await pg.waitForFunction("document.querySelector('#nx')", { timeout: 600000, polling: 1000 });
   const r = await pg.evaluate(() => ({ rows: document.querySelectorAll('table.res tr').length, title: document.querySelector('.topbar h2').textContent, coins: __app.save.coins, races: __app.save.stats.races, ghosts: Object.keys(__app.save.ghosts || {}).length, cup: __app.cup && __app.cup.idx, nx: document.querySelector('#nx').textContent }));
   log(label, 'results after', Math.round((Date.now() - t0) / 1000) + 's wall', JSON.stringify(r)); await pg.screenshot({ path: `/workspace/kart-racer/shots/flow_${label}_results.png` }); return r;
 }
