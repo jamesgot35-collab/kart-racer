@@ -111,7 +111,7 @@ Heading and velocity are separate. Steering rotates the heading at yaw rate ω, 
 ## 5. Drifting and boost
 
 1. **Hop.** Tap the drift button above 17 m/s to hop (small jump, 0.9 m/s upward impulse for feel only). Hold steer left or right to commit to a direction.
-2. **Drift.** While held, the kart slides at up to **32°** between heading and velocity. Steering *into* the drift multiplies yaw by ×1.25 (tightens), steering *against* multiplies by ×0.72 (widens). Steer commitment sets the charge rate: full steer charges at ×1.0, no steer at ×0.55.
+2. **Drift.** While held, the kart slides at up to **32°** between heading and velocity. Steering *into* the drift multiplies yaw by ×1.25 (tightens), steering *against* multiplies by ×0.72 (widens). Steer commitment sets the charge rate: full steer charges at ×1.0, no steer at ×0.55. The neutral drift yaw rate is **0.62** of the kart's cornering cap (`baseYaw × min(1.2·yawMax, 1.35·a_lat/v)`), so a drift always carves a slightly wider arc than a normal turn until the player steers into it.
 3. **Charge tiers (seconds of drifting at full commitment):** Blue / Orange / Purple = **0.9 / 1.9 / 3.1** s.
 4. **Release.** Releasing the button fires the boost: **0.8 / 1.5 / 2.3** s at ×**1.14 / 1.22 / 1.3** top speed for tiers 1 to 3.
 5. **Feedback.** Spark colours: blue, orange, purple. Sparks change at each threshold with a rising "tick" tone; tier 3 adds a screen-edge streak and a bass swell. Releasing fires the tiered whoosh and a camera FOV kick.

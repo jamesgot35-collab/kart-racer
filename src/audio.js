@@ -19,11 +19,11 @@ export class AudioEngine {
     // buses -> mix -> glue compressor -> limiter -> master
     this.bus = { sfx: g(1), engine: g(0.9), music: g(0.8), voice: g(1), amb: g(0.7), ui: g(0.9) }; this.duck = g(1); this.musicFilter = ctx.createBiquadFilter(); this.musicFilter.type = 'lowpass'; this.musicFilter.frequency.value = 20000; this.musicFilter.Q.value = 0.7;
     this.mix = g(0.46); this.glue = ctx.createDynamicsCompressor(); this.glue.threshold.value = -16; this.glue.knee.value = 14; this.glue.ratio.value = 2.5; this.glue.attack.value = 0.012; this.glue.release.value = 0.22;
-    this.limiter = ctx.createDynamicsCompressor(); this.limiter.threshold.value = -2.5; this.limiter.knee.value = 0; this.limiter.ratio.value = 20; this.limiter.attack.value = 0.002; this.limiter.release.value = 0.09;
+    this.limiter = ctx.createDynamicsCompressor(); this.limiter.threshold.value = -5; this.limiter.knee.value = 0; this.limiter.ratio.value = 20; this.limiter.attack.value = 0.002; this.limiter.release.value = 0.09;
     this.masterGain = g(this.vol.master); this.analyser = ctx.createAnalyser(); this.analyser.fftSize = 2048;
     this.bus.music.connect(this.musicFilter); this.musicFilter.connect(this.duck); this.duck.connect(this.mix);
     for (const k of ['sfx', 'engine', 'voice', 'amb', 'ui']) this.bus[k].connect(this.mix);
-    this.mix.connect(this.glue); this.glue.connect(this.limiter); this.limiter.connect(this.masterGain); this.masterGain.connect(ctx.destination); this.masterGain.connect(this.analyser);
+    this.mix.connect(this.glue); this.glue.connect(this.limiter); this.clip = ctx.createWaveShaper(); { const n = 2048, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1, a = Math.abs(x); c[i] = Math.sign(x) * (a < 0.6 ? a : 0.6 + 0.34 * Math.tanh((a - 0.6) / 0.34)); } this.clip.curve = c; this.clip.oversample = '2x'; } this.limiter.connect(this.clip); this.clip.connect(this.masterGain); this.masterGain.connect(ctx.destination); this.masterGain.connect(this.analyser);
     // reverb send (procedural IR, retuned per track)
     this.reverb = ctx.createConvolver(); this.revSend = g(0.0); this.revReturn = g(0.5); this.bus.sfx.connect(this.revSend); this.bus.voice.connect(this.revSend); this.revSend.connect(this.reverb); this.reverb.connect(this.revReturn); this.revReturn.connect(this.mix); this.setReverb('meadow');
     this.dest = null; this.ready = true;

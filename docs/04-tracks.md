@@ -8,10 +8,10 @@ Lap times are for a Medium-class kart on 150cc with an average-skill driver (len
 
 | # | Track | Cup | Theme | Length | Lap time | 3 laps | Music |
 |---|---|---|---|---|---|---|---|
-| 1 | **Buttercup Meadows** | Seedling Cup | Sunny meadow valley with windmills, sunflower fields and a covered bridge | 1,640 m | 0:51 | 2:34 | 122 BPM C major |
-| 2 | **Lantern Harbor** | Seedling Cup | Night port with paper lanterns, cranes and moored ships | 1,980 m | 1:00 | 3:00 | 126 BPM A minor |
-| 3 | **Mirage Mesa** | Seedling Cup | Desert canyon with sandstone arches and a dry riverbed | 2,240 m | 1:04 | 3:12 | 118 BPM D dorian |
-| 4 | **Frostbite Pass** | Seedling Cup | Snowy mountain pass with an ice cave and a frozen waterfall | 2,060 m | 1:01 | 3:02 | 110 BPM E minor |
+| 1 | **Buttercup Meadows** | Seedling Cup | Sunny meadow valley with windmills, sunflower fields and a covered bridge | 1,650 m (as built) | 0:52 | 2:35 | 122 BPM C major |
+| 2 | **Lantern Harbor** | Seedling Cup | Night port with paper lanterns, cranes and moored ships | 1,980 m (as built) | 1:00 | 3:00 | 126 BPM A minor |
+| 3 | **Mirage Mesa** | Seedling Cup | Desert canyon with sandstone arches and a dry riverbed | 2,232 m (as built) | 1:04 | 3:11 | 118 BPM D dorian |
+| 4 | **Frostbite Pass** | Seedling Cup | Snowy mountain pass with an ice cave and a frozen waterfall | 2,066 m (as built) | 1:01 | 3:02 | 110 BPM E minor |
 | 5 | **Clockwork Quarter** | Copper Cup | Steampunk city with giant gears and brass pipes | 1,320 m | 0:43 | 2:08 | 132 BPM G minor |
 | 6 | **Coral Causeway** | Copper Cup | Underwater glass tunnels over a coral reef | 2,520 m | 1:14 | 3:42 | 116 BPM F lydian |
 | 7 | **Jade Terrace** | Copper Cup | Terraced mountain gardens with stone lanterns and a pagoda | 2,780 m | 1:19 | 3:58 | 104 BPM D pentatonic |
@@ -52,7 +52,7 @@ Shortest track: Rustbelt Rally (1,090 m). Longest: Zenith Ring (3,400 m).
 
 * **Cup:** Seedling Cup
 * **Theme:** Sunny meadow valley with windmills, sunflower fields and a covered bridge
-* **Length:** 1,640 m · **Lap time:** 0:51 · **3 laps:** 2:34
+* **Length:** 1,650 m (measured from the built web slice) · **Lap time:** 0:52 · **3 laps:** 2:35
 * **Signature shortcut:** Hay-bale gap through the sunflower field behind the windmill; rough ground, a boost pad at the entry saves about 2.5 s
 * **Hazard:** Sheep herd crosses the hairpin; a bell rings 2 s before they step out
 * **Landmark:** Giant windmill whose blades sweep over the finish straight
@@ -65,7 +65,7 @@ Shortest track: Rustbelt Rally (1,090 m). Longest: Zenith Ring (3,400 m).
 
 * **Cup:** Seedling Cup
 * **Theme:** Night port with paper lanterns, cranes and moored ships
-* **Length:** 1,980 m · **Lap time:** 1:00 · **3 laps:** 3:00
+* **Length:** 1,980 m (measured from the built web slice) · **Lap time:** 1:00 · **3 laps:** 3:00
 * **Signature shortcut:** Slip through the container row; container doors open and close on a 6 s cycle, a closed door costs a wall bump
 * **Hazard:** Crane loads swing over the dockside straight, shown by a ground shadow 1.2 s early
 * **Landmark:** Lighthouse tower with a rotating beam that lights the track
@@ -78,7 +78,7 @@ Shortest track: Rustbelt Rally (1,090 m). Longest: Zenith Ring (3,400 m).
 
 * **Cup:** Seedling Cup
 * **Theme:** Desert canyon with sandstone arches and a dry riverbed
-* **Length:** 2,240 m · **Lap time:** 1:04 · **3 laps:** 3:12
+* **Length:** 2,232 m (measured from the built web slice) · **Lap time:** 1:04 · **3 laps:** 3:11
 * **Signature shortcut:** Jump the dry riverbed through the twin arch over a sand ramp; needs a mini-turbo to hold speed on the sand
 * **Hazard:** Boulders roll from the canyon wall in the narrows, each telegraphed by a dust puff
 * **Landmark:** Twin Arch rock formation
@@ -91,7 +91,7 @@ Shortest track: Rustbelt Rally (1,090 m). Longest: Zenith Ring (3,400 m).
 
 * **Cup:** Seedling Cup
 * **Theme:** Snowy mountain pass with an ice cave and a frozen waterfall
-* **Length:** 2,060 m · **Lap time:** 1:01 · **3 laps:** 3:02
+* **Length:** 2,066 m (measured from the built web slice) · **Lap time:** 1:01 · **3 laps:** 3:02
 * **Signature shortcut:** Ice-cave tunnel through the mountain; slippery surface unless you hold a drift line
 * **Hazard:** Icicles drop in the cave with a shadow telegraph; ice patches on the outside bend
 * **Landmark:** Frozen waterfall next to a cable car line

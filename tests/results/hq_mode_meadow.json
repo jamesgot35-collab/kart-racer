@@ -1,0 +1,49 @@
+{
+ "track": "meadow",
+ "tCreateMs": 38310,
+ "hqAudio": true,
+ "ctxRate": 48000,
+ "hqBuffers": 217,
+ "totalBuffers": 217,
+ "musicBufs": [
+  [
+   48000,
+   2
+  ],
+  [
+   48000,
+   2
+  ],
+  [
+   48000,
+   2
+  ],
+  [
+   48000,
+   2
+  ],
+  [
+   48000,
+   2
+  ],
+  [
+   48000,
+   2
+  ]
+ ],
+ "texApplied": true,
+ "envApplied": true,
+ "groundMap": [
+  2048,
+  2048
+ ],
+ "normal": true,
+ "roadMap": [
+  2048,
+  4096
+ ],
+ "failed": [],
+ "t": 1.100000000000001,
+ "errors": [],
+ "pass": true
+}

@@ -283,4 +283,5 @@ requestAnimationFrame(frame);
   // test hooks
   if (params.has('autostart')) { setTimeout(async () => { await bootAudio(); app.mode = params.get('mode') || 'quick'; app.cfg.track = params.get('track') || 'meadow'; app.cfg.laps = +(params.get('laps') || 3); startRace(); }, 100); }
 })();
-window.__test = { startRace, show, endRace, toast, centerMsg, input, T, SAVE, setQuality, prefetchHQ };
+import { AI } from './ai.js';
+window.__test = { makeAuto(race) { const k = race.localKart; k.ai = new AI(k, race, 0.92); k.auto = true; }, startRace, show, endRace, toast, centerMsg, input, T, SAVE, setQuality, prefetchHQ };

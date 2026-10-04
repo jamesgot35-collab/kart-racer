@@ -1,6 +1,6 @@
-track meadow race t=3.0 voices=16
-[Parsed_astats_1 @ 0x7fdde8003500] Flat factor: 0.000000
-[Parsed_astats_1 @ 0x7fdde8003500] Peak level dB: -0.406708
-[Parsed_astats_1 @ 0x7fdde8003500] RMS level dB: -16.176866
-[Parsed_astats_1 @ 0x7fdde8003500] Flat factor: 0.000000
-[Parsed_astats_1 @ 0x7fdde8003500] Number of samples: 1198080
+track meadow race t=0.9 voices=14
+[Parsed_astats_1 @ 0x7fae30003500] Flat factor: 0.000000
+[Parsed_astats_1 @ 0x7fae30003500] Peak level dB: -1.427615
+[Parsed_astats_1 @ 0x7fae30003500] RMS level dB: -16.398470
+[Parsed_astats_1 @ 0x7fae30003500] Flat factor: 0.000000
+[Parsed_astats_1 @ 0x7fae30003500] Number of samples: 1920960

@@ -260,7 +260,7 @@ code,pre{background:#eef2f7;border-radius:4px} pre{padding:10px;overflow:auto} c
 <h2>5. Drifting and boost</h2>
 <ol>
 <li><strong>Hop.</strong> Tap the drift button above 17 m/s to hop (small jump, 0.9 m/s upward impulse for feel only). Hold steer left or right to commit to a direction.</li>
-<li><strong>Drift.</strong> While held, the kart slides at up to <strong>32°</strong> between heading and velocity. Steering <em>into</em> the drift multiplies yaw by ×1.25 (tightens), steering <em>against</em> multiplies by ×0.72 (widens). Steer commitment sets the charge rate: full steer charges at ×1.0, no steer at ×0.55.</li>
+<li><strong>Drift.</strong> While held, the kart slides at up to <strong>32°</strong> between heading and velocity. Steering <em>into</em> the drift multiplies yaw by ×1.25 (tightens), steering <em>against</em> multiplies by ×0.72 (widens). Steer commitment sets the charge rate: full steer charges at ×1.0, no steer at ×0.55. The neutral drift yaw rate is <strong>0.62</strong> of the kart's cornering cap (<code>baseYaw × min(1.2·yawMax, 1.35·a_lat/v)</code>), so a drift always carves a slightly wider arc than a normal turn until the player steers into it.</li>
 <li><strong>Charge tiers (seconds of drifting at full commitment):</strong> Blue / Orange / Purple = <strong>0.9 / 1.9 / 3.1</strong> s.</li>
 <li><strong>Release.</strong> Releasing the button fires the boost: <strong>0.8 / 1.5 / 2.3</strong> s at ×<strong>1.14 / 1.22 / 1.3</strong> top speed for tiers 1 to 3.</li>
 <li><strong>Feedback.</strong> Spark colours: blue, orange, purple. Sparks change at each threshold with a rising "tick" tone; tier 3 adds a screen-edge streak and a bass swell. Releasing fires the tiered whoosh and a camera FOV kick.</li>
@@ -3679,9 +3679,9 @@ Barks ─────┴► Voice bus ─────┘   (Voice ducks Music �
 <td><strong>Buttercup Meadows</strong></td>
 <td>Seedling Cup</td>
 <td>Sunny meadow valley with windmills, sunflower fields and a covered bridge</td>
-<td>1,640 m</td>
-<td>0:51</td>
-<td>2:34</td>
+<td>1,650 m (as built)</td>
+<td>0:52</td>
+<td>2:35</td>
 <td>122 BPM C major</td>
 </tr>
 <tr>
@@ -3689,7 +3689,7 @@ Barks ─────┴► Voice bus ─────┘   (Voice ducks Music �
 <td><strong>Lantern Harbor</strong></td>
 <td>Seedling Cup</td>
 <td>Night port with paper lanterns, cranes and moored ships</td>
-<td>1,980 m</td>
+<td>1,980 m (as built)</td>
 <td>1:00</td>
 <td>3:00</td>
 <td>126 BPM A minor</td>
@@ -3699,9 +3699,9 @@ Barks ─────┴► Voice bus ─────┘   (Voice ducks Music �
 <td><strong>Mirage Mesa</strong></td>
 <td>Seedling Cup</td>
 <td>Desert canyon with sandstone arches and a dry riverbed</td>
-<td>2,240 m</td>
+<td>2,232 m (as built)</td>
 <td>1:04</td>
-<td>3:12</td>
+<td>3:11</td>
 <td>118 BPM D dorian</td>
 </tr>
 <tr>
@@ -3709,7 +3709,7 @@ Barks ─────┴► Voice bus ─────┘   (Voice ducks Music �
 <td><strong>Frostbite Pass</strong></td>
 <td>Seedling Cup</td>
 <td>Snowy mountain pass with an ice cave and a frozen waterfall</td>
-<td>2,060 m</td>
+<td>2,066 m (as built)</td>
 <td>1:01</td>
 <td>3:02</td>
 <td>110 BPM E minor</td>
@@ -3898,7 +3898,7 @@ Barks ─────┴► Voice bus ─────┘   (Voice ducks Music �
 <ul>
 <li><strong>Cup:</strong> Seedling Cup</li>
 <li><strong>Theme:</strong> Sunny meadow valley with windmills, sunflower fields and a covered bridge</li>
-<li><strong>Length:</strong> 1,640 m · <strong>Lap time:</strong> 0:51 · <strong>3 laps:</strong> 2:34</li>
+<li><strong>Length:</strong> 1,650 m (measured from the built web slice) · <strong>Lap time:</strong> 0:52 · <strong>3 laps:</strong> 2:35</li>
 <li><strong>Signature shortcut:</strong> Hay-bale gap through the sunflower field behind the windmill; rough ground, a boost pad at the entry saves about 2.5 s</li>
 <li><strong>Hazard:</strong> Sheep herd crosses the hairpin; a bell rings 2 s before they step out</li>
 <li><strong>Landmark:</strong> Giant windmill whose blades sweep over the finish straight</li>
@@ -3911,7 +3911,7 @@ Barks ─────┴► Voice bus ─────┘   (Voice ducks Music �
 <ul>
 <li><strong>Cup:</strong> Seedling Cup</li>
 <li><strong>Theme:</strong> Night port with paper lanterns, cranes and moored ships</li>
-<li><strong>Length:</strong> 1,980 m · <strong>Lap time:</strong> 1:00 · <strong>3 laps:</strong> 3:00</li>
+<li><strong>Length:</strong> 1,980 m (measured from the built web slice) · <strong>Lap time:</strong> 1:00 · <strong>3 laps:</strong> 3:00</li>
 <li><strong>Signature shortcut:</strong> Slip through the container row; container doors open and close on a 6 s cycle, a closed door costs a wall bump</li>
 <li><strong>Hazard:</strong> Crane loads swing over the dockside straight, shown by a ground shadow 1.2 s early</li>
 <li><strong>Landmark:</strong> Lighthouse tower with a rotating beam that lights the track</li>
@@ -3924,7 +3924,7 @@ Barks ─────┴► Voice bus ─────┘   (Voice ducks Music �
 <ul>
 <li><strong>Cup:</strong> Seedling Cup</li>
 <li><strong>Theme:</strong> Desert canyon with sandstone arches and a dry riverbed</li>
-<li><strong>Length:</strong> 2,240 m · <strong>Lap time:</strong> 1:04 · <strong>3 laps:</strong> 3:12</li>
+<li><strong>Length:</strong> 2,232 m (measured from the built web slice) · <strong>Lap time:</strong> 1:04 · <strong>3 laps:</strong> 3:11</li>
 <li><strong>Signature shortcut:</strong> Jump the dry riverbed through the twin arch over a sand ramp; needs a mini-turbo to hold speed on the sand</li>
 <li><strong>Hazard:</strong> Boulders roll from the canyon wall in the narrows, each telegraphed by a dust puff</li>
 <li><strong>Landmark:</strong> Twin Arch rock formation</li>
@@ -3937,7 +3937,7 @@ Barks ─────┴► Voice bus ─────┘   (Voice ducks Music �
 <ul>
 <li><strong>Cup:</strong> Seedling Cup</li>
 <li><strong>Theme:</strong> Snowy mountain pass with an ice cave and a frozen waterfall</li>
-<li><strong>Length:</strong> 2,060 m · <strong>Lap time:</strong> 1:01 · <strong>3 laps:</strong> 3:02</li>
+<li><strong>Length:</strong> 2,066 m (measured from the built web slice) · <strong>Lap time:</strong> 1:01 · <strong>3 laps:</strong> 3:02</li>
 <li><strong>Signature shortcut:</strong> Ice-cave tunnel through the mountain; slippery surface unless you hold a drift line</li>
 <li><strong>Hazard:</strong> Icicles drop in the cave with a shadow telegraph; ice patches on the outside bend</li>
 <li><strong>Landmark:</strong> Frozen waterfall next to a cable car line</li>
@@ -4178,7 +4178,7 @@ Barks ─────┴► Voice bus ─────┘   (Voice ducks Music �
 </tr>
 <tr>
 <td>Tracks</td>
-<td><strong>4</strong>: Buttercup Meadows, Lantern Harbor, Mirage Mesa, Frostbite Pass (a Seedling Cup subset: meadow, harbor night, desert, snow), each with a shortcut and a hazard, 3 laps default</td>
+<td><strong>4</strong>: Buttercup Meadows (1650 m), Lantern Harbor (1980 m), Mirage Mesa (2232 m), Frostbite Pass (2066 m) (a Seedling Cup subset: meadow, harbor night, desert, snow), each with a shortcut and a hazard, 3 laps default</td>
 </tr>
 <tr>
 <td>Multiplayer</td>

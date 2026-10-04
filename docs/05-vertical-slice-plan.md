@@ -9,7 +9,7 @@
 | Characters | **8 playable**: Pip Thistledown (L), Fennel Vix (L), Juniper Wren (L), Bramble Quill (M), Clover Dash (M), Captain Dusk Marlowe (M), Marigold Hoofsworth (H), Gus Gantry (H). Four more free starters appear as CPU rivals (Pearl Quayside, Sage Willowmere, Hobb Mossback, Barnaby Bruin) to fill the 12-kart grid. |
 | Karts | **6 bodies**: Corsa Standard (Cruiser), Needle (Dart), Slidewinder (Drifter), Ironclad (Bruiser), Pogo (Rocket), Pumpkin Coach (Oddball) |
 | Garage | Full: 18 wheel styles × 5 sizes × colours, 12 spoilers, 10 exhausts, 8 bumpers, 32 paint colours × 5 finishes, 24 decals, live stat bars, 3D preview, save/load |
-| Tracks | **4**: Buttercup Meadows, Lantern Harbor, Mirage Mesa, Frostbite Pass (a Seedling Cup subset: meadow, harbor night, desert, snow), each with a shortcut and a hazard, 3 laps default |
+| Tracks | **4**: Buttercup Meadows (1650 m), Lantern Harbor (1980 m), Mirage Mesa (2232 m), Frostbite Pass (2066 m) (a Seedling Cup subset: meadow, harbor night, desert, snow), each with a shortcut and a hazard, 3 laps default |
 | Multiplayer | 4-player code lobbies (6-character code), host settings (track, laps, items, CPU fill), connection status |
 | Items | All 8 items with the exact behaviours in the GDD |
 | Drift boost | Three tiers + start boost |
