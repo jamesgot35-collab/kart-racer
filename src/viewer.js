@@ -19,3 +19,4 @@ window.show = (cfgs) => { // cfgs: [{build, char}] laid out in a grid
 };
 window.showWheels = () => { while (scene.children.length > 4) scene.remove(scene.children[scene.children.length - 1]); DATA.wheels.forEach((w, i) => { const g = buildWheel(w.name, 2, 0xe8edf2, 0.36); g.position.set((i % 6 - 2.5) * 1.3, 0.5 + 1.3 * (2 - Math.floor(i / 6)), 0); g.rotation.y = -0.9; scene.add(g); }); cam.position.set(0, 1.8, 9); cam.lookAt(0, 1.7, 0); renderer.render(scene, cam); };
 window.DATA = DATA; window.ready = true;
+window.defaultBuild = defaultBuild;

@@ -8,7 +8,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = 
 const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(62, 480 / 300, 0.3, 2500);
 const names = DATA.characters.filter(c => c.free).map(c => c.name).slice(0, 12);
 function players(localAuto) {
-  const bodies = DATA.bodies.map(b => b.name); return names.map((n, i) => ({ id: i, name: n, build: { ...defaultBuild(bodies[i % 6]), paint: (i * 5) % 32 }, human: i === 0, local: i === 0, cpu: i !== 0 }));
+  const bodies = DATA.bodies.map(b => b.name); return names.map((n, i) => ({ id: i, name: n, build: { ...defaultBuild(bodies[i % bodies.length]), paint: (i * 5) % 32 }, human: i === 0, local: i === 0, cpu: i !== 0 }));
 }
 let race;
 window.runSim = (trackId, seconds, opts = {}) => {

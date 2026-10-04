@@ -13,6 +13,8 @@
 
 - [07:35 ET] **Speed feel:** (a) tyre skid marks (src/skids.js, one instanced draw call, ring buffer of 520 quads, 200 on Performance tier) laid while any kart drifts/slides/spins on tarmac; (b) speed-lines overlay that fades in near top speed and while boosting/slingshotting (blue on boost), off on the Performance tier; tests: tests/skid_test.mjs (marks generated + close-up shots/skidmarks_closeup.png), tests/speedfx_check.mjs (visible on Standard, hidden on Performance).
 
+- [07:55 ET] **12 kart bodies (was 6):** + Wayfarer (cruiser w/ roof rack), Javelin (dart), Skiff (drifter), Bulwark (bruiser w/ bull-bar), Sparkplug (rocket), Teacup Twister (oddball) - hand-built primitive models with their designed stat lines/prices from the 42-body matrix; CPU rivals now use all 12 bodies; contact sheet `shots/kart_sheet.png` (tests/kart_sheet.mjs). 8-track AI-race sim re-passed with the new bodies. net_node (ALL PASS, incl. new error text) and net_two_peer (PASS) re-run after the net.js changes.
+
 ## READY
 - **Live URL:** https://jamesgot35-collab.github.io/kart-racer/ (GitHub Pages, repo `jamesgot35-collab/kart-racer`). Verified live == local build (md5 of app.js), 0 console errors (tests/results/live_smoke.json).
 - **What it is:** original three.js mobile kart racer "Sparkdrift GP": 4 tracks (Buttercup Meadows, Lantern Harbor, Mirage Mesa, Frostbite Pass), 12 racers, 9 items, 3-tier drift/boost, slipstream, hazards + shortcuts per track, CPU rivals with rubber-banding, garage (kart/wheels/wing/exhaust/bumper/paint), Grand Prix (Seedling Cup), quick race, time trial with ghost, daily challenge (leaderboard is LOCAL to the device), online room-code lobby (up to 4 humans + CPU fill to 12), touch/keyboard/gamepad/tilt controls.

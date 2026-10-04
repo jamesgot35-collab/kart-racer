@@ -1,5 +1,5 @@
 {
- "date": "Sun Oct 04 2026 04:44:55 GMT-0400 (Eastern Daylight Time)",
+ "date": "Sun Oct 04 2026 07:28:12 GMT-0400 (Eastern Daylight Time)",
  "transport": "PeerJS cloud (0.peerjs.com) + real WebRTC data channels via @roamhq/wrtc",
  "pass": true,
  "res": [
@@ -11,12 +11,12 @@
   {
    "name": "host opens room on PeerJS cloud",
    "ok": true,
-   "extra": "PN7UYX "
+   "extra": "4C7YJD "
   },
   {
    "name": "code is 6 valid chars",
    "ok": true,
-   "extra": "PN7UYX"
+   "extra": "4C7YJD"
   },
   {
    "name": "client connects by code (WebRTC data channel open)",
@@ -41,7 +41,7 @@
   {
    "name": "rtt measured",
    "ok": true,
-   "extra": "2 ms"
+   "extra": "1 ms"
   },
   {
    "name": "both apps got startRace",
@@ -71,7 +71,7 @@
   {
    "name": "go broadcast after all loaded",
    "ok": true,
-   "extra": "1101 ms"
+   "extra": "1107 ms"
   },
   {
    "name": "client kart snapshots reach host (20 Hz)",
@@ -116,7 +116,7 @@
   {
    "name": "wrong code gives clear error",
    "ok": true,
-   "extra": "No room with that code. Check the code and ask the host to keep the lobby open."
+   "extra": "No room with that code. Check the code, and ask the host to keep the lobby screen open."
   }
  ]
 }

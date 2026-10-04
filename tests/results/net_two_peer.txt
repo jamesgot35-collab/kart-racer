@@ -1,0 +1,13 @@
+host {"s":"open","c":"HCPN4P","e":""}
+client {"s":"open","e":""}
+members A [[0,"Pip Thistledown",true],[1,"Pip Thistledown",true]] members B [[0,"Pip Thistledown",true],[1,"Pip Thistledown",true]] rtt 4
+both racing
+A race t 5.2 B race t 6.1
+kart1 (client) pos A-view vs B-truth dist(m) 2.31 | kart0 (host) pos B-view vs A-truth dist(m) 3.01
+traffic A {"sent":1548,"recv":1634,"rtt":0} B {"sent":1586,"recv":1597,"rtt":5.200000002980232}
+kart roles A: [[0,"Pip Thistledown","local",-3.1,26.9,37.2],[1,"Pip Thistledown","remote",-15.8,59.1,20.9]]
+kart roles B: [[0,"Pip Thistledown","remote",-2.9,29.9,37],[1,"Pip Thistledown","local",-16,56.8,21.1]]
+after B drops, kart1 on A: {"remote":false,"auth":true,"cpu":true,"hasAI":true}
+RESULT PASS
+A logs  
+B logs 

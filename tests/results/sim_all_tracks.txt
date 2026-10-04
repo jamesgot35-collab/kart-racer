@@ -1,20 +1,20 @@
-PASS meadow - - {"errors":[],"wallMs":4920,"fin":24,"n":24,"spun":0}
-PASS meadow M R {"errors":[],"wallMs":4636,"fin":24,"n":24,"spun":0}
-PASS harbor - - {"errors":[],"wallMs":4657,"fin":24,"n":24,"spun":0}
-PASS harbor M R {"errors":[],"wallMs":4534,"fin":24,"n":24,"spun":0}
-PASS mesa - - {"errors":[],"wallMs":4458,"fin":24,"n":24,"spun":0}
-PASS mesa M R {"errors":[],"wallMs":4711,"fin":24,"n":24,"spun":0}
-PASS frost - - {"errors":[],"wallMs":4555,"fin":24,"n":24,"spun":0}
-PASS frost M R {"errors":[],"wallMs":4165,"fin":24,"n":24,"spun":0}
-PASS dusk - - {"errors":[],"wallMs":4141,"fin":24,"n":24,"spun":0}
-PASS dusk M R {"errors":[],"wallMs":4658,"fin":24,"n":24,"spun":0}
-PASS neon - - {"errors":[],"wallMs":4162,"fin":24,"n":24,"spun":0}
-PASS neon M R {"errors":[],"wallMs":3950,"fin":24,"n":24,"spun":1}
-PASS ember - - {"errors":[],"wallMs":4883,"fin":24,"n":24,"spun":0}
-PASS ember M R {"errors":[],"wallMs":3812,"fin":24,"n":24,"spun":0}
-PASS aurora - - {"errors":[],"wallMs":3944,"fin":24,"n":24,"spun":0}
-PASS aurora M R {"errors":[],"wallMs":4563,"fin":24,"n":24,"spun":0}
+PASS meadow - - {"errors":[],"wallMs":3049,"fin":12,"n":12,"spun":0}
+PASS meadow M R {"errors":[],"wallMs":3123,"fin":12,"n":12,"spun":0}
+PASS harbor - - {"errors":[],"wallMs":3189,"fin":12,"n":12,"spun":0}
+PASS harbor M R {"errors":[],"wallMs":2430,"fin":12,"n":12,"spun":0}
+PASS mesa - - {"errors":[],"wallMs":2487,"fin":12,"n":12,"spun":0}
+PASS mesa M R {"errors":[],"wallMs":2368,"fin":12,"n":12,"spun":0}
+PASS frost - - {"errors":[],"wallMs":2329,"fin":12,"n":12,"spun":0}
+PASS frost M R {"errors":[],"wallMs":2565,"fin":12,"n":12,"spun":0}
+PASS dusk - - {"errors":[],"wallMs":2868,"fin":12,"n":12,"spun":0}
+PASS dusk M R {"errors":[],"wallMs":2297,"fin":12,"n":12,"spun":0}
+PASS neon - - {"errors":[],"wallMs":2616,"fin":12,"n":12,"spun":0}
+PASS neon M R {"errors":[],"wallMs":2784,"fin":12,"n":12,"spun":1}
+PASS ember - - {"errors":[],"wallMs":2540,"fin":12,"n":12,"spun":0}
+PASS ember M R {"errors":[],"wallMs":2411,"fin":12,"n":12,"spun":0}
+PASS aurora - - {"errors":[],"wallMs":3019,"fin":12,"n":12,"spun":0}
+PASS aurora M R {"errors":[],"wallMs":2853,"fin":12,"n":12,"spun":0}
 ALL PASS [
-  'http404: http://localhost:40299/favicon.ico',
+  'http404: http://localhost:33897/favicon.ico',
   'error: Failed to load resource: the server responded with a status of 404 (Not Found)'
 ]

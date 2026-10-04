@@ -326,6 +326,18 @@
 "slice": true
 },
 {
+"name": "Wayfarer",
+"family": "Cruiser",
+"S": 5,
+"A": 6,
+"H": 5,
+"G": 6,
+"W": 5,
+"desc": "Roadster with a small windscreen and a luggage rack",
+"price": 300,
+"slice": true
+},
+{
 "name": "Needle",
 "family": "Dart",
 "S": 9,
@@ -335,6 +347,18 @@
 "W": 3,
 "desc": "Ultra-narrow dart that wants a long straight",
 "price": 600,
+"slice": true
+},
+{
+"name": "Javelin",
+"family": "Dart",
+"S": 8,
+"A": 4,
+"H": 5,
+"G": 5,
+"W": 4,
+"desc": "Spear-nosed racer with a single tail fin",
+"price": 700,
 "slice": true
 },
 {
@@ -350,6 +374,18 @@
 "slice": true
 },
 {
+"name": "Skiff",
+"family": "Drifter",
+"S": 4,
+"A": 4,
+"H": 7,
+"G": 7,
+"W": 3,
+"desc": "Boat-hull kart that glides sideways",
+"price": 650,
+"slice": true
+},
+{
 "name": "Ironclad",
 "family": "Bruiser",
 "S": 7,
@@ -359,6 +395,18 @@
 "W": 10,
 "desc": "Armour-plated brick on tracks, nothing moves it",
 "price": 1000,
+"slice": true
+},
+{
+"name": "Bulwark",
+"family": "Bruiser",
+"S": 6,
+"A": 3,
+"H": 5,
+"G": 8,
+"W": 9,
+"desc": "Shield-nosed tank with side bumpers",
+"price": 1100,
 "slice": true
 },
 {
@@ -374,6 +422,18 @@
 "slice": true
 },
 {
+"name": "Sparkplug",
+"family": "Rocket",
+"S": 4,
+"A": 8,
+"H": 5,
+"G": 5,
+"W": 3,
+"desc": "Compact hot-rod with exposed engine",
+"price": 400,
+"slice": true
+},
+{
 "name": "Pumpkin Coach",
 "family": "Oddball",
 "S": 6,
@@ -383,6 +443,18 @@
 "W": 6,
 "desc": "Carved pumpkin carriage with lantern lights",
 "price": 1000,
+"slice": true
+},
+{
+"name": "Teacup Twister",
+"family": "Oddball",
+"S": 3,
+"A": 6,
+"H": 9,
+"G": 4,
+"W": 2,
+"desc": "Giant spinning teacup that turns on a dime",
+"price": 900,
 "slice": true
 }
 ],

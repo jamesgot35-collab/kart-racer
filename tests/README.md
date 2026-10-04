@@ -26,3 +26,4 @@ Headless Chrome here uses SwiftShader (software GL, ~5-9 fps), so these are corr
 | `settings_check.mjs` | Settings screen renders the Steering assist control and persists the choice | - |
 | `skid_test.mjs` | Skid marks are generated during an AI race and render on the road (close-up screenshot) | `shots/skidmarks_closeup.png` |
 | `speedfx_check.mjs` | Speed-lines overlay shows when boosting (Standard) and is hidden on the Performance tier | `results/speedfx_check.txt`, `shots/speedfx_*.png` |
+| `kart_sheet.mjs` | Contact sheet of all 12 kart bodies | `shots/kart_sheet.png` |

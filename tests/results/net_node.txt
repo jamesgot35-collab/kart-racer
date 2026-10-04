@@ -1,0 +1,24 @@
+PASS room-code alphabet is 20 symbols 
+PASS host opens room on PeerJS cloud 4C7YJD 
+PASS code is 6 valid chars 4C7YJD
+PASS client connects by code (WebRTC data channel open) 
+PASS both lobbies list 2 members A=2 B=2 you=1
+PASS ready flag syncs to host 
+PASS host cfg syncs to client 
+PASS rtt measured 1 ms
+PASS both apps got startRace 
+PASS grid has 12 racers (2 humans + 10 CPU) 12/12
+PASS roles correct 
+PASS app cfg carried to client 
+PASS go not sent until all loaded 
+PASS go broadcast after all loaded 1107 ms
+PASS client kart snapshots reach host (20 Hz) {"x":333,"z":0,"th":0,"phi":0,"s":20,"lap":0}
+PASS host + CPU kart snapshots reach client 0,4,5
+PASS snapshot rate ~20/s A.recv=37 B.recv=39
+PASS item-use event replays on host for remote kart [[1,"disc",true]]
+PASS item-box pickup syncs 
+PASS client drop -> host takes over kart with CPU AI K1 disconnected — CPU takes over
+PASS lobby member removed after drop 
+PASS client notices host leaving 
+PASS wrong code gives clear error No room with that code. Check the code, and ask the host to keep the lobby screen open.
+ALL PASS
